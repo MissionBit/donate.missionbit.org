@@ -1,1 +1,1 @@
-export const APP = "www.missionbit.org";
+export const APP = "donate.missionbit.org";

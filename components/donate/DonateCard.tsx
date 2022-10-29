@@ -21,7 +21,7 @@ import {
   isFrequency,
 } from "src/stripeHelpers";
 import { Stripe } from "@stripe/stripe-js";
-import { Typography, Theme, Collapse } from "@material-ui/core";
+import { Typography, Theme, Collapse, Checkbox } from "@material-ui/core";
 
 const matchEnd = Date.parse("2021-08-01T00:00:00-07:00");
 
@@ -190,7 +190,16 @@ const useStyles = makeStyles((theme) => ({
     border: `1px solid ${brand.lightGray}`,
     padding: theme.spacing(2),
   },
-  margin: {},
+  anonymousLabel: {
+    userSelect: "none",
+    display: "flex",
+  },
+  anonymousCheckbox: {
+    padding: 0,
+  },
+  anonymousCopy: {
+    paddingLeft: theme.spacing(1),
+  },
 }));
 
 async function checkoutDonation(
@@ -263,6 +272,7 @@ export const DonateCard: React.FC<{
   const [frequency, setFrequency] = useState<Frequency>(prefill.frequency);
   const [amountString, setAmountString] = useState<string>(prefill.amount);
   const [loading, setLoading] = useState<boolean>(false);
+  const [anonymous, setAnonymous] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const amountCents = parseCents(amountString);
   const disabled = stripe === null || loading || (amountCents ?? 0) <= 0;
@@ -287,14 +297,19 @@ export const DonateCard: React.FC<{
       }
       try {
         setLoading(true);
-        await checkoutDonation(stripe, amountCents, frequency);
+        await checkoutDonation(
+          stripe,
+          amountCents,
+          frequency,
+          anonymous ? { anonymous: "anonymous" } : {}
+        );
       } catch (err) {
         setLoading(false);
         console.error(err);
         setErrorMessage((err as Error).message);
       }
     },
-    [disabled, stripe, amountCents, frequency]
+    [disabled, stripe, amountCents, frequency, anonymous]
   );
   const [matchAvailable, setMatchAvailable] = useState(false);
   useEffect(() => setMatchAvailable(() => Date.now() < matchEnd), []);
@@ -339,7 +354,7 @@ export const DonateCard: React.FC<{
               </ToggleButton>
             ))}
           </AmountToggleButtonGroup>
-          <FormControl fullWidth className={classes.margin} variant="outlined">
+          <FormControl fullWidth variant="outlined">
             <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
             <OutlinedInput
               id="outlined-adornment-amount"
@@ -359,6 +374,20 @@ export const DonateCard: React.FC<{
               labelWidth={60}
             />
           </FormControl>
+          <InputLabel
+            htmlFor="anonymous-checkbox"
+            className={classes.anonymousLabel}
+          >
+            <Checkbox
+              id="anonymous-checkbox"
+              checked={anonymous}
+              onChange={() => setAnonymous((prev) => !prev)}
+              className={classes.anonymousCheckbox}
+            />
+            <Typography className={classes.anonymousCopy}>
+              Show my name as "Anonymous" to the public
+            </Typography>
+          </InputLabel>
           {errorMessage ? <Typography>{errorMessage}</Typography> : null}
           <IndigoButton
             variant="contained"

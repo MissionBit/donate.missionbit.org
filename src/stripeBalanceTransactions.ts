@@ -75,14 +75,12 @@ async function insertStripeTransactions(
   if (transactions.length === 0) {
     return;
   }
-  console.log(
-    await supabase.from(DB_TABLE_NAME).upsert(
-      transactions.map((row) => ({
-        ...row,
-        created: unixToISOTimestamp(row.created),
-      })),
-      { returning: "minimal", ignoreDuplicates: true }
-    )
+  await supabase.from(DB_TABLE_NAME).upsert(
+    transactions.map((row) => ({
+      ...row,
+      created: unixToISOTimestamp(row.created),
+    })),
+    { returning: "minimal", ignoreDuplicates: true }
   );
 }
 
@@ -110,13 +108,14 @@ export async function getBalanceTransactions(
     ) {
       const metadata = txn.source.metadata;
       const type = "direct";
-      const name =
-        txn.source.billing_details?.name ??
-        ([metadata.user_first_name, metadata.user_last_name]
-          .filter((x) => !!x)
-          .join(" ") ||
-          metadata.user_email) ??
-        null;
+      const name = metadata.anonymous
+        ? "Anonymous"
+        : txn.source.billing_details?.name ??
+          ([metadata.user_first_name, metadata.user_last_name]
+            .filter((x) => !!x)
+            .join(" ") ||
+            metadata.user_email) ??
+          null;
       stripeTransactions.push({
         id: txn.id,
         created: txn.created,

@@ -1,3 +1,7 @@
-# Donate domains
+# Old URL scheme
+/donate / 301!
+/donate/live /live 301!
+/donate/dashboard /dashboard 301!
+
+# Typo domains
 https://donate.missionbit.com/ https://donate.missionbit.org/ 301!
-https://donate.missionbit.org/donate/* https://donate.missionbit.org/:splat 301!
