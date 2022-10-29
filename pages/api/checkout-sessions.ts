@@ -56,8 +56,8 @@ function session_args(
 ): Stripe.Checkout.SessionCreateParams {
   const payment_method_types: Stripe.Checkout.SessionCreateParams.PaymentMethodType[] =
     ["card"];
-  const success_url = `${origin}/donate/result?session_id={CHECKOUT_SESSION_ID}`;
-  const cancel_url = `${origin}/donate/cancel`;
+  const success_url = `${origin}/result?session_id={CHECKOUT_SESSION_ID}`;
+  const cancel_url = `${origin}/cancel`;
   if (frequency === "monthly") {
     return {
       mode: "subscription",

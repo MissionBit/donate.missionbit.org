@@ -142,11 +142,11 @@ function invoiceTemplate({
 }
 
 function legacyGetOrigin(origin?: string): string {
-  // Update any previously used production origin to legacy.missionbit.org,
+  // Update any previously used production origin to donate.missionbit.org,
   // this will allow subscription emails to be routed to the correct place
   return getOrigin(origin).replace(
-    /^https:\/\/(www|donate)\.missionbit\.org$/,
-    "https://legacy.missionbit.org"
+    /^https:\/\/(www|donate|legacy)\.missionbit\.org$/,
+    "https://donate.missionbit.org"
   );
 }
 
@@ -190,11 +190,11 @@ export async function stripeInvoicePaymentEmail(id: string): Promise<void> {
       charge,
       frequency: "monthly",
       failure_message: charge.failure_message,
-      renew_url: `${origin}/donate/${usdFormatter.format(
+      renew_url: `${origin}/${usdFormatter.format(
         charge.amount / 100
       )}?frequency=monthly`,
       subscription_id: subscription.id,
-      subscription_url: `${origin}/donate/subscriptions/${subscription.id}`,
+      subscription_url: `${origin}/subscriptions/${subscription.id}`,
     });
   } else {
     const next = LongDateFormat.format(subscription.current_period_end * 1000);
@@ -204,7 +204,7 @@ export async function stripeInvoicePaymentEmail(id: string): Promise<void> {
       frequency: "monthly",
       monthly: {
         next,
-        url: `${origin}/donate/subscriptions/${subscription.id}`,
+        url: `${origin}/subscriptions/${subscription.id}`,
       },
     });
   }

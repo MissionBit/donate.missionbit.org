@@ -4,7 +4,7 @@ export function getOrigin(origin?: string): string {
   }
   const defaultOrigin =
     process.env.NODE_ENV === "production"
-      ? "https://www.missionbit.org"
+      ? "https://donate.missionbit.org"
       : "http://localhost:3000";
   if (typeof window !== "undefined") {
     return window.location.origin;

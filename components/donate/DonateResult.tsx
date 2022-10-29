@@ -150,7 +150,7 @@ const DonateResult: React.FC<{ sessionInfo: StripeSessionInfo }> = ({
             <>
               <dt>Subscription ID</dt>
               <dd>
-                <a href={`/donate/subscriptions/${subscriptionId}`}>
+                <a href={`/subscriptions/${subscriptionId}`}>
                   {subscriptionId}
                 </a>
               </dd>
