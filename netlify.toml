@@ -11,3 +11,7 @@
 
 [[plugins]]
   package = "@sentry/netlify-build-plugin"
+
+  [plugins.inputs]
+    sentryOrg = "mission-bit"
+    sentryProject = "donatemissionbitorg"
