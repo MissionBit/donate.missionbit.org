@@ -1,0 +1,13 @@
+# See also https://www.npmjs.com/package/@netlify/plugin-nextjs
+[build]
+  command = "npm run build"
+  publish = "out"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[[plugins]]
+  package = "netlify-plugin-cache-nextjs"
+
+[[plugins]]
+  package = "@sentry/netlify-build-plugin"
