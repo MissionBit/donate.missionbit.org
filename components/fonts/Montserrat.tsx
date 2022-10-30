@@ -3,20 +3,19 @@ import Head from "next/head";
 import { makeStyles } from "@material-ui/core/styles";
 
 const WEIGHTS = [
-  { weight: 300, name: "Light" },
   { weight: 400, name: "Regular" },
-  { weight: 500, name: "Bold" },
-  { weight: 700, name: "Black" },
+  { weight: 500, name: "SemiBold" },
+  { weight: 700, name: "Bold" },
 ] as const;
 
 const useStyles = makeStyles({
   "@global": {
     "@font-face": WEIGHTS.map(({ name, weight }) => ({
       src: [
-        `url("/fonts/LatoLatin-${name}.woff2") format("woff2")`,
-        `url("/fonts/LatoLatin-${name}.woff") format("woff")`,
+        `url("/fonts/Montserrat-${name}.woff2") format("woff2")`,
+        `url("/fonts/Montserrat-${name}.woff") format("woff")`,
       ].join(","),
-      fontFamily: "Lato",
+      fontFamily: "Montserrat",
       fontStyle: "normal",
       fontDisplay: "swap",
       fontWeight: weight,
@@ -24,7 +23,7 @@ const useStyles = makeStyles({
   },
 });
 
-export default function Lato(): JSX.Element {
+export default function Montserrat(): JSX.Element {
   useStyles();
   return (
     <Head>
@@ -32,7 +31,7 @@ export default function Lato(): JSX.Element {
         <link
           key={name}
           rel="preload"
-          href={`/fonts/LatoLatin-${name}.woff2`}
+          href={`/fonts/Montserrat-${name}.woff2`}
           as="font"
           crossOrigin=""
         />

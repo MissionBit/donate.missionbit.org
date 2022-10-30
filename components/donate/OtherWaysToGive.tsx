@@ -4,7 +4,7 @@ import { makeStyles, withStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 import Container from "@material-ui/core/Container";
 import FaqItem from "components/FaqItem";
-import { brand } from "src/colors";
+import { ssBrand } from "src/colors";
 import BaseLink from "@material-ui/core/Link";
 import SectionHeading from "./SectionHeading";
 import {
@@ -16,7 +16,8 @@ import {
 } from "src/orgInfo";
 import { INFO_EMAIL, DEVELOPMENT_EMAIL } from "src/emails";
 
-const accentColor = brand.indigo;
+const accentColor = ssBrand.purple;
+const backgroundColor = ssBrand.purple;
 
 const Link = withStyles((theme) => ({
   root: {
@@ -32,7 +33,7 @@ const useStyles = makeStyles((theme) => ({
       paddingTop: theme.spacing(4),
     },
     "& .MuiPaper-root": {
-      backgroundColor: brand.indigo,
+      backgroundColor,
       color: theme.palette.common.white,
     },
     "& .MuiAccordion-root::before": {

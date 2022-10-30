@@ -1,6 +1,6 @@
 import { createTheme } from "@material-ui/core/styles";
 import { red, common } from "@material-ui/core/colors";
-import { brand } from "./colors";
+import { brand, ssBrand } from "./colors";
 
 const commonFontFamilies = [
   "-apple-system",
@@ -15,18 +15,26 @@ const commonFontFamilies = [
   '"Segoe UI Symbol"',
 ];
 
-const baseFontFamily = ["Lato", ...commonFontFamilies].join(",");
-const headerFontFamily = ["Poppins", ...commonFontFamilies].join(",");
-const headerStyles = { fontFamily: headerFontFamily };
-const bigHeaderStyles = { ...headerStyles, color: brand.headingGray };
+const baseFontFamily = ["Montserrat", ...commonFontFamilies].join(",");
+const headerFontFamily = ["Montserrat", ...commonFontFamilies].join(",");
+const headerStyles = {
+  fontFamily: headerFontFamily,
+  color: ssBrand.black,
+  fontWeight: 500,
+};
+const bigHeaderStyles = {
+  ...headerStyles,
+  color: ssBrand.black,
+  fontWeight: 700,
+};
 
 export const themeOptions = {
   palette: {
     primary: {
-      main: brand.orange,
+      main: ssBrand.teal,
     },
     secondary: {
-      main: brand.blue,
+      main: ssBrand.purple,
     },
     error: {
       main: red.A400,
@@ -35,8 +43,8 @@ export const themeOptions = {
       default: common.white,
     },
     text: {
-      primary: brand.darkGray,
-      secondary: brand.headingGray,
+      primary: ssBrand.black,
+      secondary: ssBrand.black,
     },
   },
   typography: {

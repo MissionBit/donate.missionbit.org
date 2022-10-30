@@ -3,17 +3,19 @@ import { makeStyles, withStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
 import clsx from "clsx";
 import IndigoButton from "components/IndigoButton";
-import AdobePdfLogo from "components/gala/brands/AdobePdfLogo";
+import AdobePdfLogo from "components/icons/AdobePdfLogo";
 import { ExtendButtonBase } from "@material-ui/core/ButtonBase";
 import { ButtonTypeMap } from "@material-ui/core/Button";
 import SectionHeading from "./SectionHeading";
 import BodyText from "./BodyText";
+import { ssBrand } from "src/colors";
 
 const LearnMoreButton = withStyles((theme) => ({
   contained: {
     borderRadius: 0,
     padding: theme.spacing(3),
     ...theme.typography.h5,
+    color: ssBrand.white,
     textAlign: "center",
     [theme.breakpoints.up("md")]: {
       display: "block",

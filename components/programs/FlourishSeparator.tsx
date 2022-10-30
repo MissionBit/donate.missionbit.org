@@ -2,7 +2,7 @@ import * as React from "react";
 import { makeStyles } from "@material-ui/core";
 import Box from "@material-ui/core/Box";
 import AsteriskIcon from "components/icons/Asterisk";
-import { brand } from "src/colors";
+import { ssBrand } from "src/colors";
 import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
   },
   icon: {
-    color: brand.orangeFlourish,
+    color: ssBrand.teal,
     margin: theme.spacing(4, 1),
   },
 }));

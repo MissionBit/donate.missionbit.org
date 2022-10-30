@@ -39,8 +39,15 @@ import {
   DonatePrefill,
   parseDonatePrefill,
 } from "components/donate/DonateCard";
+import { ssBrand } from "src/colors";
 
 dayjs.extend(relativeTime);
+
+const backgroundColor = ssBrand.lightGrey;
+const BAR_COLOR = ssBrand.purple;
+const BAR_BACKGROUND = lighten(BAR_COLOR, 0.6);
+const PROGRESS_BORDER = ssBrand.white;
+const PROGRESS_WRAPPER_BORDER = ssBrand.mediumGrey;
 
 const usdFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -62,7 +69,7 @@ const VERTICAL_BREAK = "sm";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: "#c3a3cc",
+    backgroundColor,
     display: "grid",
     height: "100vh",
     maxHeight: "var(--document-height, 100vh)",
@@ -81,7 +88,6 @@ const useStyles = makeStyles((theme) => ({
   donateBanner: {
     position: "absolute",
     bottom: theme.spacing(4),
-    boxShadow: "0px 0px 15px 5px rgba(195, 163, 204, 0.5)",
     backgroundColor: "#fff",
     opacity: 0.9,
     padding: theme.spacing(4, 2),
@@ -117,18 +123,20 @@ const useStyles = makeStyles((theme) => ({
     `,
   },
   donorAmount: {
+    ...theme.typography.h3,
     gridArea: "amount",
     textAlign: "right",
     alignSelf: "center",
   },
   donorName: {
     gridArea: "name",
+    ...theme.typography.h5,
   },
   donorTime: {
     gridArea: "time",
   },
   progressWrapper: {
-    border: "1px solid #dedede",
+    border: `1px solid ${PROGRESS_WRAPPER_BORDER}`,
     borderRadius: "0.5rem",
   },
   progressContainer: {
@@ -154,7 +162,7 @@ const useStyles = makeStyles((theme) => ({
   progress: {
     width: "100%",
     borderRadius: "0.5rem",
-    border: "2px solid #fff",
+    border: `2px solid ${PROGRESS_BORDER}`,
     height: theme.spacing(3),
   },
   "@keyframes pulse": {
@@ -186,14 +194,15 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
   },
   logo: {
+    width: "100%",
     objectFit: "contain",
     marginBottom: theme.spacing(2),
   },
   barColorPrimary: {
-    backgroundColor: "#5A6AC9",
+    backgroundColor: BAR_COLOR,
   },
   colorPrimary: {
-    backgroundColor: lighten("#5A6AC9", 0.6),
+    backgroundColor: BAR_BACKGROUND,
   },
 }));
 
@@ -341,9 +350,13 @@ export function useLiveDashboard(
     (amount, txn) => amount + txn.amount,
     modifications.transactions.reduce((amount, txn) => amount + txn.amount, 0)
   );
+  const goalCents =
+    modifications.allGoalCents.find((v) => v >= totalCents) ??
+    modifications.allGoalCents[modifications.allGoalCents.length - 1] ??
+    modifications.goalCents;
   return {
     goalName: modifications.goalName,
-    goalCents: modifications.goalCents,
+    goalCents,
     campaignCopy: modifications.campaignCopy,
     donors,
     donorCount: donors.length,
@@ -422,8 +435,9 @@ export function useAnimatedGoal(goal: GoalValues): GoalValues {
   const startGoalRef = useRef({ ...goal, totalCents: 0 });
   const animGoalRef = useRef(startGoalRef.current);
   const duration = goalDuration(goal);
+  const isPlaying = !goalEq(goal, startGoalRef.current);
   const { elapsedTime, reset } = useElapsedTime({
-    isPlaying: !goalEq(goal, startGoalRef.current),
+    isPlaying,
     duration,
   });
   useEffect(() => {
@@ -453,6 +467,13 @@ const Goal: React.FC<{
 }> = ({ donorCount, goalName, ...goalValues }) => {
   const classes = useStyles();
   const { goalCents, totalCents } = useAnimatedGoal(goalValues);
+  const prevGoal = useRef(goalCents);
+  useEffect(() => {
+    if (goalCents > prevGoal.current) {
+      console.log("goal updated");
+    }
+    prevGoal.current = goalCents;
+  }, [goalCents]);
   return (
     <Box
       display="flex"
@@ -463,8 +484,11 @@ const Goal: React.FC<{
     >
       <Image
         src={
-          require("public/images/missionbit-logo-horizontal-outline.svg")
-            .default
+          !process.env.USE_NEW_LOGO
+            ? require("public/images/missionbit-logo-horizontal-outline.svg")
+                .default
+            : require("public/images/MissionBit_Logo_Primary_BlackRGB.svg")
+                .default
         }
         alt="Mission Bit logo"
         className={classes.logo}

@@ -1,3 +1,13 @@
+export const ssBrand = {
+  teal: "#7BEFD3",
+  purple: "#4949B4",
+  orange: "#F77D2B",
+  white: "#FFFFFF",
+  lightGrey: "#F7F7F7",
+  mediumGrey: "#EAEAEB",
+  darkGrey: "#393940",
+  black: "#000000",
+};
 export const brand = {
   orange: "#FF962C",
   orangeFlourish: "#FFBA65",

@@ -16,9 +16,13 @@ import { dollars } from "pages/dashboard";
 import SectionHeading from "./SectionHeading";
 import { useBuildTime } from "components/BuildTimeContext";
 import BodyText from "./BodyText";
+import { ssBrand } from "src/colors";
 
 const VERTICAL_BREAK = "sm";
-const BAR_COLOR = "#5A6AC9";
+const BAR_COLOR = ssBrand.purple;
+const BAR_BACKGROUND = lighten(BAR_COLOR, 0.6);
+const PROGRESS_BORDER = ssBrand.white;
+const PROGRESS_WRAPPER_BORDER = ssBrand.mediumGrey;
 
 const useStyles = makeStyles((theme) => ({
   campaign: {
@@ -80,6 +84,9 @@ const useStyles = makeStyles((theme) => ({
   campaignCard: {
     gridArea: "campaignCard",
     paddingTop: theme.spacing(4),
+    [theme.breakpoints.down("sm")]: {
+      padding: 0,
+    },
   },
   makeAnOnlineGift: {
     gridArea: "makeAnOnlineGift",
@@ -109,7 +116,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   progressWrapper: {
-    border: "1px solid #dedede",
+    border: `1px solid ${PROGRESS_WRAPPER_BORDER}`,
     borderRadius: "0.5rem",
     maxWidth: `calc(100vw - ${theme.spacing(4)}px)`,
   },
@@ -135,14 +142,14 @@ const useStyles = makeStyles((theme) => ({
   progress: {
     width: "100%",
     borderRadius: "0.5rem",
-    border: "2px solid #fff",
+    border: `2px solid ${PROGRESS_BORDER}`,
     height: theme.spacing(3),
   },
   barColorPrimary: {
     backgroundColor: BAR_COLOR,
   },
   colorPrimary: {
-    backgroundColor: lighten(BAR_COLOR, 0.6),
+    backgroundColor: BAR_BACKGROUND,
   },
 }));
 

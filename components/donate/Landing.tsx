@@ -1,17 +1,17 @@
 import * as React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
-import { brand } from "src/colors";
+import { ssBrand } from "src/colors";
 import Typography from "@material-ui/core/Typography";
 import clsx from "clsx";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: brand.lightOrange,
+    backgroundColor: ssBrand.mediumGrey,
     width: "100%",
-    padding: theme.spacing(6),
+    padding: theme.spacing(2, 6),
     [theme.breakpoints.down("sm")]: {
-      padding: theme.spacing(6, 2),
+      padding: theme.spacing(2),
       textAlign: "center",
     },
   },
@@ -27,7 +27,6 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   subTitle: {
-    marginTop: theme.spacing(2),
     fontSize: theme.typography.pxToRem(35),
     fontWeight: theme.typography.fontWeightMedium,
     [theme.breakpoints.down("sm")]: {
@@ -44,7 +43,7 @@ export const Landing: React.FC<{ className?: string }> = ({ className }) => {
         Donate<span className={classes.extendedTitle}> to Mission Bit</span>
       </Typography>
       <Typography className={classes.subTitle} color="textSecondary">
-        Help us educate and equip students to pursue opportunities in tech.
+        Help us inspire youth of color to explore the world of STEM.
       </Typography>
     </Box>
   );

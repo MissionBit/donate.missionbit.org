@@ -2,7 +2,7 @@ import * as React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
 import clsx from "clsx";
-import VioletButton from "components/VioletButton";
+import IndigoButton from "components/IndigoButton";
 import { Photo } from "./PhotoFooter";
 import { DONATE_EMAIL } from "src/emails";
 import SectionHeading from "./SectionHeading";
@@ -65,7 +65,7 @@ export const SupportOurWork: React.FC<{ className?: string }> = ({
       </BodyText>
       <Photo photo="1" className={classes.mobilePhoto} />
       <Box className={classes.actions}>
-        <VioletButton
+        <IndigoButton
           href={`mailto:${DONATE_EMAIL}`}
           target="_blank"
           rel="noopener noreferrer"
@@ -74,7 +74,7 @@ export const SupportOurWork: React.FC<{ className?: string }> = ({
           className={classes.button}
         >
           Get in touch with us
-        </VioletButton>
+        </IndigoButton>
       </Box>
     </Box>
   );

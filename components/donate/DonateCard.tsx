@@ -3,7 +3,7 @@ import { alpha, withStyles, makeStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
 import { useStripe } from "@stripe/react-stripe-js";
 import clsx from "clsx";
-import { brand } from "src/colors";
+import { ssBrand } from "src/colors";
 import BaseToggleButton from "@material-ui/lab/ToggleButton";
 import BaseToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 import BaseOutlinedInput from "@material-ui/core/OutlinedInput";
@@ -25,10 +25,13 @@ import { Typography, Theme, Collapse, Checkbox } from "@material-ui/core";
 
 const matchEnd = Date.parse("2021-08-01T00:00:00-07:00");
 
+const brandColor = ssBrand.purple;
+const borderColor = brandColor;
+
 const InputLabel = withStyles({
   root: {
     "&$focused": {
-      color: brand.indigo,
+      color: brandColor,
     },
   },
   focused: {},
@@ -92,16 +95,16 @@ const AmountToggleButtonGroup = withStyles((theme) => ({
 const OutlinedInput = withStyles((theme) => ({
   root: {
     "&:hover $notchedOutline": {
-      borderColor: brand.indigo,
+      borderColor: brandColor,
     },
     // Reset on touch devices, it doesn't add specificity
     "@media (hover: none)": {
       "&:hover $notchedOutline": {
-        borderColor: brand.indigo,
+        borderColor: brandColor,
       },
     },
     "&$focused $notchedOutline": {
-      borderColor: brand.indigo,
+      borderColor: brandColor,
     },
     "&$error $notchedOutline": {
       borderColor: theme.palette.error.main,
@@ -114,23 +117,23 @@ const OutlinedInput = withStyles((theme) => ({
   error: {},
   disabled: {},
   notchedOutline: {
-    borderColor: brand.lightGray,
+    borderColor,
   },
 }))(BaseOutlinedInput);
 
 const ToggleButton = withStyles((theme) => ({
   root: {
-    color: brand.indigo,
-    borderColor: brand.indigo,
+    color: brandColor,
+    borderColor: brandColor,
     "&$selected": {
       color: theme.palette.common.white,
-      backgroundColor: brand.indigo,
+      backgroundColor: brandColor,
       "&:hover": {
-        backgroundColor: alpha(brand.indigo, 0.8),
+        backgroundColor: alpha(brandColor, 0.8),
       },
     },
     "&:hover": {
-      backgroundColor: alpha(brand.indigo, 0.1),
+      backgroundColor: alpha(brandColor, 0.1),
     },
   },
   selected: {},
@@ -156,7 +159,7 @@ const useStyles = makeStyles((theme) => ({
   inputText: mkFontSize(theme, "input"),
   button: {
     ...mkFontSize(theme, "heading"),
-    margin: theme.spacing(2, 0, 0, 0),
+    margin: 0,
   },
   stockButton: {
     ...mkFontSize(theme, "heading"),
@@ -182,12 +185,12 @@ const useStyles = makeStyles((theme) => ({
   heading: {
     ...theme.typography.body1,
     ...mkFontSize(theme, "heading"),
-    backgroundColor: brand.indigo,
+    backgroundColor: brandColor,
     color: theme.palette.common.white,
     padding: theme.spacing(2),
   },
   content: {
-    border: `1px solid ${brand.lightGray}`,
+    border: `1px solid ${borderColor}`,
     padding: theme.spacing(2),
   },
   anonymousLabel: {
@@ -270,7 +273,9 @@ export const DonateCard: React.FC<{
   const classes = useStyles();
   const stripe = useStripe();
   const [frequency, setFrequency] = useState<Frequency>(prefill.frequency);
-  const [amountString, setAmountString] = useState<string>(prefill.amount);
+  const [amountString, setAmountString] = useState<string>(
+    prefill.amount || (prefill.presetAmounts[0] * 0.01).toString()
+  );
   const [loading, setLoading] = useState<boolean>(false);
   const [anonymous, setAnonymous] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);

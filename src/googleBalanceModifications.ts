@@ -21,6 +21,7 @@ export interface BalanceModifications {
   readonly pollTime: number;
   readonly transactions: readonly BalanceModification[];
   readonly goalCents: number;
+  readonly allGoalCents: readonly number[];
   readonly goalName: string;
   readonly campaignCopy: string;
   readonly ignoredTransactions: readonly IgnoredCharge[];
@@ -130,7 +131,7 @@ export async function getBalanceModifications(): Promise<BalanceModifications> {
     await spreadsheetApiRequest(id, [
       "ranges=IgnoredTransactions!A2:B",
       "ranges=Adjustments!A2:E",
-      "ranges=Instructions!A2:D",
+      "ranges=Instructions!A2:J",
       "fields=sheets(properties,data.rowData(values(effectiveValue)))",
     ])
   );
@@ -158,6 +159,7 @@ export async function getBalanceModifications(): Promise<BalanceModifications> {
       });
     }
   }
+  const allGoalCents = [];
   let goalCents = 1000 * 100;
   let goalName = "Mission Bit";
   let campaignCopy = "";
@@ -170,6 +172,11 @@ export async function getBalanceModifications(): Promise<BalanceModifications> {
     const [nameV, amountV] = values;
     if (nameV?.stringValue === "Goal Amount" && amountV?.numberValue) {
       goalCents = Math.floor(100 * amountV.numberValue);
+      allGoalCents.push(
+        ...values.flatMap((v, i) =>
+          i > 0 && v?.numberValue ? [Math.floor(100 * v.numberValue)] : []
+        )
+      );
     } else if (nameV?.stringValue === "Goal Name" && amountV?.stringValue) {
       goalName = amountV.stringValue;
     } else if (
@@ -193,6 +200,7 @@ export async function getBalanceModifications(): Promise<BalanceModifications> {
   return {
     pollTime,
     transactions,
+    allGoalCents: allGoalCents.length > 0 ? allGoalCents : [goalCents],
     goalCents,
     goalName,
     ignoredTransactions,
