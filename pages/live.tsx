@@ -1,6 +1,7 @@
 import { NextPage, GetServerSideProps } from "next";
 import React, {
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -40,6 +41,9 @@ import {
   parseDonatePrefill,
 } from "components/donate/DonateCard";
 import { ssBrand } from "src/colors";
+
+import OldLogo from "public/images/missionbit-logo-horizontal-outline.svg";
+import NewLogo from "public/images/MissionBit_Logo_Primary_BlackRGB_NoMargin.svg";
 
 dayjs.extend(relativeTime);
 
@@ -185,7 +189,8 @@ const useStyles = makeStyles((theme) => ({
   },
   goal: {
     gridArea: "goal",
-    padding: theme.spacing(4, 2),
+    padding: theme.spacing(2),
+    position: "relative",
   },
   goalName: {
     paddingTop: theme.spacing(1),
@@ -194,6 +199,11 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
   },
   logo: {
+    width: "100%",
+    objectFit: "contain",
+    marginBottom: theme.spacing(2),
+  },
+  newLogo: {
     width: "100%",
     objectFit: "contain",
     marginBottom: theme.spacing(2),
@@ -221,6 +231,7 @@ export interface PageProps extends LayoutStaticProps {
   readonly batch?: BalanceTransactionBatch;
   readonly modifications?: BalanceModifications;
   readonly prefill?: DonatePrefill;
+  readonly newLogo?: boolean;
 }
 
 function mergeBatch(
@@ -467,32 +478,28 @@ const Goal: React.FC<{
 }> = ({ donorCount, goalName, ...goalValues }) => {
   const classes = useStyles();
   const { goalCents, totalCents } = useAnimatedGoal(goalValues);
-  const prevGoal = useRef(goalCents);
-  useEffect(() => {
-    if (goalCents > prevGoal.current) {
-      console.log("goal updated");
-    }
-    prevGoal.current = goalCents;
-  }, [goalCents]);
+  const newLogo = useContext(NewLogoContext);
   return (
     <Box
       display="flex"
       alignItems="center"
       flexDirection="column"
-      justifyContent="center"
       className={classes.goal}
     >
-      <Image
-        src={
-          !process.env.USE_NEW_LOGO
-            ? require("public/images/missionbit-logo-horizontal-outline.svg")
-                .default
-            : require("public/images/MissionBit_Logo_Primary_BlackRGB.svg")
-                .default
-        }
-        alt="Mission Bit logo"
-        className={classes.logo}
-      />
+      {newLogo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={NewLogo.src}
+          alt="Mission Bit logo"
+          className={classes.logo}
+        />
+      ) : (
+        <Image
+          src={newLogo ? NewLogo : OldLogo}
+          alt="Mission Bit logo"
+          className={classes.logo}
+        />
+      )}
       <Box display="flex" width="100%" className={classes.progressContainer}>
         <Typography className={classes.progressText}>
           <strong>{dollars(totalCents)}</strong> of {dollars(goalCents)}
@@ -576,7 +583,14 @@ const DonateBanner: React.FC<{}> = () => {
   );
 };
 
-const Page: NextPage<PageProps> = ({ batch, modifications, ...props }) => {
+const NewLogoContext = React.createContext(!!process.env.USE_NEW_LOGO);
+
+const Page: NextPage<PageProps> = ({
+  batch,
+  modifications,
+  newLogo,
+  ...props
+}) => {
   if (batch === undefined || modifications === undefined) {
     return <Error404 {...props} />;
   } else {
@@ -589,11 +603,13 @@ const Page: NextPage<PageProps> = ({ batch, modifications, ...props }) => {
         <Head>
           <meta name="robots" content="noindex" />
         </Head>
-        <LiveDashboard
-          batch={batch}
-          modifications={modifications}
-          simulate={process.env.NODE_ENV === "development"}
-        />
+        <NewLogoContext.Provider value={newLogo ?? false}>
+          <LiveDashboard
+            batch={batch}
+            modifications={modifications}
+            simulate={process.env.NODE_ENV === "development"}
+          />
+        </NewLogoContext.Provider>
       </Layout>
     );
   }
@@ -617,6 +633,8 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
       batch,
       modifications,
       prefill: parseDonatePrefill({ ...ctx.query, ...(ctx.params ?? {}) }),
+      newLogo:
+        "logo" in { ...ctx.query, ...ctx.params } || !!process.env.USE_NEW_LOGO,
     },
   };
 };
