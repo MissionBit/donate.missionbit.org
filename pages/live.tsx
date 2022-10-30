@@ -91,10 +91,9 @@ const useStyles = makeStyles((theme) => ({
   },
   donateBanner: {
     position: "absolute",
-    bottom: theme.spacing(4),
-    backgroundColor: "#fff",
-    opacity: 0.9,
-    padding: theme.spacing(4, 2),
+    bottom: 0,
+    backgroundColor: `${ssBrand.teal}ee`,
+    padding: theme.spacing(2, 2),
     width: "100%",
     ["@media (min-width: 600px) and (max-width: 1149.95px)"]: {
       "& > h1": {
@@ -114,7 +113,8 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   donateBannerText: {
-    animation: `4s ${theme.transitions.easing.easeInOut} infinite $pulse`,
+    animation: `10s ${theme.transitions.easing.easeInOut} infinite $pulse`,
+    color: ssBrand.black,
   },
   donorBubble: {
     display: "grid",
@@ -149,7 +149,7 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   progressText: {
-    fontSize: theme.typography.h4.fontSize,
+    fontSize: theme.typography.h2.fontSize,
     flex: 1,
     marginRight: "1rem",
     [theme.breakpoints.down(VERTICAL_BREAK)]: {
@@ -158,6 +158,7 @@ const useStyles = makeStyles((theme) => ({
   },
   donorCount: {
     textAlign: "right",
+    alignSelf: "center",
     fontSize: theme.typography.h4.fontSize,
     [theme.breakpoints.down(VERTICAL_BREAK)]: {
       textAlign: "center",
@@ -194,7 +195,7 @@ const useStyles = makeStyles((theme) => ({
   },
   goalName: {
     paddingTop: theme.spacing(1),
-    fontSize: theme.typography.h4.fontSize,
+    fontSize: theme.typography.h2.fontSize,
     fontWeight: 500,
     textAlign: "center",
   },
