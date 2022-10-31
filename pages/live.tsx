@@ -168,7 +168,7 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     borderRadius: "0.5rem",
     border: `2px solid ${PROGRESS_BORDER}`,
-    height: theme.spacing(3),
+    height: theme.spacing(8),
   },
   "@keyframes pulse": {
     "0%": {
