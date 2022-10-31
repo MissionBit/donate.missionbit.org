@@ -45,7 +45,12 @@ const useStyles = makeStyles((theme) => ({
 export const LearnMore: React.FC<{ className?: string }> = ({ className }) => {
   const classes = useStyles();
   return (
-    <Box component="section" className={clsx(classes.root, className)}>
+    <Box
+      component="section"
+      className={clsx(classes.root, className)}
+      display="flex"
+      flexDirection="column"
+    >
       <SectionHeading>Learn more</SectionHeading>
       <BodyText>
         Check out our Annual Reports to learn more about our work and impact.

@@ -3,7 +3,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
 import clsx from "clsx";
 import IndigoButton from "components/IndigoButton";
-import { Photo } from "./PhotoFooter";
 import { DONATE_EMAIL } from "src/emails";
 import SectionHeading from "./SectionHeading";
 import BodyText from "./BodyText";
@@ -16,20 +15,6 @@ const useStyles = makeStyles((theme) => ({
     margin: theme.spacing(4, 0),
     [theme.breakpoints.down("sm")]: {
       padding: theme.spacing(0, 4),
-    },
-  },
-  mobilePhoto: {
-    display: "none",
-    [theme.breakpoints.down("sm")]: {
-      display: "flex",
-      marginBottom: theme.spacing(4),
-      width: "auto",
-      maxHeight: "50vh",
-      objectFit: "contain",
-      "& img": {
-        objectFit: "contain",
-        maxHeight: "50vh",
-      },
     },
   },
   button: {
@@ -63,7 +48,6 @@ export const SupportOurWork: React.FC<{ className?: string }> = ({
         and our incredible community. All donations are tax-deductible to the
         extent allowed by IRS guidelines
       </BodyText>
-      <Photo photo="1" className={classes.mobilePhoto} />
       <Box className={classes.actions}>
         <IndigoButton
           href={`mailto:${DONATE_EMAIL}`}
