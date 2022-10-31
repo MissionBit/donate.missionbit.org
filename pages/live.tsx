@@ -196,7 +196,7 @@ const useStyles = makeStyles((theme) => ({
   goalName: {
     paddingTop: theme.spacing(1),
     fontSize: theme.typography.h2.fontSize,
-    fontWeight: 500,
+    fontWeight: 700,
     textAlign: "center",
   },
   logo: {
