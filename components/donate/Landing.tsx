@@ -36,6 +36,9 @@ const useStyles = makeStyles((theme) => ({
       fontSize: theme.typography.pxToRem(16),
     },
   },
+  withLogo: {
+    paddingBottom: 6,
+  },
   newLogoWrapper: {
     position: "relative",
     top: 6,
@@ -50,7 +53,6 @@ function logoScale(
   },
   height: number
 ) {
-  console.log(NewLogo);
   return { src, height, width: height * (src.width / src.height) } as const;
 }
 
@@ -59,7 +61,10 @@ export const Landing: React.FC<{ className?: string }> = ({ className }) => {
   const newLogo = useNewLogo();
   return (
     <Box className={clsx(classes.root, className)}>
-      <Typography variant="h1" className={classes.title}>
+      <Typography
+        variant="h1"
+        className={clsx(classes.title, { [classes.withLogo]: newLogo })}
+      >
         Donate
         {newLogo ? (
           <>

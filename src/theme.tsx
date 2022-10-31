@@ -60,6 +60,13 @@ export const themeOptions = {
     },
   },
   overrides: {
+    MuiInputLabel: {
+      outlined: {
+        "&$shrink": {
+          transform: "translate(11px, -6px) scale(0.75)",
+        },
+      },
+    },
     MuiButton: {
       contained: {
         fontWeight: 700,

@@ -5,17 +5,14 @@ import clsx from "clsx";
 import DonateCard, { DonatePrefill } from "./DonateCard";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
-import SectionHeading from "./SectionHeading";
-
-import Typography from "@material-ui/core/Typography";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    paddingTop: theme.spacing(4),
+    [theme.breakpoints.up("md")]: {
+      paddingTop: theme.spacing(4),
+    },
   },
-  donateCard: {
-    marginTop: theme.spacing(4),
-  },
+  donateCard: {},
   supportSummary: {
     [theme.breakpoints.up("md")]: {
       display: "none",
@@ -46,12 +43,6 @@ export const MakeAnOnlineGift: React.FC<{
   const classes = useStyles();
   return (
     <Box component="section" className={clsx(classes.root, className)}>
-      <SectionHeading>Make an online gift</SectionHeading>
-      <Typography variant="body1" className={classes.supportSummary}>
-        Join us in narrowing the digital divide by making a gift today to ensure
-        that our students continue to have access to our educational experiences
-        and our incredible community.
-      </Typography>
       <Elements stripe={stripePromise}>
         <DonateCard className={classes.donateCard} prefill={prefill} />
       </Elements>

@@ -15,8 +15,8 @@ import { lighten, LinearProgress, Typography } from "@material-ui/core";
 import { dollars } from "pages/dashboard";
 import SectionHeading from "./SectionHeading";
 import { useBuildTime } from "components/BuildTimeContext";
-import BodyText from "./BodyText";
 import { ssBrand } from "src/colors";
+import BodyText from "./BodyText";
 
 const VERTICAL_BREAK = "sm";
 const BAR_COLOR = ssBrand.purple;
@@ -27,12 +27,12 @@ const PROGRESS_WRAPPER_BORDER = ssBrand.mediumGrey;
 const useStyles = makeStyles((theme) => ({
   campaign: {
     gridTemplateAreas: `
-      "campaignCard makeAnOnlineGift"
-      "supportOurWork makeAnOnlineGift"
-      "flourishMiddle flourishMiddle"
-      "learnMore      otherWaysToGive"
-      "flourishBottom flourishBottom"
-      "photoFooter    photoFooter"
+      "campaignCard    makeAnOnlineGift"
+      "learnMore       otherWaysToGive"
+      "flourishMiddle  flourishMiddle"
+      "supportOurWork  supportOurWork"
+      "flourishBottom  flourishBottom"
+      "photoFooter     photoFooter"
       `,
     [theme.breakpoints.down("sm")]: {
       gridTemplateAreas: `
@@ -84,8 +84,19 @@ const useStyles = makeStyles((theme) => ({
   campaignCard: {
     gridArea: "campaignCard",
     paddingTop: theme.spacing(4),
-    [theme.breakpoints.down("sm")]: {
+    [theme.breakpoints.down(VERTICAL_BREAK)]: {
       padding: 0,
+    },
+  },
+  campaignCopy: {
+    [theme.breakpoints.down(VERTICAL_BREAK)]: {
+      padding: theme.spacing(0, 2),
+    },
+  },
+  goalName: {
+    [theme.breakpoints.down(VERTICAL_BREAK)]: {
+      fontSize: "2rem",
+      padding: theme.spacing(0, 2),
     },
   },
   makeAnOnlineGift: {
@@ -110,11 +121,6 @@ const useStyles = makeStyles((theme) => ({
       margin: 0,
     },
   },
-  campaignCopy: {
-    [theme.breakpoints.down("sm")]: {
-      padding: theme.spacing(0, 2),
-    },
-  },
   progressWrapper: {
     border: `1px solid ${PROGRESS_WRAPPER_BORDER}`,
     borderRadius: "0.5rem",
@@ -127,8 +133,8 @@ const useStyles = makeStyles((theme) => ({
   },
   progressText: {
     fontSize: theme.typography.h4.fontSize,
-    flex: 1,
     [theme.breakpoints.down(VERTICAL_BREAK)]: {
+      fontSize: theme.typography.h5.fontSize,
       textAlign: "center",
     },
   },
@@ -136,6 +142,7 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "right",
     fontSize: theme.typography.h4.fontSize,
     [theme.breakpoints.down(VERTICAL_BREAK)]: {
+      fontSize: theme.typography.h6.fontSize,
       textAlign: "center",
     },
   },
@@ -150,6 +157,11 @@ const useStyles = makeStyles((theme) => ({
   },
   colorPrimary: {
     backgroundColor: BAR_BACKGROUND,
+  },
+  goalText: {
+    [theme.breakpoints.down(VERTICAL_BREAK)]: {
+      display: "none",
+    },
   },
 }));
 
@@ -172,11 +184,11 @@ function CampaignCard(props: {
       display="flex"
       alignItems="center"
       flexDirection="column"
-      justifyContent="center"
     >
-      <SectionHeading>{goalName}</SectionHeading>
+      <SectionHeading className={classes.goalName}>{goalName}</SectionHeading>
       <Typography className={classes.progressText}>
-        <strong>{dollars(totalCents)}</strong> of {dollars(goalCents)} Goal
+        <strong>{dollars(totalCents)}</strong> of {dollars(goalCents)}
+        <span className={classes.goalText}> Goal</span>
       </Typography>
       <Box
         display="flex"

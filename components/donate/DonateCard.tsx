@@ -185,6 +185,7 @@ const useStyles = makeStyles((theme) => ({
   heading: {
     ...theme.typography.body1,
     ...mkFontSize(theme, "heading"),
+    fontWeight: 700,
     backgroundColor: brandColor,
     color: theme.palette.common.white,
     padding: theme.spacing(2),
@@ -202,6 +203,11 @@ const useStyles = makeStyles((theme) => ({
   },
   anonymousCopy: {
     paddingLeft: theme.spacing(1),
+  },
+  toThePublic: {
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
   },
 }));
 
@@ -321,7 +327,7 @@ export const DonateCard: React.FC<{
 
   return (
     <Box className={clsx(classes.root, className)}>
-      <Box className={classes.heading}>Choose amount</Box>
+      <Box className={classes.heading}>Donate Online</Box>
       <Box className={classes.content}>
         <Collapse in={matchAvailable}>
           <Box className={classes.match}>
@@ -390,7 +396,8 @@ export const DonateCard: React.FC<{
               className={classes.anonymousCheckbox}
             />
             <Typography className={classes.anonymousCopy}>
-              Show my name as "Anonymous" to the public
+              Show my name as "Anonymous"
+              <span className={classes.toThePublic}> to the public</span>
             </Typography>
           </InputLabel>
           {errorMessage ? <Typography>{errorMessage}</Typography> : null}
