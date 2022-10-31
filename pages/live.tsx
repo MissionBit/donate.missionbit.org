@@ -1,7 +1,6 @@
 import { NextPage, GetServerSideProps } from "next";
 import React, {
   useCallback,
-  useContext,
   useEffect,
   useMemo,
   useRef,
@@ -44,6 +43,11 @@ import { ssBrand } from "src/colors";
 
 import OldLogo from "public/images/missionbit-logo-horizontal-outline.svg";
 import NewLogo from "public/images/MissionBit_Logo_Primary_BlackRGB_NoMargin.svg";
+import {
+  NewLogoContext,
+  newLogoFromQuery,
+  useNewLogo,
+} from "components/NewLogoContext";
 
 dayjs.extend(relativeTime);
 
@@ -479,7 +483,7 @@ const Goal: React.FC<{
 }> = ({ donorCount, goalName, ...goalValues }) => {
   const classes = useStyles();
   const { goalCents, totalCents } = useAnimatedGoal(goalValues);
-  const newLogo = useContext(NewLogoContext);
+  const newLogo = useNewLogo();
   return (
     <Box
       display="flex"
@@ -584,8 +588,6 @@ const DonateBanner: React.FC<{}> = () => {
   );
 };
 
-const NewLogoContext = React.createContext(!!process.env.USE_NEW_LOGO);
-
 const Page: NextPage<PageProps> = ({
   batch,
   modifications,
@@ -634,8 +636,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
       batch,
       modifications,
       prefill: parseDonatePrefill({ ...ctx.query, ...(ctx.params ?? {}) }),
-      newLogo:
-        "logo" in { ...ctx.query, ...ctx.params } || !!process.env.USE_NEW_LOGO,
+      newLogo: newLogoFromQuery({ ...ctx.query, ...ctx.params }),
     },
   };
 };
