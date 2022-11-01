@@ -11,19 +11,21 @@ function eventbriteAuth() {
 const web = new WebClient(token);
 
 async function handleOrderPlaced(api_url: string): Promise<void> {
-  const order = await fetch(`${api_url}?expand=event`, {
+  const order = await fetch(`${api_url}?expand=event,attendees`, {
     headers: eventbriteAuth(),
   }).then((res) => res.json());
-  const { id, name, email, costs, event } = order;
+  const { id, costs, event, attendees } = order;
 
   const text = [
-    `${event.name.text} order #${id} (${costs.base_price.display})`,
-    `Name: ${name}`,
-    `Email: ${email}`,
+    `${event.name.text} order <https://www.eventbrite.com/reports?eid=${event.id}&rid=h&filterby=all,${id}|#${id}> (${costs.base_price.display})`,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...attendees.map((v: any) => `* ${v.profile.name} (${v.profile.email})`),
   ].join("\n");
   await web.chat.postMessage({
     channel: "#eventbrite",
     text,
+    unfurl_links: false,
+    unfurl_media: false,
   });
 }
 
