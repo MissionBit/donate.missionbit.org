@@ -159,6 +159,8 @@ These environment variables are used by APIs on the site:
 * `STRIPE_PK_TEST` - Publishable key for testing (PR builds)
 * `STRIPE_SK_TEST` - Secret key for testing (PR builds)
 * `STRIPE_WEBHOOK_SIGNING_SECRET_TEST` - Webhook signing key for testing (PR builds)
+* `EVENTBRITE_TOKEN` - An Eventbrite API key "Private token" for processing webhooks
+* `SLACK_TOKEN` - A Slack token for processing Eventbrite webhooks
 
 The webhook for Stripe should be at `https://donate.missionbit.org/api/webhook` for the following event types:
 

@@ -39,6 +39,7 @@
     "@material-ui/lab": "^4.0.0-alpha.56",
     "@sendgrid/mail": "^7.2.5",
     "@sentry/browser": "^6.3.5",
+    "@slack/web-api": "^6.7.2",
     "@stripe/react-stripe-js": "^1.6.0",
     "@stripe/stripe-js": "^1.21.2",
     "@types/micro": "^7.3.3",
