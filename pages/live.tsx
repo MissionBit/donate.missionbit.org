@@ -209,7 +209,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(2),
   },
   newLogo: {
-    width: "100%",
+    width: "30%",
     objectFit: "contain",
     marginBottom: theme.spacing(2),
   },
@@ -496,7 +496,7 @@ const Goal: React.FC<{
         <img
           src={NewLogo.src}
           alt="Mission Bit logo"
-          className={classes.logo}
+          className={classes.newLogo}
         />
       ) : (
         <Image
