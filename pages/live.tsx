@@ -209,7 +209,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(2),
   },
   newLogo: {
-    width: "30%",
+    width: "50%",
     objectFit: "contain",
     marginBottom: theme.spacing(2),
   },
