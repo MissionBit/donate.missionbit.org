@@ -153,20 +153,26 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   progressText: {
-    fontSize: theme.typography.h2.fontSize,
+    fontSize: "7rem",
     flex: 1,
-    marginRight: "1rem",
-    [theme.breakpoints.down(VERTICAL_BREAK)]: {
-      textAlign: "center",
-    },
+    display: "grid",
+    gridTemplateColumns: "1fr 0.1fr 1fr",
+  },
+  progressTotal: {
+    textAlign: "left",
+  },
+  progressOf: {
+    textAlign: "center",
+    fontSize: "5rem",
+    alignSelf: "center",
+  },
+  progressGoal: {
+    textAlign: "right",
   },
   donorCount: {
     textAlign: "right",
     alignSelf: "center",
-    fontSize: theme.typography.h4.fontSize,
-    [theme.breakpoints.down(VERTICAL_BREAK)]: {
-      textAlign: "center",
-    },
+    fontSize: theme.typography.h2.fontSize,
   },
   progress: {
     width: "100%",
@@ -505,12 +511,18 @@ const Goal: React.FC<{
           className={classes.logo}
         />
       )}
-      <Box display="flex" width="100%" className={classes.progressContainer}>
+      <Box
+        display="flex"
+        width="100%"
+        justifyContent="center"
+        className={classes.progressContainer}
+      >
         <Typography className={classes.progressText}>
-          <strong>{dollars(totalCents)}</strong> of {dollars(goalCents)}
-        </Typography>
-        <Typography className={classes.donorCount}>
-          {donorCount} {donorCount === 1 ? "Donor" : "Donors"}
+          <strong className={classes.progressTotal}>
+            {dollars(totalCents)}
+          </strong>
+          <span className={classes.progressOf}>of</span>
+          <span className={classes.progressGoal}>{dollars(goalCents)}</span>
         </Typography>
       </Box>
       <Box
@@ -529,6 +541,16 @@ const Goal: React.FC<{
           variant="determinate"
           value={Math.min(100, 100 * (totalCents / goalCents))}
         />
+      </Box>
+      <Box
+        display="flex"
+        width="100%"
+        justifyContent="flex-end"
+        className={classes.progressContainer}
+      >
+        <Typography className={classes.donorCount}>
+          {donorCount} {donorCount === 1 ? "Donor" : "Donors"}
+        </Typography>
       </Box>
       <Typography className={classes.goalName}>{goalName}</Typography>
     </Box>
