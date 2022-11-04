@@ -4,8 +4,7 @@ import Box from "@material-ui/core/Box";
 import { ssBrand } from "src/colors";
 import Typography from "@material-ui/core/Typography";
 import clsx from "clsx";
-import { useNewLogo } from "components/NewLogoContext";
-import NewLogo from "public/images/MissionBit_Logo_Primary_BlackRGB_NoMargin.svg";
+import Logo from "public/images/MissionBit_Logo_Primary_BlackRGB_NoMargin.svg";
 import Image from "next/image";
 
 const useStyles = makeStyles((theme) => ({
@@ -39,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
   withLogo: {
     paddingBottom: 6,
   },
-  newLogoWrapper: {
+  logoWrapper: {
     position: "relative",
     top: 6,
   },
@@ -58,25 +57,16 @@ function logoScale(
 
 export const Landing: React.FC<{ className?: string }> = ({ className }) => {
   const classes = useStyles();
-  const newLogo = useNewLogo();
   return (
     <Box className={clsx(classes.root, className)}>
       <Typography
         variant="h1"
-        className={clsx(classes.title, { [classes.withLogo]: newLogo })}
+        className={clsx(classes.title, classes.withLogo)}
       >
-        Donate
-        {newLogo ? (
-          <>
-            {" "}
-            to{" "}
-            <span className={classes.newLogoWrapper}>
-              <Image {...logoScale(NewLogo, 60)} />
-            </span>
-          </>
-        ) : (
-          <span className={classes.extendedTitle}> to Mission Bit</span>
-        )}
+        Donate to{" "}
+        <span className={classes.logoWrapper}>
+          <Image {...logoScale(Logo, 60)} alt="Mission Bit" />
+        </span>
       </Typography>
       <Typography className={classes.subTitle} color="textSecondary">
         Help us inspire youth of color to explore the world of STEM.

@@ -361,7 +361,7 @@ export const DonateCard: React.FC<{
           >
             {prefill.presetAmounts.map((cents) => (
               <ToggleButton key={cents} value={cents}>
-                ${(cents / 100).toFixed(0)}
+                {formatCents(cents)}
               </ToggleButton>
             ))}
           </AmountToggleButtonGroup>

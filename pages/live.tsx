@@ -33,21 +33,13 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import Collapse from "@material-ui/core/Collapse";
 import Link from "@material-ui/core/Link";
-import Image from "next/image";
 import { getOrigin } from "src/absoluteUrl";
 import {
   DonatePrefill,
   parseDonatePrefill,
 } from "components/donate/DonateCard";
 import { ssBrand } from "src/colors";
-
-import OldLogo from "public/images/missionbit-logo-horizontal-outline.svg";
-import NewLogo from "public/images/MissionBit_Logo_Primary_BlackRGB_NoMargin.svg";
-import {
-  NewLogoContext,
-  newLogoFromQuery,
-  useNewLogo,
-} from "components/NewLogoContext";
+import Logo from "public/images/MissionBit_Logo_Primary_BlackRGB_NoMargin.svg";
 
 dayjs.extend(relativeTime);
 
@@ -210,11 +202,6 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
   },
   logo: {
-    width: "100%",
-    objectFit: "contain",
-    marginBottom: theme.spacing(2),
-  },
-  newLogo: {
     width: "50%",
     objectFit: "contain",
     marginBottom: theme.spacing(2),
@@ -242,7 +229,6 @@ export interface PageProps extends LayoutStaticProps {
   readonly batch?: BalanceTransactionBatch;
   readonly modifications?: BalanceModifications;
   readonly prefill?: DonatePrefill;
-  readonly newLogo?: boolean;
 }
 
 function mergeBatch(
@@ -489,7 +475,6 @@ const Goal: React.FC<{
 }> = ({ donorCount, goalName, ...goalValues }) => {
   const classes = useStyles();
   const { goalCents, totalCents } = useAnimatedGoal(goalValues);
-  const newLogo = useNewLogo();
   return (
     <Box
       display="flex"
@@ -497,20 +482,8 @@ const Goal: React.FC<{
       flexDirection="column"
       className={classes.goal}
     >
-      {newLogo ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={NewLogo.src}
-          alt="Mission Bit logo"
-          className={classes.newLogo}
-        />
-      ) : (
-        <Image
-          src={newLogo ? NewLogo : OldLogo}
-          alt="Mission Bit logo"
-          className={classes.logo}
-        />
-      )}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={Logo.src} alt="Mission Bit logo" className={classes.logo} />
       <Box
         display="flex"
         width="100%"
@@ -610,12 +583,7 @@ const DonateBanner: React.FC<{}> = () => {
   );
 };
 
-const Page: NextPage<PageProps> = ({
-  batch,
-  modifications,
-  newLogo,
-  ...props
-}) => {
+const Page: NextPage<PageProps> = ({ batch, modifications, ...props }) => {
   if (batch === undefined || modifications === undefined) {
     return <Error404 {...props} />;
   } else {
@@ -628,13 +596,11 @@ const Page: NextPage<PageProps> = ({
         <Head>
           <meta name="robots" content="noindex" />
         </Head>
-        <NewLogoContext.Provider value={newLogo ?? false}>
-          <LiveDashboard
-            batch={batch}
-            modifications={modifications}
-            simulate={process.env.NODE_ENV === "development"}
-          />
-        </NewLogoContext.Provider>
+        <LiveDashboard
+          batch={batch}
+          modifications={modifications}
+          simulate={process.env.NODE_ENV === "development"}
+        />
       </Layout>
     );
   }
@@ -658,7 +624,6 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
       batch,
       modifications,
       prefill: parseDonatePrefill({ ...ctx.query, ...(ctx.params ?? {}) }),
-      newLogo: newLogoFromQuery({ ...ctx.query, ...ctx.params }),
     },
   };
 };
