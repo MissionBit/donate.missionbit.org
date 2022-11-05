@@ -22,6 +22,7 @@ import {
 } from "src/stripeHelpers";
 import { Stripe } from "@stripe/stripe-js";
 import { Typography, Theme, Collapse, Checkbox } from "@material-ui/core";
+import dollars from "src/dollars";
 
 const matchEnd = Date.parse("2021-08-01T00:00:00-07:00");
 
@@ -361,7 +362,7 @@ export const DonateCard: React.FC<{
           >
             {prefill.presetAmounts.map((cents) => (
               <ToggleButton key={cents} value={cents}>
-                {formatCents(cents)}
+                {dollars(cents)}
               </ToggleButton>
             ))}
           </AmountToggleButtonGroup>

@@ -12,7 +12,7 @@ import { DEFAULT_PREFILL, DonatePrefill } from "./DonateCard";
 import { BalanceProps, useAnimatedGoal, useLiveDashboard } from "pages/live";
 import clsx from "clsx";
 import { lighten, LinearProgress, Typography } from "@material-ui/core";
-import { dollars } from "pages/dashboard";
+import dollars from "src/dollars";
 import SectionHeading from "./SectionHeading";
 import { useBuildTime } from "components/BuildTimeContext";
 import { ssBrand } from "src/colors";

@@ -26,17 +26,7 @@ import getBalanceModifications, {
 import Button from "@material-ui/core/Button";
 import Box from "@material-ui/core/Box";
 import Container from "@material-ui/core/Container";
-
-const usdFormatter = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-  minimumFractionDigits: 0,
-});
-
-export function dollars(cents: number): string {
-  return usdFormatter.format(Math.floor(0.01 * cents));
-}
+import dollars from "src/dollars";
 
 const useStyles = makeStyles((theme) => ({
   table: {},

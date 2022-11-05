@@ -40,6 +40,7 @@ import {
 } from "components/donate/DonateCard";
 import { ssBrand } from "src/colors";
 import Logo from "public/images/MissionBit_Logo_Primary_BlackRGB_NoMargin.svg";
+import dollars from "src/dollars";
 
 dayjs.extend(relativeTime);
 
@@ -49,20 +50,9 @@ const BAR_BACKGROUND = lighten(BAR_COLOR, 0.6);
 const PROGRESS_BORDER = ssBrand.white;
 const PROGRESS_WRAPPER_BORDER = ssBrand.mediumGrey;
 
-const usdFormatter = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-  maximumFractionDigits: 0,
-  minimumFractionDigits: 0,
-});
-
 function easeOutCubic(t: number, b: number, c: number, d: number): number {
   const x = t / d - 1;
   return c * (x * x * x + 1) + b;
-}
-
-function dollars(cents: number) {
-  return usdFormatter.format(Math.floor(0.01 * cents));
 }
 
 const VERTICAL_BREAK = "sm";

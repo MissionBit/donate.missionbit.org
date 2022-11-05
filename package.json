@@ -17,7 +17,8 @@
     "analyze": "cross-env ANALYZE=true next build",
     "analyze:server": "cross-env BUNDLE_ANALYZE=server next build",
     "analyze:browser": "cross-env BUNDLE_ANALYZE=browser next build",
-    "postinstall": "husky install"
+    "postinstall": "husky install",
+    "tsx": "tsx"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix"
@@ -79,6 +80,7 @@
     "@typescript-eslint/eslint-plugin": "^4.22.1",
     "@typescript-eslint/parser": "^4.22.1",
     "cross-env": "^7.0.2",
+    "dotenv": "^16.0.3",
     "eslint": "^7.8.1",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.2.0",
@@ -93,6 +95,7 @@
     "lint-staged": "^11.1.2",
     "prettier": "^2.1.1",
     "ts-jest": "^27.0.5",
+    "tsx": "^3.11.0",
     "typescript": "^4.4.3"
   },
   "resolutions": {
