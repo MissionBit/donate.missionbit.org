@@ -1,7 +1,6 @@
 import { NextApiHandler } from "next";
 import Stripe from "stripe";
 import getStripe from "src/getStripe";
-import getStripeKey from "src/getStripeKey";
 import { buffer, RequestHandler } from "micro";
 import Cors from "micro-cors";
 import {
@@ -9,11 +8,12 @@ import {
   stripeCheckoutSessionCompletedPaymentSync,
   stripeInvoicePaymentSync,
 } from "src/salesforce";
+import requireEnv from "src/requireEnv";
 
 const stripe = getStripe();
 
-const STRIPE_WEBHOOK_SIGNING_SECRET = getStripeKey(
-  "STRIPE_WEBHOOK_SIGNING_SECRET"
+const STRIPE_WEBHOOK_SIGNING_SECRET = requireEnv(
+  "STRIPE_WEBHOOK_SIGNING_SECRET_SALESFORCE"
 );
 
 function eventObject<T extends Stripe.Event.Data.Object & { id: string }>(

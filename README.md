@@ -156,6 +156,7 @@ These environment variables are used by APIs on the site:
 * `STRIPE_PK_LIVE` - Publishable key for missionbit.org
 * `STRIPE_SK_LIVE` - Secret key for missionbit.org
 * `STRIPE_WEBHOOK_SIGNING_SECRET_LIVE` - Webhook signing key for missionbit.org
+* `STRIPE_WEBHOOK_SIGNING_SECRET_SALESFORCE` - Webhook signing secret for the Salesforce hooks
 * `STRIPE_PK_TEST` - Publishable key for testing (PR builds)
 * `STRIPE_SK_TEST` - Secret key for testing (PR builds)
 * `STRIPE_WEBHOOK_SIGNING_SECRET_TEST` - Webhook signing key for testing (PR builds)

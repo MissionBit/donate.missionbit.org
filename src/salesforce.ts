@@ -56,20 +56,7 @@ import Stripe from "stripe";
 import { stripeCustomerIdFromCharge } from "./stripeSessionInfo";
 import nameParser from "another-name-parser";
 import dollars from "./dollars";
-
-function expectString(value: unknown, message?: string): string {
-  if (typeof value !== "string") {
-    throw new TypeError(message ?? "Expected string");
-  }
-  return value;
-}
-
-function requireEnv(key: string): string {
-  return expectString(
-    process.env[key],
-    `Required environment variable ${key} missing`
-  );
-}
+import requireEnv from "./requireEnv";
 
 export interface OAuthToken {
   readonly access_token: string;
