@@ -18,7 +18,7 @@
     "analyze:server": "cross-env BUNDLE_ANALYZE=server next build",
     "analyze:browser": "cross-env BUNDLE_ANALYZE=browser next build",
     "postinstall": "husky install",
-    "tsx": "tsx"
+    "tsx": "NODE_OPTIONS='--loader tsx -r dotenv/config' STRIPE_KEY_POSTFIX=_LIVE node"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix"
@@ -45,6 +45,7 @@
     "@stripe/stripe-js": "^1.21.2",
     "@types/micro": "^7.3.3",
     "@types/micro-cors": "^0.1.1",
+    "another-name-parser": "^0.0.9",
     "clsx": "^1.1.1",
     "cross-fetch": "^3.0.6",
     "dayjs": "^1.8.35",

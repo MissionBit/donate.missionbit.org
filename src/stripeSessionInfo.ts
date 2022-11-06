@@ -105,6 +105,14 @@ export function stripeSessionInfoFromCharge(
   };
 }
 
+export function stripeCustomerIdFromCharge(charge: Stripe.Charge): string {
+  const { customer } = charge;
+  if (!customer) {
+    throw new TypeError(`Expecting non-null customer for charge ${charge.id}`);
+  }
+  return typeof customer === "string" ? customer : customer.id;
+}
+
 export function stripeSessionInfo(
   session: Stripe.Checkout.Session
 ): StripeSessionInfo {

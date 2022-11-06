@@ -208,12 +208,15 @@ SENDGRID_API_KEY=REDACTED
 
 ## Salesforce Notes
 
-* Create an API Only User https://help.salesforce.com/s/articleView?id=000386144&type=1
 * Create a Sandbox
 * Create API Only User profile
-* Create API user
+* Create API Only user https://help.salesforce.com/s/articleView?id=000386144&type=1
 * Create the App in the sandbox
 * Client Credentials flow https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_client_credentials_flow.htm&type=5&language=en_US
+* Create Stripe_Customer_ID custom field on Contact
+* Create Stripe_Charge_ID custom field on Opportunity
+* Create Stripe_Subscription_ID custom field on Recurring Donation
+* Update Page Layouts for Contact, Opportunity, Recurring Donation
 
 ```bash
 npx @salesforce/cli login org --instance-url=https://missionbit--stripedev.sandbox.my.salesforce.com --set-default

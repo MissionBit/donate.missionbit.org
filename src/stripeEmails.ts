@@ -14,7 +14,7 @@ import { getOrigin } from "src/absoluteUrl";
 import { APP } from "./stripeMetadata";
 
 const sg = getSendGrid();
-const stripe = getStripe();
+export const stripe = getStripe();
 
 const EMAIL_TEMPLATES = {
   receipt: "d-7e5e6a89f9284d2ab01d6c1e27a180f8",
@@ -93,10 +93,10 @@ function emailTemplateData({
   };
 }
 
-export async function stripeCheckoutSessionCompletedPaymentEmail(
-  id: string
-): Promise<void> {
-  const session = await stripe.checkout.sessions.retrieve(id, {
+export async function fetchSessionPaymentIntent(
+  sessionId: string
+): Promise<Stripe.PaymentIntent> {
+  const session = await stripe.checkout.sessions.retrieve(sessionId, {
     expand: ["payment_intent"],
   });
   if (session.mode !== "payment") {
@@ -109,6 +109,13 @@ export async function stripeCheckoutSessionCompletedPaymentEmail(
       `Expecting expanded payment_intent: ${JSON.stringify(payment_intent)}`
     );
   }
+  return payment_intent;
+}
+
+export async function stripeCheckoutSessionCompletedPaymentEmail(
+  id: string
+): Promise<void> {
+  const payment_intent = await fetchSessionPaymentIntent(id);
   const appMetadata = payment_intent.metadata?.app ?? null;
   if (appMetadata !== APP) {
     console.log(
@@ -126,7 +133,7 @@ export async function stripeCheckoutSessionCompletedPaymentEmail(
   });
 }
 
-function invoiceTemplate({
+export function invoiceTemplate({
   status,
   billing_reason,
 }: Stripe.Invoice): "receipt" | "failure" | null {
@@ -150,21 +157,23 @@ function legacyGetOrigin(origin?: string): string {
   );
 }
 
-export async function stripeInvoicePaymentEmail(id: string): Promise<void> {
-  const invoice = await stripe.invoices.retrieve(id, {
+export type ExpandedInvoice = Stripe.Response<Stripe.Invoice> & {
+  payment_intent: Stripe.PaymentIntent;
+  subscription: Stripe.Subscription;
+};
+
+export async function fetchInvoiceWithPaymentIntent(
+  invoiceId: string
+): Promise<ExpandedInvoice> {
+  const invoice = await stripe.invoices.retrieve(invoiceId, {
     expand: ["subscription", "payment_intent"],
   });
-  const template = invoiceTemplate(invoice);
-  if (template === null) {
-    console.log(
-      `Skipping invoice ${invoice.id} with billing_reason ${invoice.billing_reason} and status ${invoice.status}`
-    );
-    return;
-  }
-  const subscription = invoice.subscription;
-  if (typeof subscription !== "object" || subscription === null) {
+  if (
+    typeof invoice.subscription !== "object" ||
+    invoice.subscription === null
+  ) {
     throw new Error(
-      `Expecting expanded subcription ${JSON.stringify(invoice)}`
+      `Expecting expanded subcription ${JSON.stringify(invoice.subscription)}`
     );
   }
   if (
@@ -175,6 +184,19 @@ export async function stripeInvoicePaymentEmail(id: string): Promise<void> {
       `Expecting expanded payment_intent ${JSON.stringify(invoice)}`
     );
   }
+  return invoice as ExpandedInvoice;
+}
+
+export async function stripeInvoicePaymentEmail(id: string): Promise<void> {
+  const invoice = await fetchInvoiceWithPaymentIntent(id);
+  const template = invoiceTemplate(invoice);
+  if (template === null) {
+    console.log(
+      `Skipping invoice ${invoice.id} with billing_reason ${invoice.billing_reason} and status ${invoice.status}`
+    );
+    return;
+  }
+  const { subscription } = invoice;
   const subscriptionOrigin = subscription.metadata.origin;
   if (!subscriptionOrigin) {
     console.log(
