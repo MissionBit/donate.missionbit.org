@@ -63,6 +63,7 @@
     "smoothscroll-polyfill": "^0.4.4",
     "stripe": "^8.191.0",
     "ts-debounce": "^3.0.0",
+    "us": "^2.0.0",
     "use-elapsed-time": "^3.0.2",
     "webp-loader": "^0.6.0"
   },

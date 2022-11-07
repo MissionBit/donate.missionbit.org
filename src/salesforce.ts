@@ -1,47 +1,3 @@
-/*
-
-contact:
-FirstName
-LastName
-Email
-
-$contact = current(Client::query("SELECT Id FROM Contact WHERE Id = '$contactId'")->records);
-
-$encodedEmail = urlencode($contactEmail);
-$contact = current(Client::query("SELECT Id FROM Contact WHERE Email = '$encodedEmail'")->records);
-
-$contactId = $this->getIdByEmail($contactEmail);
-if (!$contactId) {
-  $contactId = $this->getIdByFullName($contactName);
-}
-
-$encodedName = urlencode($contactName);
-$contact = current(Client::query("SELECT Id FROM Contact WHERE Name = '$encodedName'")->records);
-
-        // make sure contact ID still exists
-        if ($contactId) {
-            $contactRecordId = $this->getId($contactId);
-        } else {
-            $contactRecordId = $this->searchForContact($email, "$firstName $lastName");
-        }
-
-        // create a new contact if necessary
-        if (!$contactRecordId) {
-            $contact = $this->create(
-                $firstName,
-                $lastName,
-                $email
-            );
-
-            $contactRecordId = $contact->id;
-        }
-
-        return $contactRecordId;
-
-
-
-
-*/
 import * as dotenv from "dotenv";
 dotenv.config();
 
@@ -57,6 +13,7 @@ import { stripeCustomerIdFromCharge } from "./stripeSessionInfo";
 import nameParser from "another-name-parser";
 import dollars from "./dollars";
 import requireEnv from "./requireEnv";
+import us from "us";
 
 export interface OAuthToken {
   readonly access_token: string;
@@ -141,7 +98,13 @@ export function sObject<SObject extends keyof Schema>(
     create: (body) =>
       client.req(prefix, { method: "POST", body }).then(async (res) => {
         if (!res.ok) {
-          throw new Error(`Failed to create ${sObject}: ${await res.text()}`);
+          throw new Error(
+            `Failed to create ${sObject}: ${await res.text()}\n${JSON.stringify(
+              body,
+              null,
+              2
+            )}`
+          );
         }
         return res.json();
       }),
@@ -318,6 +281,9 @@ interface ContactResult {
   AccountId: NonNullable<Contact["AccountId"]>;
 }
 
+const expandState = (state?: string | undefined | null): string | undefined =>
+  state ? us.states[state]?.name : undefined;
+
 export async function createOrFetchContactFromCharge(
   client: SalesforceClient,
   charge: Stripe.Charge
@@ -416,7 +382,7 @@ export async function createOrFetchContactFromCharge(
           ["Phone", phone],
           ["Preferred_Name_Nickname__c", charge.billing_details.name],
           ["MailingCity", address?.city],
-          ["MailingState", address?.state],
+          ["MailingState", expandState(address?.state)],
           ["MailingCountryCode", address?.country],
           ["MailingPostalCode", address?.postal_code],
           [
