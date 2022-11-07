@@ -515,6 +515,14 @@ export async function stripeCheckoutSessionCompletedPaymentSync(
   await createOrFetchOpportunityFromCharge(client, charge);
 }
 
+export async function stripeChargeSync(
+  client: SalesforceClient,
+  chargeId: string
+): Promise<void> {
+  const charge = await stripe.charges.retrieve(chargeId);
+  await createOrFetchOpportunityFromCharge(client, charge);
+}
+
 export async function stripeInvoicePaymentSync(
   client: SalesforceClient,
   invoiceId: string

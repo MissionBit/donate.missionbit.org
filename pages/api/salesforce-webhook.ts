@@ -3,11 +3,7 @@ import Stripe from "stripe";
 import getStripe from "src/getStripe";
 import { buffer, RequestHandler } from "micro";
 import Cors from "micro-cors";
-import {
-  login,
-  stripeCheckoutSessionCompletedPaymentSync,
-  stripeInvoicePaymentSync,
-} from "src/salesforce";
+import { login, stripeChargeSync } from "src/salesforce";
 import requireEnv from "src/requireEnv";
 
 const stripe = getStripe();
@@ -24,28 +20,9 @@ function eventObject<T extends Stripe.Event.Data.Object & { id: string }>(
   return obj;
 }
 
-async function stripeCheckoutSessionCompleted(event: Stripe.Event) {
-  const session: Stripe.Checkout.Session = eventObject(event);
-  if (session.mode === "payment") {
-    await stripeCheckoutSessionCompletedPaymentSync(await login(), session.id);
-    // track_donation(
-    //     metadata=payment_intent.metadata, frequency="one-time", charge=charge
-    // )
-  }
-}
-
-async function stripeInvoicePaymentSucceeded(event: Stripe.Event) {
-  const obj: Stripe.Invoice = eventObject(event);
-  await stripeInvoicePaymentSync(await login(), obj.id);
-  // track_donation(metadata=subscription.metadata, frequency="monthly", charge=charge)
-}
-
-async function stripeInvoicePaymentFailed(event: Stripe.Event) {
-  const obj: Stripe.Invoice = eventObject(event);
-  await stripeInvoicePaymentSync(await login(), obj.id);
-  // track_invoice_failure(
-  //     metadata=subscription.metadata, frequency="monthly", charge=charge
-  // )
+async function stripeChargeSucceeded(event: Stripe.Event) {
+  const obj: Stripe.Charge = eventObject(event);
+  await stripeChargeSync(await login(), obj.id);
 }
 
 async function defaultHandler(event: Stripe.Event) {
@@ -53,9 +30,10 @@ async function defaultHandler(event: Stripe.Event) {
 }
 
 const HANDLERS: { [k: string]: (event: Stripe.Event) => Promise<void> } = {
-  "checkout.session.completed": stripeCheckoutSessionCompleted,
-  "invoice.payment_succeeded": stripeInvoicePaymentSucceeded,
-  "invoice.payment_failed": stripeInvoicePaymentFailed,
+  // "checkout.session.completed": stripeCheckoutSessionCompleted,
+  // "invoice.payment_succeeded": stripeInvoicePaymentSucceeded,
+  // "invoice.payment_failed": stripeInvoicePaymentFailed,
+  "charge.succeeded": stripeChargeSucceeded,
 };
 
 export const config = {
