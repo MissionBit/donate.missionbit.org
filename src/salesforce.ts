@@ -284,18 +284,42 @@ interface ContactResult {
 const expandState = (state?: string | undefined | null): string | undefined =>
   state ? us.states[state]?.name : undefined;
 
+const metadataName = (
+  metadata: Stripe.Charge["metadata"]
+): ReturnType<typeof nameParser> | null =>
+  metadata.user_first_name && metadata.user_last_name
+    ? {
+        first: metadata.user_first_name,
+        last: metadata.user_last_name,
+        middle: null,
+        suffix: null,
+        prefix: null,
+        original: `${metadata.user_first_name} ${metadata.user_last_name}`,
+      }
+    : null;
+
 export async function createOrFetchContactFromCharge(
   client: SalesforceClient,
   charge: Stripe.Charge
 ): Promise<ContactResult> {
   const stripeCustomerId = stripeCustomerIdFromCharge(charge);
-  const email = charge.billing_details.email;
+  const email =
+    charge.metadata.Email ??
+    charge.metadata.email ??
+    charge.metadata.user_email ??
+    charge.billing_details.email;
   if (!email) {
-    throw new Error(`Expecting non-null email for charge ${charge.id}`);
+    throw new Error(
+      `Expecting non-null email for charge ${charge.id}\n${JSON.stringify(
+        charge,
+        null,
+        2
+      )}`
+    );
   }
-  const parsedName = nameParser(
-    charge.billing_details.name ?? email.split("@")[0]
-  );
+  const parsedName =
+    metadataName(charge.metadata) ??
+    nameParser(charge.billing_details.name ?? email.split("@")[0]);
   const phone = charge.billing_details.phone;
   const clauses = [
     soql`Stripe_Customer_ID__c = ${stripeCustomerId}`,
@@ -383,8 +407,13 @@ export async function createOrFetchContactFromCharge(
           ["Preferred_Name_Nickname__c", charge.billing_details.name],
           ["MailingCity", address?.city],
           ["MailingState", expandState(address?.state)],
-          ["MailingCountryCode", address?.country],
-          ["MailingPostalCode", address?.postal_code],
+          ["MailingCountryCode", charge.metadata.country ?? address?.country],
+          [
+            "MailingPostalCode",
+            charge.metadata.postal_code ??
+              charge.metadata.zip_code ??
+              address?.postal_code,
+          ],
           [
             "MailingStreet",
             [address?.line1, address?.line2].filter(Boolean).join("\n"),

@@ -21,8 +21,8 @@ async function handleOrderPlaced(api_url: string): Promise<void> {
 
   const text = [
     `${event.name.text} order <https://www.eventbrite.com/reports?eid=${event.id}&rid=h&filterby=all,${id}|#${id}> (${costs.base_price.display})`,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ...attendees.map(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (v: any) =>
         `- ${v.profile.name} (${v.profile.email})${
           v.promotional_code ? ` | _${v.promotional_code.code}_` : ""
