@@ -144,7 +144,7 @@ export const client = ({
 };
 
 export async function login(): Promise<SalesforceClient> {
-  const apiVersion = requireEnv("SALESFORCE_REST_API_VERSION");
+  const apiVersion = "v56.0";
   const instanceUrl: string = requireEnv("SALESFORCE_INSTANCE_URL");
   const url = `${instanceUrl}/services/oauth2/token`;
   const body = new URLSearchParams(

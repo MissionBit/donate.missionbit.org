@@ -10,7 +10,7 @@ const MONTHLY_PLAN_ID = "mb-monthly-001";
 const stripe = getStripe();
 
 const MIN_AMOUNT = 1 * 100;
-const MAX_AMOUNT = 10000 * 100;
+const MAX_AMOUNT = 1000000 * 100;
 
 interface PostBody {
   amount: number;

@@ -3,9 +3,9 @@ import { GetStaticProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import Head from "next/head";
-import { ThemeProvider } from "@material-ui/core/styles";
+import { Theme, ThemeProvider } from "@material-ui/core/styles";
 import CssBaseline from "@material-ui/core/CssBaseline";
-import theme from "src/theme";
+import defaultTheme from "src/theme";
 import GoogleAnalytics from "./GoogleAnalytics";
 import absoluteUrl from "src/absoluteUrl";
 import { BuildTimeContext } from "./BuildTimeContext";
@@ -22,6 +22,7 @@ export interface LayoutProps extends LayoutStaticProps {
   requireDocumentSize?: boolean;
   canonicalPath?: string;
   origin?: string;
+  theme?: Theme;
 }
 
 const DEFAULT_DESCRIPTION =
@@ -44,6 +45,7 @@ export const Layout: React.FC<LayoutProps> = ({
   buildTime,
   canonicalPath,
   origin,
+  theme = defaultTheme,
   requireDocumentSize = false,
 }) => {
   useEffect(() => {

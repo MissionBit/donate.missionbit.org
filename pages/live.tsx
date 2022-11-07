@@ -17,7 +17,7 @@ import Error404 from "pages/404";
 import getBalanceTransactions, {
   BalanceTransactionBatch,
 } from "src/stripeBalanceTransactions";
-import { lighten, makeStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 
 import getBalanceModifications, {
   BalanceModifications,
@@ -39,14 +39,15 @@ import {
   parseDonatePrefill,
 } from "components/donate/DonateCard";
 import { ssBrand } from "src/colors";
-import Logo from "public/images/MissionBit_Logo_Primary_BlackRGB_NoMargin.svg";
+import Logo from "components/MissionBitLogo";
 import dollars from "src/dollars";
+import liveTheme from "src/liveTheme";
 
 dayjs.extend(relativeTime);
 
-const backgroundColor = ssBrand.lightGrey;
-const BAR_COLOR = ssBrand.purple;
-const BAR_BACKGROUND = lighten(BAR_COLOR, 0.6);
+const backgroundColor = ssBrand.purple;
+const BAR_COLOR = ssBrand.orange;
+const BAR_BACKGROUND = ssBrand.purple;
 const PROGRESS_BORDER = ssBrand.white;
 const PROGRESS_WRAPPER_BORDER = ssBrand.mediumGrey;
 
@@ -64,8 +65,10 @@ const useStyles = makeStyles((theme) => ({
     height: "100vh",
     maxHeight: "var(--document-height, 100vh)",
     gridTemplateColumns: "2fr 1fr",
+    gridTemplateRows: "1fr min-content",
     gridTemplateAreas: `
       "goal donors"
+      "banner banner"
     `,
     [theme.breakpoints.down(VERTICAL_BREAK)]: {
       gridTemplateColumns: "1fr",
@@ -76,31 +79,16 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   donateBanner: {
-    position: "absolute",
-    bottom: 0,
-    backgroundColor: `${ssBrand.teal}ee`,
+    gridArea: "banner",
+    backgroundColor: ssBrand.black,
     padding: theme.spacing(2, 2),
-    width: "100%",
-    ["@media (min-width: 600px) and (max-width: 1149.95px)"]: {
-      "& > h1": {
-        fontSize: "3em",
-      },
-    },
     [theme.breakpoints.down(VERTICAL_BREAK)]: {
-      display: "flex",
-      position: "absolute",
-      bottom: "0",
-      padding: theme.spacing(2, 0),
-      alignItems: "center",
-      justifyContent: "center",
-      "& > h1": {
-        fontSize: "2em",
-      },
+      display: "none",
     },
   },
   donateBannerText: {
     animation: `10s ${theme.transitions.easing.easeInOut} infinite $pulse`,
-    color: ssBrand.black,
+    color: ssBrand.white,
   },
   donorBubble: {
     display: "grid",
@@ -109,7 +97,6 @@ const useStyles = makeStyles((theme) => ({
     gridAutoColumns: "auto",
     gridTemplateAreas: `
       "name amount"
-      "time amount"
     `,
   },
   donorAmount: {
@@ -120,10 +107,8 @@ const useStyles = makeStyles((theme) => ({
   },
   donorName: {
     gridArea: "name",
-    ...theme.typography.h5,
-  },
-  donorTime: {
-    gridArea: "time",
+    ...theme.typography.h4,
+    alignSelf: "center",
   },
   progressWrapper: {
     border: `1px solid ${PROGRESS_WRAPPER_BORDER}`,
@@ -146,6 +131,7 @@ const useStyles = makeStyles((theme) => ({
   progressOf: {
     textAlign: "center",
     fontSize: "5rem",
+    padding: theme.spacing(0, 2),
     alignSelf: "center",
   },
   progressGoal: {
@@ -184,8 +170,10 @@ const useStyles = makeStyles((theme) => ({
     gridArea: "goal",
     padding: theme.spacing(2),
     position: "relative",
+    justifyContent: "center",
   },
   goalName: {
+    display: "none",
     paddingTop: theme.spacing(1),
     fontSize: theme.typography.h2.fontSize,
     fontWeight: 700,
@@ -195,6 +183,7 @@ const useStyles = makeStyles((theme) => ({
     width: "50%",
     objectFit: "contain",
     marginBottom: theme.spacing(2),
+    color: ssBrand.white,
   },
   barColorPrimary: {
     backgroundColor: BAR_COLOR,
@@ -472,8 +461,7 @@ const Goal: React.FC<{
       flexDirection="column"
       className={classes.goal}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={Logo.src} alt="Mission Bit logo" className={classes.logo} />
+      <Logo className={classes.logo} />
       <Box
         display="flex"
         width="100%"
@@ -524,16 +512,10 @@ const Donors: React.FC<{
   readonly transactions: readonly CommonTransaction[];
 }> = ({ transactions }) => {
   const classes = useStyles();
-  const [now, setNow] = useState(dayjs);
   const [appear, setAppear] = useState(false);
   useEffect(() => {
     setAppear(true);
   }, []);
-  useEffect(() => {
-    const interval = setInterval(() => setNow(dayjs()), 30 * 1000);
-    return () => clearInterval(interval);
-  }, []);
-  useEffect(() => setNow(dayjs()), [transactions]);
   return (
     <Box className={classes.donors}>
       {transactions.slice(0, 15).map(({ name, amount, created }) => (
@@ -547,9 +529,6 @@ const Donors: React.FC<{
             <Typography className={classes.donorName}>{name}</Typography>
             <Typography className={classes.donorAmount}>
               {dollars(amount)}
-            </Typography>
-            <Typography className={classes.donorTime}>
-              {dayjs(1000 * created).from(now)}
             </Typography>
           </Paper>
         </Collapse>
@@ -580,6 +559,7 @@ const Page: NextPage<PageProps> = ({ batch, modifications, ...props }) => {
     return (
       <Layout
         {...props}
+        theme={liveTheme}
         requireDocumentSize={true}
         title={modifications.goalName}
       >
