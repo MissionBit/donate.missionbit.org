@@ -57,6 +57,7 @@ function easeOutCubic(t: number, b: number, c: number, d: number): number {
 }
 
 const VERTICAL_BREAK = "sm";
+const HIGH_BREAK = 1900;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -89,6 +90,9 @@ const useStyles = makeStyles((theme) => ({
   donateBannerText: {
     animation: `10s ${theme.transitions.easing.easeInOut} infinite $pulse`,
     color: ssBrand.white,
+    [theme.breakpoints.down(HIGH_BREAK)]: {
+      fontSize: "3rem",
+    },
   },
   donorBubble: {
     display: "grid",
@@ -104,11 +108,17 @@ const useStyles = makeStyles((theme) => ({
     gridArea: "amount",
     textAlign: "right",
     alignSelf: "center",
+    [theme.breakpoints.down(HIGH_BREAK)]: {
+      fontSize: "2rem",
+    },
   },
   donorName: {
     gridArea: "name",
     ...theme.typography.h4,
     alignSelf: "center",
+    [theme.breakpoints.down(HIGH_BREAK)]: {
+      fontSize: "1.5rem",
+    },
   },
   progressWrapper: {
     border: `1px solid ${PROGRESS_WRAPPER_BORDER}`,
@@ -124,6 +134,9 @@ const useStyles = makeStyles((theme) => ({
     flex: 1,
     display: "grid",
     gridTemplateColumns: "1fr 0.1fr 1fr",
+    [theme.breakpoints.down(HIGH_BREAK)]: {
+      fontSize: "4rem",
+    },
   },
   progressTotal: {
     textAlign: "left",
@@ -133,6 +146,9 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "5rem",
     padding: theme.spacing(0, 2),
     alignSelf: "center",
+    [theme.breakpoints.down(HIGH_BREAK)]: {
+      fontSize: "3rem",
+    },
   },
   progressGoal: {
     textAlign: "right",
@@ -141,6 +157,9 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "right",
     alignSelf: "center",
     fontSize: theme.typography.h2.fontSize,
+    [theme.breakpoints.down(HIGH_BREAK)]: {
+      fontSize: "3rem",
+    },
   },
   progress: {
     width: "100%",
