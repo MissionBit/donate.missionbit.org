@@ -92,21 +92,25 @@ export const Layout: React.FC<LayoutProps> = ({
           content={description ?? DEFAULT_DESCRIPTION}
         />
         <meta name="description" content={description ?? DEFAULT_DESCRIPTION} />
+        <link rel="icon" type="image/svg+xml" sizes="any" href="/favicon.svg" />
+        <link
+          rel="apple-touch-icon"
+          sizes="180x180"
+          href="/apple-touch-icon.png"
+        />
         <link
           rel="icon"
-          type="image/svg+xml"
-          sizes="any"
-          href="/images/icon128.svg"
+          type="image/png"
+          sizes="32x32"
+          href="/favicon-32x32.png"
         />
-        {[256, 128, 64].map((size) => (
-          <link
-            key={size}
-            rel="icon"
-            href={`/images/icon${size}.png`}
-            sizes={`${size}x${size}`}
-            type="image/png"
-          />
-        ))}
+        <link
+          rel="icon"
+          type="image/png"
+          sizes="16x16"
+          href="/favicon-16x16.png"
+        />
+        <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#4949B4" />
       </Head>
       <GoogleAnalytics />
       <ThemeProvider theme={theme}>
