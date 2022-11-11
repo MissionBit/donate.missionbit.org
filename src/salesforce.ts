@@ -324,11 +324,13 @@ export async function createOrFetchContactFromCharge(
   const clauses = [
     soql`Stripe_Customer_ID__c = ${stripeCustomerId}`,
     soql`Email = ${email}`,
-    soql`Name = ${parsedName.original}`,
+    parsedName.last && parsedName.first
+      ? soql`(FirstName LIKE ${parsedName.first + "%"} AND LastName = ${
+          parsedName.last
+        })`
+      : soql`Name = ${parsedName.original}`,
+    ...(phone ? [soql`Phone = ${phone}`] : []),
   ];
-  if (phone !== null) {
-    clauses.push(soql`Phone = ${phone}`);
-  }
   const { records } = await sQuery<ContactSearchResult>(
     client,
     `SELECT Id, AccountId, Stripe_Customer_ID__c, Email, Phone, FirstName, LastName, Donor__c FROM Contact WHERE ${clauses.join(
@@ -393,7 +395,7 @@ export async function createOrFetchContactFromCharge(
       throw new Error(`Expecting AccountId for existing contact ${contactId}`);
     }
     console.log(
-      `Found contact ${records[0].Id} for Customer ${stripeCustomerId}`
+      `Found existing contact ${contactId} account ${existingContact.AccountId} for Customer ${stripeCustomerId}`
     );
     return { ContactId: contactId, AccountId: existingContact.AccountId };
   } else {

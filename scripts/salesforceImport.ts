@@ -6,7 +6,7 @@ import { getStripe } from "src/getStripe";
 import dollars from "src/dollars";
 
 async function main(): Promise<void> {
-  const IMPORT_BEGIN_DATE = process.env.IMPORT_BEGIN_DATE ?? "2022-04-01";
+  const IMPORT_BEGIN_DATE = process.env.IMPORT_BEGIN_DATE ?? "2022-11-01";
   if (process.env.STRIPE_KEY_POSTFIX !== "_LIVE") {
     throw new Error("Expecting _LIVE Stripe key");
   }
