@@ -42,6 +42,7 @@ import { ssBrand } from "src/colors";
 import Logo from "components/MissionBitLogo";
 import dollars from "src/dollars";
 import liveTheme from "src/liveTheme";
+import Embellishment from "public/images/Embellishment_2_Teal_RGB.png";
 
 dayjs.extend(relativeTime);
 
@@ -185,11 +186,21 @@ const useStyles = makeStyles((theme) => ({
     gridArea: "donors",
     overflow: "hidden",
   },
+  embellishment: {
+    position: "absolute",
+    left: Embellishment.width * 0,
+    bottom: Embellishment.width * -0.15,
+    width: Embellishment.width * 0.6,
+    height: Embellishment.height * 0.6,
+  },
   goal: {
     gridArea: "goal",
     padding: theme.spacing(2),
     position: "relative",
     justifyContent: "center",
+    [":where(& > *)"]: {
+      position: "relative",
+    },
   },
   goalName: {
     display: "none",
@@ -480,6 +491,7 @@ const Goal: React.FC<{
       flexDirection="column"
       className={classes.goal}
     >
+      <img src={Embellishment.src} alt="" className={classes.embellishment} />
       <Logo className={classes.logo} />
       <Box
         display="flex"
