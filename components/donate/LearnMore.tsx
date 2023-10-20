@@ -57,6 +57,14 @@ export const LearnMore: React.FC<{ className?: string }> = ({ className }) => {
       </BodyText>
       <LearnMoreButton
         variant="contained"
+        href="https://drive.google.com/file/d/1XBikbf_Rg0zi7duY32c2aI-fVcGTnIw5/view"
+        target="_blank"
+        size="large"
+      >
+        <AdobePdfLogo fontSize="small" /> 2022 Annual Report
+      </LearnMoreButton>
+      <LearnMoreButton
+        variant="contained"
         href="https://drive.google.com/file/d/13-yocY29Y06J4UWOXUyujvt3ufwnBDxV/view"
         target="_blank"
         size="large"
