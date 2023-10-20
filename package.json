@@ -54,8 +54,7 @@
     "micro-cors": "^0.1.1",
     "mjml": "^4.6.3",
     "mjml-react": "^2.0.0",
-    "next": "^11.1.2",
-    "next-compose-plugins": "^2.2.0",
+    "next": "^12.3.4",
     "query-string": "^7.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
@@ -69,7 +68,6 @@
   },
   "devDependencies": {
     "@netlify/plugin-nextjs": "^4.28.3",
-    "@next/bundle-analyzer": "^11.1.2",
     "@next/eslint-plugin-next": "^11.1.2",
     "@supabase/supabase-js": "^1.35.7",
     "@types/eslint": "^8.4.3",

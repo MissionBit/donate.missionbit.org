@@ -1,8 +1,4 @@
 const { readFileSync } = require("fs");
-const withPlugins = require("next-compose-plugins");
-const withBundleAnalyzer = require("@next/bundle-analyzer")({
-  enabled: process.env.ANALYZE === "true",
-});
 
 const SLASH_REDIRECT = /^(\/\S+)\s+(\S+)(?:\s+(\d+)!?)?$/;
 const netlifyRedirects = [];
@@ -26,7 +22,6 @@ const STRIPE_KEY_POSTFIX =
     : "_TEST");
 
 const nextConfig = {
-  target: "serverless",
   redirects() {
     return netlifyRedirects;
   },
@@ -36,4 +31,4 @@ const nextConfig = {
   },
 };
 
-module.exports = withPlugins([withBundleAnalyzer], nextConfig);
+module.exports = nextConfig;
