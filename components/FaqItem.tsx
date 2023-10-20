@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
   },
   heading: {
     fontSize: theme.typography.pxToRem(24),
-    fontWeight: theme.typography.fontWeightRegular,
+    fontWeight: theme.typography.fontWeightRegular as unknown as number,
     [theme.breakpoints.down("sm")]: {
       fontSize: theme.typography.pxToRem(17),
     },

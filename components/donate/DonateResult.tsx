@@ -85,7 +85,7 @@ const useStyles = makeStyles((theme) => ({
     },
     marginTop: theme.spacing(2),
     "& > dd": {
-      fontWeight: theme.typography.fontWeightMedium,
+      fontWeight: theme.typography.fontWeightMedium as unknown as number,
     },
     "& > dt::after": {
       content: `": "`,

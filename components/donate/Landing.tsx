@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   },
   subTitle: {
     fontSize: theme.typography.pxToRem(35),
-    fontWeight: theme.typography.fontWeightMedium,
+    fontWeight: theme.typography.fontWeightMedium as unknown as number,
     [theme.breakpoints.down("sm")]: {
       fontSize: theme.typography.pxToRem(16),
     },
