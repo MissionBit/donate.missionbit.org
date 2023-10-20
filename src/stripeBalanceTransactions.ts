@@ -17,7 +17,7 @@ export interface BalanceTransactionBatch {
 }
 
 const DONATION_TYPES = ["direct"] as const;
-type DonationType = typeof DONATION_TYPES[number];
+type DonationType = (typeof DONATION_TYPES)[number];
 
 const DB_TABLE_NAME = `stripe_balance_transactions${
   process.env.STRIPE_KEY_POSTFIX === "_LIVE" ? "" : "_test"

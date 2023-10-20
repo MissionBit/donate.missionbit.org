@@ -3,7 +3,7 @@ const STRIPE_KEY_PREFIXES = [
   "STRIPE_SK",
   "STRIPE_WEBHOOK_SIGNING_SECRET",
 ] as const;
-export type StripeKeyPrefix = typeof STRIPE_KEY_PREFIXES[number];
+export type StripeKeyPrefix = (typeof STRIPE_KEY_PREFIXES)[number];
 
 export function getStripeKey(prefix: StripeKeyPrefix): string {
   const name = `${prefix}${process.env.STRIPE_KEY_POSTFIX ?? ""}`;

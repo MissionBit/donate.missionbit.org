@@ -491,6 +491,7 @@ const Goal: React.FC<{
       flexDirection="column"
       className={classes.goal}
     >
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={Embellishment.src} alt="" className={classes.embellishment} />
       <Logo className={classes.logo} />
       <Box

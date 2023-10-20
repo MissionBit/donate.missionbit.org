@@ -1,8 +1,8 @@
 export const FREQUENCIES = ["one-time", "monthly"] as const;
-export type Frequency = typeof FREQUENCIES[number];
+export type Frequency = (typeof FREQUENCIES)[number];
 
 export const PAYMENT_METHODS = ["Stripe Checkout"] as const;
-export type PaymentMethod = typeof PAYMENT_METHODS[number];
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
 
 const gtag =
   (typeof window === "undefined" ? undefined : window.gtag) ??
