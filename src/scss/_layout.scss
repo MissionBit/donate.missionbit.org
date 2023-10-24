@@ -1,0 +1,174 @@
+@mixin container($size: default) {
+	width: 100%;
+	padding: 0 16px;
+	margin: 0 auto;
+
+	@include bp($m) {
+		padding: 0 32px;
+	}
+
+	@include bp($l) {
+		padding: 0 122px;
+	}
+
+	@include bp($xl) {
+		padding: 0px;
+	}
+
+	@if $size ==default {
+		max-width: 1460px;
+	}
+
+	@else if $size ==small {
+		max-width: 1200px;
+	}
+}
+
+.px-container {
+	@include container;
+}
+
+@mixin columns($columns: 2, $gap: 30, $mobile_columns: 1, $mobile_gap: 20) {
+	$half_gap: math.div($gap, 2);
+	$half_mobile_gap: math.div($mobile_gap, 2);
+
+	display: flex;
+	flex-flow: row wrap;
+	justify-content: flex-start;
+	align-items: flex-start;
+	margin: 0 -#{$half_mobile_gap}px -#{$mobile_gap}px;
+
+	>* {
+		display: block;
+		flex: 0 0 auto;
+		width: math.percentage(math.div(1, $mobile_columns));
+		padding: 0 #{$half_mobile_gap}px;
+		margin-bottom: #{$mobile_gap}px;
+	}
+
+	@include bp($m) {
+		margin: 0 -#{$half_gap}px -#{$gap}px;
+
+		>* {
+			width: math.percentage(math.div(1, $columns));
+			padding: 0 #{$half_gap}px;
+			margin-bottom: #{$gap}px;
+		}
+	}
+}
+
+.columns {
+	@include columns();
+}
+
+@mixin gridColumns() {
+	display: grid;
+	grid: auto-flow / repeat(4, 1fr);
+	grid-column-gap: 8px;
+
+	@include bp($s) {
+		grid: auto-flow / repeat(8, 1fr);
+	}
+
+	@include bp($m) {
+		grid-column-gap: 16px;
+	}
+
+	@include bp($l) {
+		grid: auto-flow / repeat(12, 1fr);
+		grid-column-gap: 32px;
+	}
+
+	@include bp($xl) {
+		grid-column-gap: 28px;
+	}
+}
+
+.grid-columns {
+	@include gridColumns();
+}
+
+
+/* Settings */
+:root {
+	// --offset: 1.5rem;
+	--offset: 24px;
+	--max_width: 1240px;
+	--columns: 12;
+	--gutter: 24px;
+	--baseline: 16px;
+	--baseline-shift: 0px;
+	--color: hsla(204, 80%, 72%, 0.25);
+	--color-text: hsla(204, 80%, 72%, 1);
+	--media-query: 'base';
+	--repeating-width: calc(100% / var(--columns));
+	--column-width: calc((100% / var(--columns)) - var(--gutter));
+	--background-width: calc(100% + var(--gutter));
+	--background-columns: repeating-linear-gradient(to right,
+			var(--color),
+			var(--color) var(--column-width),
+			transparent var(--column-width),
+			transparent var(--repeating-width));
+	--background-baseline: repeating-linear-gradient(to bottom,
+			var(--color),
+			var(--color) 1px,
+			transparent 1px,
+			transparent var(--baseline));
+}
+
+@include bp($s) {
+	:root {
+		--columns: 2;
+		// --offset: 2rem;
+		// --gutter: .75rem;
+		--color: hsla(286, 51%, 44%, 0.15);
+		--color-text: hsla(286, 51%, 44%, 1);
+		--media-query: 'small';
+	}
+}
+
+
+@include bp($l) {
+	:root {
+		--columns: 12;
+		--gutter: 32px;
+		// --offset: 4rem;
+		--color: hsla(286, 51%, 44%, 0.15);
+		--color-text: hsla(286, 51%, 44%, 1);
+		--media-query: 'large';
+	}
+}
+
+
+
+.debug {
+	position: relative;
+
+	&::before {
+		position: absolute;
+		top: 0;
+		right: 0;
+		bottom: 0;
+		left: 0;
+		margin-right: auto;
+		margin-left: auto;
+		width: calc(100% - (2 * var(--offset)));
+		max-width: var(--max_width);
+		min-height: 100vh;
+		content: '';
+		background-image: var(--background-columns), var(--background-baseline);
+		background-size: var(--background-width) 100%;
+		background-position: 0 var(--baseline-shift);
+		z-index: 1000;
+		pointer-events: none;
+	}
+
+	&::after {
+		content: var(--media-query);
+		position: fixed;
+		top: 1rem;
+		left: 1rem;
+		color: var(--color-text);
+		pointer-events: none;
+	}
+}

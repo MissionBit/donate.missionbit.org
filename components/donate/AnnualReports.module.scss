@@ -1,0 +1,16 @@
+@import "src/scss/variables";
+@import "src/scss/mixins";
+
+.root {
+  &.root {
+    @include bp($m) {
+      padding-top: 32px;
+    }
+  }
+}
+
+.image {
+  & > span {
+    height: 100% !important;
+  }
+}

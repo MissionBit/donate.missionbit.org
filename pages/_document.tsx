@@ -1,7 +1,6 @@
 import React from "react";
 import Document, { Head, Main, NextScript, Html } from "next/document";
 import { ServerStyleSheets } from "@material-ui/core/styles";
-import IEWarning from "components/IEWarning";
 
 // This is required to set up the stylesheets for Material-UI
 
@@ -11,7 +10,6 @@ export default class MyDocument extends Document {
       <Html lang="en">
         <Head />
         <body>
-          <IEWarning />
           <Main />
           <NextScript />
         </body>

@@ -9,7 +9,6 @@ import defaultTheme from "src/theme";
 import GoogleAnalytics from "./GoogleAnalytics";
 import absoluteUrl from "src/absoluteUrl";
 import { BuildTimeContext } from "./BuildTimeContext";
-import Montserrat from "./fonts/Montserrat";
 
 export interface LayoutStaticProps {
   buildTime: number;
@@ -115,7 +114,6 @@ export const Layout: React.FC<LayoutProps> = ({
       <GoogleAnalytics />
       <ThemeProvider theme={theme}>
         <CssBaseline />
-        <Montserrat />
         {children}
       </ThemeProvider>
     </BuildTimeContext.Provider>

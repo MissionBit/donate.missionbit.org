@@ -1,0 +1,58 @@
+@import 'src/scss/variables';
+@import 'src/scss/mixins';
+
+.root {
+  background-color: $black;
+  width: 100%;
+  display: flex;
+  position: relative;
+  margin-bottom: 96px;
+  @include bpmax($m) {
+    margin-bottom: 64px;
+  }
+}
+.title {
+  color: $white;
+  font-size: 2.59375rem;
+  font-weight: 700;
+  margin: 0;
+  padding: 64px 0 64px 80px;
+  @include bpmax($m) {
+    font-size: 1.25rem;
+    line-height: 1.5;
+    padding: 16px 0 16px 16px;
+  }
+}
+.embellishment {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  transform: translate(0, -40%);
+  img {
+    width: 150px;
+    transform: rotate(38.9deg);
+  }
+  @include bpmax($m) {
+    display: none;
+  }
+}
+.sticker {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-end;
+  height: 0;
+  overflow: visible;
+  padding: 0 40px;
+  img {
+    width: 150px;
+    transform: translateY(-5%);
+  }
+  @include bpmax($m) {
+    padding: 0 16px;
+    img {
+      width: 75px;
+    }
+  }
+}

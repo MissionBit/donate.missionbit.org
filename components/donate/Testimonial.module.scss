@@ -1,0 +1,54 @@
+@import "src/scss/variables";
+@import "src/scss/mixins";
+
+.root {
+  display: flex;
+  padding: 0 0 0 32px;
+  @include bpmax($m) {
+    background-color: $black;
+    padding: 32px 16px;
+  }
+}
+.images {
+  position: relative;
+  display: inline-flex;
+  width: 360px;
+  @include bpmax($m) {
+    width: 250px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+.wrapper {
+  margin: 0 auto;
+  overflow: hidden;
+}
+.photo {
+  clip-path: url(#archClip);
+}
+.embellishment {
+  position: absolute;
+  width: 266px;
+  right: -25%;
+  bottom: -39%;
+  @include bpmax($m) {
+    width: 185px;
+  }
+}
+.box {
+  background-color: $purple;
+  color: $white;
+  padding: 16px 32px;
+  margin-top: -16px;
+  max-width: 580px;
+  position: relative;
+  .h4 strong {
+    font-weight: 700;
+  }
+  & > p {
+    margin-bottom: 8px;
+  }
+  & > p:last-of-type {
+    margin-bottom: 0;
+  }
+}

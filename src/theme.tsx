@@ -60,6 +60,14 @@ export const themeOptions = {
     },
   },
   overrides: {
+    MuiToggleButton: {
+      root: {
+        fontWeight: 600,
+        "&:focus": {
+          outline: 0,
+        },
+      },
+    },
     MuiInputLabel: {
       outlined: {
         "&$shrink": {

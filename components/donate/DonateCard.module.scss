@@ -1,0 +1,26 @@
+@import "src/scss/variables";
+@import "src/scss/mixins";
+
+.root {
+  display: flex;
+  flex-direction: column;
+}
+
+.disclaimer {
+  margin-top: 8px;
+  text-align: center;
+}
+
+.button {
+  margin: 0;
+}
+.button:global(.MuiButtonBase-root),
+.arrowIcon:global(.MuiSvgIcon-root) {
+  font-size: 20px;
+  @include bp(375px) {
+    font-size: 24px;
+  }
+  @include bp($m) {
+    font-size: 28px;
+  }
+}

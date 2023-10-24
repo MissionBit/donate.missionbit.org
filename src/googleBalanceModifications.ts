@@ -28,6 +28,8 @@ export interface BalanceModifications {
   readonly startTimestamp: number;
   readonly endTimestamp: number | null;
   readonly presetAmounts: readonly number[] | null;
+  readonly galaDate: string | null;
+  readonly galaAgenda: { href: string; title: string } | null;
 }
 
 function asUnknown(obj: unknown, prop: string): unknown {
@@ -167,6 +169,9 @@ export async function getBalanceModifications(): Promise<BalanceModifications> {
   let startTimestamp =
     Date.parse(dayjs().format("YYYY-MM-01T00:00:00Z")) / 1000;
   let endTimestamp = null;
+  let galaDate = null;
+  let galaAgendaTitle = null;
+  let galaAgendaUrl = null;
   for (const rowData of asArray(parsed, "Instructions")) {
     const values = asArray(rowData, "values").map(effectiveValue);
     const [nameV, amountV] = values;
@@ -195,6 +200,26 @@ export async function getBalanceModifications(): Promise<BalanceModifications> {
         .flatMap((v) => (v?.numberValue ? [100 * v.numberValue] : []));
     } else if (nameV?.stringValue === "Campaign Copy" && amountV?.stringValue) {
       campaignCopy = amountV.stringValue;
+    } else if (nameV?.stringValue === "Gala Date") {
+      if (amountV?.stringValue) {
+        galaDate = amountV.stringValue;
+      } else if (amountV?.numberValue) {
+        const d = new Date(1900, 0, 1);
+        d.setDate(d.getDate() + amountV.numberValue - 2);
+        galaDate = new Intl.DateTimeFormat("fr-CA", {
+          dateStyle: "short",
+        }).format(d);
+      }
+    } else if (
+      nameV?.stringValue === "Gala Agenda Title" &&
+      amountV?.stringValue
+    ) {
+      galaAgendaTitle = amountV.stringValue;
+    } else if (
+      nameV?.stringValue === "Gala Agenda URL" &&
+      amountV?.stringValue
+    ) {
+      galaAgendaUrl = amountV.stringValue;
     }
   }
   return {
@@ -208,6 +233,11 @@ export async function getBalanceModifications(): Promise<BalanceModifications> {
     endTimestamp,
     presetAmounts,
     campaignCopy,
+    galaDate,
+    galaAgenda:
+      galaAgendaTitle && galaAgendaUrl
+        ? { href: galaAgendaUrl, title: galaAgendaTitle }
+        : null,
   };
 }
 
