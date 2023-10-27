@@ -79,6 +79,7 @@
     "@types/smoothscroll-polyfill": "^0.3.1",
     "@typescript-eslint/eslint-plugin": "^4.22.1",
     "@typescript-eslint/parser": "^4.22.1",
+    "critters": "^0.0.20",
     "cross-env": "^7.0.2",
     "dotenv": "^16.0.3",
     "eslint": "^7.8.1",
