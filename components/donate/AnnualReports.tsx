@@ -63,7 +63,7 @@ export const AnnualReports: React.FC<{ className?: string }> = ({
                 objectPosition="center"
               />
               <div className="sticker">
-                <Image src={Sticker} alt="" />
+                <Image src={Sticker} alt="" loading="eager" />
               </div>
               <div className="rip" />
             </div>

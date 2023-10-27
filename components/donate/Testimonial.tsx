@@ -25,6 +25,7 @@ export default function Testimonial({
             height={(361.7 / 473) * 479}
             alt="Rigoberto M."
             className={styles.photo}
+            loading="eager"
           />
           <div className={styles.embellishment}>
             <Image
@@ -32,6 +33,7 @@ export default function Testimonial({
               width={266.1}
               height={(266.1 / 963) * 978}
               alt=""
+              loading="eager"
             />
           </div>
         </div>
