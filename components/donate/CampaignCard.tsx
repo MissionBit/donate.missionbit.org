@@ -1,5 +1,6 @@
 import * as React from "react";
 import { BalanceProps, useAnimatedGoal, useLiveDashboard } from "pages/live";
+import Image from "next/image";
 import Embellishment from "public/images/Embellishment_20_Orange_RGB.png";
 import dollars from "src/dollars";
 import styles from "./CampaignCard.module.scss";
@@ -16,8 +17,17 @@ export function CampaignCard(props: {
     <div className={clsx(styles.root, props.className)}>
       <h2 className={styles.goalName}>
         <div className={styles.embellishment}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={Embellishment.src} alt="" />
+          <div className={styles.embellishmentWrapper}>
+            <Image
+              src={Embellishment}
+              alt=""
+              width={64}
+              height={(64 * Embellishment.height) / Embellishment.width}
+              objectFit="contain"
+              priority
+              loading="eager"
+            />
+          </div>
         </div>
         {goalName}
       </h2>

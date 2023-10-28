@@ -15,6 +15,7 @@
   color: $white;
   font-size: 2.59375rem;
   font-weight: 700;
+  flex: 1;
   margin: 0;
   padding: 64px 0 64px 80px;
   @include bpmax($m) {
@@ -28,8 +29,9 @@
   top: 100%;
   left: 0;
   transform: translate(0, -40%);
-  img {
+  .embellishmentWrapper {
     width: 150px;
+    height: (443/572) * 150px;
     transform: rotate(38.9deg);
   }
   @include bpmax($m) {
@@ -38,21 +40,24 @@
 }
 .sticker {
   display: flex;
-  flex: 1;
+  flex: 0;
   align-items: center;
   justify-content: center;
   align-self: flex-end;
   height: 0;
   overflow: visible;
   padding: 0 40px;
-  img {
+  .stickerWrapper {
+    position: relative;
     width: 150px;
+    height: (434 / 384) * 150px;
     transform: translateY(-5%);
   }
   @include bpmax($m) {
     padding: 0 16px;
-    img {
+    .stickerWrapper {
       width: 75px;
+      height: (434 / 384) * 75px;
     }
   }
 }
