@@ -110,6 +110,16 @@ export const Layout: React.FC<LayoutProps> = ({
           href="/favicon-16x16.png"
         />
         <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#4949B4" />
+        {["regular", "italic", "600", "700"].map((variant, i) => (
+          <link
+            key={i}
+            rel="preload"
+            as="font"
+            href={`/fonts/montserrat-v25-latin-${variant}.woff2`}
+            type="font/woff2"
+            crossOrigin=""
+          />
+        ))}
       </Head>
       <GoogleAnalytics />
       <ThemeProvider theme={theme}>
