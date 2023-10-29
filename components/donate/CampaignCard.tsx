@@ -39,7 +39,9 @@ export function CampaignCard(props: {
       <div className={styles.progressBar}>
         <div
           className={styles.progress}
-          style={{ width: `${Math.min(100, 100 * (totalCents / goalCents))}%` }}
+          style={{
+            width: `${Math.min(100, 100 * (totalCents / goalCents))}%`,
+          }}
         />
       </div>
     </div>
