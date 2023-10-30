@@ -1,45 +1,34 @@
 import * as React from "react";
-import Typography from "@material-ui/core/Typography";
-import Accordion from "@material-ui/core/Accordion";
-import AccordionSummary from "@material-ui/core/AccordionSummary";
-import AccordionDetails from "@material-ui/core/AccordionDetails";
-import ExpandMoreIcon from "./icons/ExpandMore";
-import { makeStyles } from "@material-ui/core/styles";
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    width: "100%",
-  },
-  heading: {
-    fontSize: theme.typography.pxToRem(24),
-    fontWeight: theme.typography.fontWeightRegular as unknown as number,
-    [theme.breakpoints.down("sm")]: {
-      fontSize: theme.typography.pxToRem(17),
-    },
-  },
-  expand: {
-    [theme.breakpoints.down("sm")]: {
-      fontSize: theme.typography.pxToRem(17),
-    },
-  },
-}));
+import { useState } from "react";
+import clsx from "clsx";
+import styles from "./FaqItem.module.scss";
 
 const FaqItem: React.FC<{
   question: React.ReactNode;
   children: React.ReactNode;
 }> = ({ question, children }) => {
-  const classes = useStyles();
+  const [show, setShow] = useState(false);
   return (
-    <Accordion className={classes.root}>
-      <AccordionSummary
-        expandIcon={<ExpandMoreIcon className={classes.expand} />}
+    <div className="drawer">
+      <div
+        className={clsx("drawer__title", "drawer-trigger", styles.trigger, {
+          show,
+        })}
       >
-        <Typography className={classes.heading}>{question}</Typography>
-      </AccordionSummary>
-      <AccordionDetails>
-        <Typography component="div">{children}</Typography>
-      </AccordionDetails>
-    </Accordion>
+        <input
+          type="checkbox"
+          onChange={(e) => {
+            setShow(e.currentTarget.checked);
+          }}
+        />
+        {question}
+      </div>
+      <div className={clsx(styles.drawer__content, "wysiwyg")}>
+        <div className={clsx(styles.accordion, "accordion")}>
+          <div className="accordion__content">{children}</div>
+        </div>
+      </div>
+    </div>
   );
 };
 

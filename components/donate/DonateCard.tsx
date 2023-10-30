@@ -23,6 +23,7 @@ import {
 import { Stripe } from "@stripe/stripe-js";
 import { Typography, Theme, Collapse, Checkbox } from "@material-ui/core";
 import dollars from "src/dollars";
+import styles from "./DonateCard.module.scss";
 
 const matchEnd = Date.parse("2021-08-01T00:00:00-07:00");
 
@@ -141,13 +142,6 @@ const ToggleButton = withStyles((theme) => ({
 }))(BaseToggleButton);
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-    flexDirection: "column",
-    [theme.breakpoints.down("sm")]: {
-      padding: theme.spacing(0, 2),
-    },
-  },
   form: {
     ...theme.typography.body1,
     margin: "0 auto",
@@ -327,7 +321,7 @@ export const DonateCard: React.FC<{
   useEffect(() => setMatchAvailable(() => Date.now() < matchEnd), []);
 
   return (
-    <Box className={clsx(classes.root, className)}>
+    <Box className={clsx(styles.root, className)}>
       <Box className={classes.heading}>Donate Online</Box>
       <Box className={classes.content}>
         <Collapse in={matchAvailable}>
@@ -406,12 +400,15 @@ export const DonateCard: React.FC<{
             variant="contained"
             disabled={disabled}
             type="submit"
-            className={classes.button}
+            className={styles.button}
           >
-            Donate with card <ArrowRightIcon className={classes.arrowIcon} />
+            Donate with card <ArrowRightIcon className={styles.arrowIcon} />
           </IndigoButton>
         </form>
       </Box>
+      <div className={styles.disclaimer}>
+        All donations are tax-deductible to the extent allowed by IRS guidelines
+      </div>
     </Box>
   );
 };

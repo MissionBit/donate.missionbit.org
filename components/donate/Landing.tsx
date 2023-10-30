@@ -1,77 +1,43 @@
+/* eslint-disable @next/next/no-img-element */
 import * as React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Box from "@material-ui/core/Box";
-import { ssBrand } from "src/colors";
-import Typography from "@material-ui/core/Typography";
-import clsx from "clsx";
-import Logo from "public/images/MissionBit_Logo_Primary_BlackRGB_NoMargin.svg";
+import styles from "./Landing.module.scss";
 import Image from "next/image";
+import Embellishment from "public/images/Embellishment_20_Orange_RGB.png";
+import Sticker from "public/images/sticker-cs4a.png";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    backgroundColor: ssBrand.mediumGrey,
-    width: "100%",
-    padding: theme.spacing(2, 6),
-    [theme.breakpoints.down("sm")]: {
-      padding: theme.spacing(2),
-      textAlign: "center",
-    },
-  },
-  title: {
-    fontSize: theme.typography.pxToRem(71),
-    [theme.breakpoints.down("sm")]: {
-      fontSize: theme.typography.pxToRem(40),
-    },
-  },
-  extendedTitle: {
-    [theme.breakpoints.down("sm")]: {
-      display: "none",
-    },
-  },
-  subTitle: {
-    fontSize: theme.typography.pxToRem(35),
-    fontWeight: theme.typography.fontWeightMedium as unknown as number,
-    [theme.breakpoints.down("sm")]: {
-      fontSize: theme.typography.pxToRem(16),
-    },
-  },
-  withLogo: {
-    paddingBottom: 6,
-  },
-  logoWrapper: {
-    position: "relative",
-    top: 6,
-  },
-}));
-
-function logoScale(
-  src: {
-    readonly src: string;
-    readonly width: number;
-    readonly height: number;
-  },
-  height: number
-) {
-  return { src, height, width: height * (src.width / src.height) } as const;
-}
-
-export const Landing: React.FC<{ className?: string }> = ({ className }) => {
-  const classes = useStyles();
+export const Landing = (): JSX.Element => {
   return (
-    <Box className={clsx(classes.root, className)}>
-      <Typography
-        variant="h1"
-        className={clsx(classes.title, classes.withLogo)}
-      >
-        Donate to{" "}
-        <span className={classes.logoWrapper}>
-          <Image {...logoScale(Logo, 60)} alt="Mission Bit" />
-        </span>
-      </Typography>
-      <Typography className={classes.subTitle} color="textSecondary">
-        Help us inspire youth of color to explore the world of STEM.
-      </Typography>
-    </Box>
+    <div className={styles.root}>
+      <h1 className={styles.title}>
+        Can our students count on you? Donate now.
+      </h1>
+      <div className={styles.sticker}>
+        <div className={styles.stickerWrapper}>
+          <Image
+            src={Sticker}
+            alt=""
+            loading="eager"
+            width={150}
+            height={(150 * Sticker.height) / Sticker.width}
+            priority
+            objectFit="contain"
+          />
+        </div>
+      </div>
+      <div className={styles.embellishment}>
+        <div className={styles.embellishmentWrapper}>
+          <Image
+            src={Embellishment}
+            alt=""
+            loading="eager"
+            width={150}
+            height={(150 * Embellishment.height) / Embellishment.width}
+            priority
+            objectFit="contain"
+          />
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -38,7 +38,7 @@ export const Photo: React.FC<{
   photo: keyof typeof PHOTOS;
 }> = ({ photo }) => {
   const { alt, src } = PHOTOS[photo];
-  return <Image src={src} alt={alt} />;
+  return <Image src={src} alt={alt} loading="eager" />;
 };
 
 export const ReceiptPhotos: React.FC<{ className?: string }> = ({

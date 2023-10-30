@@ -1,0 +1,51 @@
+@import "src/scss/variables";
+@import "src/scss/mixins";
+
+.root {
+  display: grid;
+  padding-bottom: 96px;
+  gap: 32px;
+  @include bp($m) {
+    grid-template-columns: 1fr 1fr;
+    & > * {
+      grid-column: 1 / -1;
+    }
+    .campaignCard,
+    .testimonial {
+      grid-column: 1;
+    }
+    .makeAnOnlineGift {
+      grid-row: span 2;
+      grid-column: 2;
+    }
+  }
+}
+.gala {
+  @include bpmax($m) {
+    .campaignCard {
+      order: 1;
+    }
+  }
+}
+.agenda {
+  margin-top: -64px;
+  @include bpmax($m) {
+    margin-top: -60px;
+  }
+}
+.makeAnOnlineGift {
+  margin: 0 32px 0 0;
+  @include bpmax($m) {
+    margin: 0 16px;
+  }
+}
+.testimonial {
+}
+.campaignCard {
+}
+.otherWaysToGive {
+  order: 2;
+}
+.annualReports {
+  order: 2;
+}

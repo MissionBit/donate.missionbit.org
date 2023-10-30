@@ -4,6 +4,7 @@ import Router from "next/router";
 import smoothscroll from "smoothscroll-polyfill";
 import { pageview } from "components/GoogleAnalytics";
 import * as Sentry from "@sentry/browser";
+import "src/app.scss";
 
 if (typeof window !== "undefined") {
   smoothscroll.polyfill();
