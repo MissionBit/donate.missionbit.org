@@ -5,14 +5,18 @@ import Photo from "public/images/Donate-AnnualReports@2x.jpeg";
 import Sticker from "public/images/sticker-students.png";
 import styles from "./AnnualReports.module.scss";
 
-const REPORTS = {
-  "2022":
+const REPORTS: readonly (readonly [number, string])[] = [
+  [
+    2022,
     "https://drive.google.com/file/d/1XBikbf_Rg0zi7duY32c2aI-fVcGTnIw5/view",
-  "2021":
+  ],
+  [
+    2021,
     "https://drive.google.com/file/d/13-yocY29Y06J4UWOXUyujvt3ufwnBDxV/view",
-  "2020": "/annual-reports/2020/2020MissionBitAnnualReport.pdf",
-  "2019": "/annual-reports/2019/mission-bit-annual-report-2019.pdf",
-} as const;
+  ],
+  [2020, "/annual-reports/2020/2020MissionBitAnnualReport.pdf"],
+  [2019, "/annual-reports/2019/mission-bit-annual-report-2019.pdf"],
+];
 
 export const AnnualReports: React.FC<{ className?: string }> = ({
   className,
@@ -41,7 +45,7 @@ export const AnnualReports: React.FC<{ className?: string }> = ({
               highlights. Learn about our progress and join us in our mission to
               create a more diverse and inclusive tech industry.
             </p>
-            {Object.entries(REPORTS).map(([year, href]) => (
+            {REPORTS.map(([year, href]) => (
               <p key={year}>
                 <a
                   className="link--list"
