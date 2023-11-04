@@ -142,15 +142,6 @@ const ToggleButton = withStyles((theme) => ({
 }))(BaseToggleButton);
 
 const useStyles = makeStyles((theme) => ({
-  form: {
-    ...theme.typography.body1,
-    margin: "0 auto",
-    display: "grid",
-    gridTemplate: "auto / 1fr",
-    gridGap: theme.spacing(2),
-    justifyItems: "center",
-    maxWidth: 550,
-  },
   inputText: mkFontSize(theme, "input"),
   button: {
     ...mkFontSize(theme, "heading"),
@@ -176,33 +167,6 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(0, 1),
     textAlign: "center",
     fontStyle: "oblique",
-  },
-  heading: {
-    ...theme.typography.body1,
-    ...mkFontSize(theme, "heading"),
-    fontWeight: 700,
-    backgroundColor: brandColor,
-    color: theme.palette.common.white,
-    padding: theme.spacing(2),
-  },
-  content: {
-    border: `1px solid ${borderColor}`,
-    padding: theme.spacing(2),
-  },
-  anonymousLabel: {
-    userSelect: "none",
-    display: "flex",
-  },
-  anonymousCheckbox: {
-    padding: 0,
-  },
-  anonymousCopy: {
-    paddingLeft: theme.spacing(1),
-  },
-  toThePublic: {
-    [theme.breakpoints.down("sm")]: {
-      display: "none",
-    },
   },
 }));
 
@@ -321,9 +285,9 @@ export const DonateCard: React.FC<{
   useEffect(() => setMatchAvailable(() => Date.now() < matchEnd), []);
 
   return (
-    <Box className={clsx(styles.root, className)}>
-      <Box className={classes.heading}>Donate Online</Box>
-      <Box className={classes.content}>
+    <div className={clsx(styles.root, className)}>
+      <div className={styles.heading}>Donate Online</div>
+      <div className={styles.content}>
         <Collapse in={matchAvailable}>
           <Box className={classes.match}>
             <span role="img" aria-label="Party popper">
@@ -337,7 +301,7 @@ export const DonateCard: React.FC<{
             </span>
           </Box>
         </Collapse>
-        <form className={classes.form} onSubmit={handleOnSubmit}>
+        <form className={styles.form} onSubmit={handleOnSubmit}>
           <FrequencyToggleButtonGroup
             value={frequency}
             exclusive
@@ -380,21 +344,18 @@ export const DonateCard: React.FC<{
               labelWidth={60}
             />
           </FormControl>
-          <InputLabel
-            htmlFor="anonymous-checkbox"
-            className={classes.anonymousLabel}
-          >
+          <label htmlFor="anonymous-checkbox" className={styles.anonymousLabel}>
             <Checkbox
               id="anonymous-checkbox"
               checked={anonymous}
               onChange={() => setAnonymous((prev) => !prev)}
-              className={classes.anonymousCheckbox}
+              className={styles.anonymousCheckbox}
             />
-            <Typography className={classes.anonymousCopy}>
+            <Typography className={styles.anonymousCopy}>
               Show my name as "Anonymous"
-              <span className={classes.toThePublic}> to the public</span>
+              <span className={styles.toThePublic}> to the public</span>
             </Typography>
-          </InputLabel>
+          </label>
           {errorMessage ? <Typography>{errorMessage}</Typography> : null}
           <IndigoButton
             variant="contained"
@@ -405,11 +366,11 @@ export const DonateCard: React.FC<{
             Donate with card <ArrowRightIcon className={styles.arrowIcon} />
           </IndigoButton>
         </form>
-      </Box>
+      </div>
       <div className={styles.disclaimer}>
         All donations are tax-deductible to the extent allowed by IRS guidelines
       </div>
-    </Box>
+    </div>
   );
 };
 
