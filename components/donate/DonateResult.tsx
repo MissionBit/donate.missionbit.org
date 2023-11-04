@@ -1,105 +1,16 @@
 import * as React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Container from "@material-ui/core/Container";
-import Box from "@material-ui/core/Box";
 import { StripeSessionInfo } from "src/stripeSessionInfo";
-import Typography from "@material-ui/core/Typography";
 import usdFormatter from "src/usdFormatter";
 import { DONATE_EMAIL } from "src/emails";
 import ReceiptPhotos from "./ReceiptPhotos";
 import { LongDateFormat } from "src/dates";
 import { PHONE_NUMBER, EIN, MAILING_ADDRESS } from "src/orgInfo";
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "grid",
-    gridTemplateAreas: `
-      "photos receipt"
-    `,
-    gridTemplateColumns: "1fr 2fr",
-    padding: theme.spacing(2),
-    "@media print": {
-      gridTemplateColumns: "1fr",
-      gridTemplateAreas: `"receipt"`,
-    },
-    [theme.breakpoints.down("xs")]: {
-      gridTemplateColumns: "1fr",
-      gridGap: theme.spacing(4),
-      gridTemplateAreas: `
-        "receipt"
-        "photos"
-      `,
-      padding: theme.spacing(0, 0, 2, 0),
-    },
-  },
-  receipt: {
-    gridArea: "receipt",
-    padding: theme.spacing(0, 2),
-  },
-  photos: {
-    gridArea: "photos",
-  },
-  heading: {
-    [theme.breakpoints.down("sm")]: {
-      fontSize: theme.typography.pxToRem(40),
-      marginBottom: theme.spacing(2),
-    },
-  },
-  subHeading: {
-    marginTop: theme.spacing(4),
-    [theme.breakpoints.down("sm")]: {
-      fontSize: theme.typography.pxToRem(28),
-      marginBottom: theme.spacing(2),
-    },
-  },
-  orgInfo: {
-    marginTop: theme.spacing(4),
-    fontStyle: "inherit",
-  },
-  dl: {
-    "@media print": {
-      display: "grid",
-      gridTemplateColumns: "max-content auto",
-      "& > dt": {
-        gridColumnStart: 1,
-      },
-      "& > dd": {
-        gridColumnStart: 2,
-        marginLeft: "1rem",
-      },
-    },
-    [theme.breakpoints.up("md")]: {
-      display: "grid",
-      gridTemplateColumns: "max-content auto",
-      "& > dt": {
-        gridColumnStart: 1,
-      },
-      "& > dd": {
-        gridColumnStart: 2,
-        marginLeft: "1rem",
-      },
-    },
-    fontSize: theme.typography.pxToRem(20),
-    [theme.breakpoints.down("sm")]: {
-      fontSize: theme.typography.pxToRem(16),
-    },
-    marginTop: theme.spacing(2),
-    "& > dd": {
-      fontWeight: theme.typography.fontWeightMedium as unknown as number,
-    },
-    "& > dt::after": {
-      content: `": "`,
-    },
-  },
-  body: {
-    marginTop: theme.spacing(2),
-  },
-}));
+import styles from "./DonateResult.module.scss";
+import clsx from "clsx";
 
 const DonateResult: React.FC<{ sessionInfo: StripeSessionInfo }> = ({
   sessionInfo,
 }) => {
-  const classes = useStyles();
   const {
     amount,
     name,
@@ -111,13 +22,11 @@ const DonateResult: React.FC<{ sessionInfo: StripeSessionInfo }> = ({
     subscriptionId,
   } = sessionInfo;
   return (
-    <Container component="main" id="main" className={classes.root}>
-      <ReceiptPhotos className={classes.photos} />
-      <Box className={classes.receipt}>
-        <Typography variant="h1" className={classes.heading}>
-          Thank you
-        </Typography>
-        <Typography>
+    <main id="main" className={clsx(styles.root, "px-container")}>
+      <ReceiptPhotos className={styles.photos} />
+      <div className={styles.receipt}>
+        <h1 className={styles.heading}>Thank you</h1>
+        <p>
           Dear {name},<br />
           <br />
           We want to thank you for your generosity! You are a true champion of
@@ -131,11 +40,9 @@ const DonateResult: React.FC<{ sessionInfo: StripeSessionInfo }> = ({
           Christina Ortega
           <br />
           CEO, Mission Bit
-        </Typography>
-        <Typography variant="h2" className={classes.subHeading}>
-          Donation receipt
-        </Typography>
-        <Typography component="dl" className={classes.dl}>
+        </p>
+        <h2 className={styles.subHeading}>Donation receipt</h2>
+        <dl className={styles.dl}>
           <dt>Donor Name</dt>
           <dd>{name}</dd>
           <dt>Donor Email</dt>
@@ -158,8 +65,8 @@ const DonateResult: React.FC<{ sessionInfo: StripeSessionInfo }> = ({
           ) : null}
           <dt>Transaction ID</dt>
           <dd>{id}</dd>
-        </Typography>
-        <Typography component="address" className={classes.orgInfo}>
+        </dl>
+        <address className={styles.orgInfo}>
           Mission Bit
           <br />
           Tax ID: {EIN}
@@ -176,15 +83,15 @@ const DonateResult: React.FC<{ sessionInfo: StripeSessionInfo }> = ({
             {DONATE_EMAIL}
           </a>
           <br />
-        </Typography>
-        <Typography className={classes.body}>
+        </address>
+        <p className={styles.body}>
           Mission Bit is a 501(c)(3) nonprofit organization. Your contribution
           is tax-deductible to the extent allowed by law. No goods or services
           were provided in exchange for your generous financial donation. Thank
           you.
-        </Typography>
-      </Box>
-    </Container>
+        </p>
+      </div>
+    </main>
   );
 };
 

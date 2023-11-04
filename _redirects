@@ -2,6 +2,8 @@
 /donate / 301!
 /donate/live /live 301!
 /donate/dashboard /dashboard 301!
+/donate/subscriptions/:id /subscriptions/:id 301!
+/donate/receipts/:id /receipts/:id 301!
 
 # Typo domains
 https://donate.missionbit.com/ https://donate.missionbit.org/ 301!

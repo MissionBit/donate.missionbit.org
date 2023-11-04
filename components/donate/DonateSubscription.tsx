@@ -143,7 +143,7 @@ const DonateSubscription: React.FC<DonateSubscriptionProps> = ({
         <ul className={classes.receipts}>
           {paidInvoices.map(({ id, amount, created }) => (
             <Typography component="li" key={id}>
-              <a href={`/donate/receipts/${id}`}>
+              <a href={`/receipts/${id}`}>
                 {ShortDateFormat.format(created * 1000)}
               </a>{" "}
               {usdFormatter.format(amount / 100)}

@@ -1,0 +1,86 @@
+@import "src/scss/variables";
+@import "src/scss/mixins";
+
+.root {
+  display: grid;
+  grid-template-areas: "photos receipt";
+  grid-template-columns: 1fr 2fr;
+  padding: 16px;
+  @media print {
+    grid-template-columns: 1fr;
+    grid-template-areas: "receipt";
+  }
+  @include bpmax($s) {
+    grid-template-columns: 1fr;
+    grid-gap: 32px;
+    padding: 0 0 16px 0;
+    grid-template-areas:
+      "receipt"
+      "photos";
+  }
+}
+.receipt {
+  grid-area: receipt;
+  padding: 0 16px;
+}
+.photos {
+  grid-area: photos;
+}
+.heading {
+  @include bpmax($s) {
+    font-size: 2.5rem;
+    margin-bottom: 16px;
+  }
+}
+.subHeading {
+  margin-top: 32px;
+  @include bpmax($s) {
+    font-size: 1.75rem;
+    margin-bottom: 16px;
+  }
+}
+.orgInfo {
+  margin-top: 32px;
+  font-style: "inherit";
+}
+.dl {
+  @media print {
+    display: grid;
+    grid-template-columns: "max-content auto";
+    & > dt {
+      grid-column-start: 1;
+    }
+    & > dd {
+      grid-column-start: 2;
+      margin-left: 1rem;
+    }
+  }
+  @include bp($m) {
+    display: grid;
+    grid-template-columns: "max-content auto";
+    & > dt {
+      grid-column-start: 1;
+    }
+    & > dd {
+      grid-column-start: 2;
+      margin-left: 1rem;
+    }
+  }
+  font-size: 1.25rem;
+  @include bpmax($s) {
+    font-size: 1rem;
+  }
+  margin-top: 16px;
+  & > dd {
+    font-weight: 400;
+  }
+  & > dt {
+    font-weight: 600;
+  }
+  & > dt::after {
+    content: ": ";
+  }
+}
+.body {
+  margin-top: 16px;
+}
