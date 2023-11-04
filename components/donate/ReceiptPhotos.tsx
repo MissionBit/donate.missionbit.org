@@ -1,24 +1,7 @@
 import * as React from "react";
-import { makeStyles } from "@material-ui/core/styles";
 import clsx from "clsx";
 import Image from "next/image";
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    "@media print": {
-      display: "none",
-    },
-    display: "flex",
-    flexDirection: "column",
-    margin: -theme.spacing(1, 0),
-    overflow: "hidden",
-    "& img": {
-      height: "auto",
-      objectFit: "contain",
-      margin: theme.spacing(1, 0),
-    },
-  },
-}));
+import styles from "./ReceiptPhotos.module.scss";
 
 function loadPhoto(postfix: string, alt: string) {
   return {
@@ -44,9 +27,8 @@ export const Photo: React.FC<{
 export const ReceiptPhotos: React.FC<{ className?: string }> = ({
   className,
 }) => {
-  const classes = useStyles();
   return (
-    <section className={clsx(className, classes.root)}>
+    <section className={clsx(className, styles.root)}>
       <Photo photo="1" />
       <Photo photo="2" />
       <Photo photo="3" />

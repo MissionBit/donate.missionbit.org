@@ -1,0 +1,17 @@
+@import "src/scss/variables";
+@import "src/scss/mixins";
+
+.root {
+  @media print {
+    display: none;
+  };
+  display: flex;
+  flex-direction: column;
+  margin: -8px 0;
+  overflow: hidden;
+  & img {
+    height: auto;
+    object-fit: contain;
+    margin: 8px 0;
+  }
+}
