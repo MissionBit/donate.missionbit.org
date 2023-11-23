@@ -59,7 +59,7 @@ interface PageProps extends LayoutStaticProps {
 
 function mergeBatch(
   current: BalanceTransactionBatch,
-  update: BalanceTransactionBatch
+  update: BalanceTransactionBatch,
 ): BalanceTransactionBatch {
   const ids = new Set<string>(update.transactions.map((txn) => txn.id));
   const transactions = [
@@ -79,7 +79,7 @@ const DonateDashboard: React.FC<DashboardProps> = (initial) => {
   const [modifications, setModifications] = useState(initial.modifications);
   const [errors, setErrors] = useState(0);
   const ignored = new Set(
-    modifications.ignoredTransactions.map((txn) => txn.id)
+    modifications.ignoredTransactions.map((txn) => txn.id),
   );
   const classes = useStyles();
   useEffect(() => {
@@ -90,7 +90,7 @@ const DonateDashboard: React.FC<DashboardProps> = (initial) => {
       });
       try {
         const res = await fetch(
-          `/api/balance-transactions?created=${batch.created}`
+          `/api/balance-transactions?created=${batch.created}`,
         );
         if (!mounted) {
           return;
@@ -114,7 +114,7 @@ const DonateDashboard: React.FC<DashboardProps> = (initial) => {
   const { pollTime, transactions } = batch;
   const modificationTotal = modifications.transactions.reduce(
     (amount, txn) => amount + txn.amount,
-    0
+    0,
   );
   return (
     <Container>
@@ -152,8 +152,8 @@ const DonateDashboard: React.FC<DashboardProps> = (initial) => {
                   transactions.reduce(
                     (amount, txn) =>
                       amount + (ignored.has(txn.id) ? 0 : txn.amount),
-                    modificationTotal
-                  )
+                    modificationTotal,
+                  ),
                 )}
               </TableCell>
               <TableCell colSpan={5}>

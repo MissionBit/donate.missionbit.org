@@ -77,13 +77,13 @@ function effectiveValue(v: unknown): EffectiveValue | undefined {
 
 async function spreadsheetApiRequest(
   id: string,
-  args: readonly string[]
+  args: readonly string[],
 ): Promise<unknown> {
   const res = await fetch(
     `https://sheets.googleapis.com/v4/spreadsheets/${id}?${[
       ...args,
       `key=${process.env.GOOGLE_API_KEY}`,
-    ].join("&")}`
+    ].join("&")}`,
   );
   if (res.ok) {
     return await res.json();
@@ -104,7 +104,7 @@ function isEmptyObject(v: unknown): v is {} {
 }
 
 function parseDocToSheetsAndRows(
-  doc: unknown
+  doc: unknown,
 ): Partial<{ [sheet: string]: unknown[] }> {
   const sheets: { [sheet: string]: unknown[] } = {};
   for (const sheet of asArray(doc, "sheets")) {
@@ -135,7 +135,7 @@ export async function getBalanceModifications(): Promise<BalanceModifications> {
       "ranges=Adjustments!A2:E",
       "ranges=Instructions!A2:J",
       "fields=sheets(properties,data.rowData(values(effectiveValue)))",
-    ])
+    ]),
   );
   for (const rowData of asArray(parsed, "IgnoredTransactions")) {
     const values = asArray(rowData, "values").map(effectiveValue);
@@ -156,7 +156,7 @@ export async function getBalanceModifications(): Promise<BalanceModifications> {
         amount: Math.floor(100 * (amountV?.numberValue ?? 0)),
         notes: notesV?.stringValue ?? "",
         created: Math.floor(
-          (Date.parse(timestampV?.stringValue) ?? Date.now()) / 1000
+          (Date.parse(timestampV?.stringValue) ?? Date.now()) / 1000,
         ),
       });
     }
@@ -179,8 +179,8 @@ export async function getBalanceModifications(): Promise<BalanceModifications> {
       goalCents = Math.floor(100 * amountV.numberValue);
       allGoalCents.push(
         ...values.flatMap((v, i) =>
-          i > 0 && v?.numberValue ? [Math.floor(100 * v.numberValue)] : []
-        )
+          i > 0 && v?.numberValue ? [Math.floor(100 * v.numberValue)] : [],
+        ),
       );
     } else if (nameV?.stringValue === "Goal Name" && amountV?.stringValue) {
       goalName = amountV.stringValue;

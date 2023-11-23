@@ -31,7 +31,7 @@ export const AnnualReports: React.FC<{ className?: string }> = ({
         "bg--white",
         "layout--image-left",
         "sticker-layout--left",
-        "padding--none"
+        "padding--none",
       )}
     >
       <div className="px-container">

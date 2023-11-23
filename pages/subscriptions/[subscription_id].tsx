@@ -40,7 +40,7 @@ function ensureString(x: unknown, context: string): string {
 }
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async (
-  ctx
+  ctx,
 ) => {
   const { res } = ctx;
   if (typeof window !== "undefined") {
@@ -60,7 +60,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   });
   if (subscription.items.data.length !== 1) {
     throw new Error(
-      `Expecting one subscription item ${JSON.stringify(subscription)}`
+      `Expecting one subscription item ${JSON.stringify(subscription)}`,
     );
   }
   const item = subscription.items.data[0];
@@ -70,16 +70,16 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   ) {
     throw new Error(
       `Expecting non-null subscription amount and quantity ${JSON.stringify(
-        subscription
-      )}`
+        subscription,
+      )}`,
     );
   }
   const pm = subscription.default_payment_method;
   if (typeof pm !== "object" || pm === null) {
     throw new Error(
       `Expecting non-null default_payment_method ${JSON.stringify(
-        subscription
-      )}`
+        subscription,
+      )}`,
     );
   }
   const nextCycle =

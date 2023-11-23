@@ -78,7 +78,7 @@ export const Layout: React.FC<LayoutProps> = ({
           property="og:image"
           content={absoluteUrl(
             pageImage ?? "/images/social/logo-fb.png",
-            origin
+            origin,
           )}
         />
         <meta property="og:title" content={title} />

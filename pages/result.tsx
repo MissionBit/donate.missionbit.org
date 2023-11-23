@@ -27,7 +27,7 @@ const Page: NextPage<PageProps> = ({ sessionInfo, ...props }) =>
   );
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async (
-  ctx
+  ctx,
 ) => {
   const { res } = ctx;
   if (typeof window !== "undefined") {

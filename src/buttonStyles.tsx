@@ -22,6 +22,6 @@ export const buttonStyles = (color: string) => (theme: Theme) =>
         },
       },
     },
-  } as const);
+  }) as const;
 
 export default buttonStyles;

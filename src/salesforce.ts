@@ -45,16 +45,16 @@ export interface SObjectClient<SObject extends keyof Schema> {
   readonly client: SalesforceClient;
   readonly sObject: SObject;
   readonly create: (
-    body: Omit<Schema[SObject], "Id">
+    body: Omit<Schema[SObject], "Id">,
   ) => Promise<SObjectResponse>;
   readonly update: (
     id: string,
-    body: Partial<Omit<Schema[SObject], "Id">>
+    body: Partial<Omit<Schema[SObject], "Id">>,
   ) => Promise<void>;
   readonly get: (id: string) => Promise<Schema[SObject]>;
   readonly getFields: <K extends keyof Schema[SObject]>(
     id: string,
-    fields: readonly K[]
+    fields: readonly K[],
   ) => Promise<Pick<Schema[SObject], K> | null>;
 }
 
@@ -74,13 +74,13 @@ export type SQueryResult<T> =
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function sQuery<T extends {} = any>(
   client: SalesforceClient,
-  query: string
+  query: string,
 ): Promise<SQueryResult<T>> {
   const prefix = `/services/data/${client.apiVersion}/query/?q=`;
   return client.req(prefix + encodeURIComponent(query)).then(async (res) => {
     if (!res.ok) {
       throw new Error(
-        `Failed query: ${JSON.stringify(await res.json(), null, 2)}`
+        `Failed query: ${JSON.stringify(await res.json(), null, 2)}`,
       );
     }
     return res.json();
@@ -89,7 +89,7 @@ export async function sQuery<T extends {} = any>(
 
 export function sObject<SObject extends keyof Schema>(
   client: SalesforceClient,
-  sObject: SObject
+  sObject: SObject,
 ): SObjectClient<SObject> {
   const prefix = `/services/data/${client.apiVersion}/sobjects/${sObject}`;
   return {
@@ -102,8 +102,8 @@ export function sObject<SObject extends keyof Schema>(
             `Failed to create ${sObject}: ${await res.text()}\n${JSON.stringify(
               body,
               null,
-              2
-            )}`
+              2,
+            )}`,
           );
         }
         return res.json();
@@ -128,7 +128,7 @@ export const client = ({
 }: Omit<SalesforceClient, "req">): SalesforceClient => {
   const req = async (
     path: string,
-    options?: JSONRequestInit
+    options?: JSONRequestInit,
   ): Promise<Response> =>
     fetch(`${token.instance_url}${path}`, {
       ...options,
@@ -152,7 +152,7 @@ export async function login(): Promise<SalesforceClient> {
       grant_type: "client_credentials",
       client_id: requireEnv("SALESFORCE_CLIENT_ID"),
       client_secret: requireEnv("SALESFORCE_CLIENT_SECRET"),
-    })
+    }),
   ).toString();
   const res = await fetch(url, {
     body,
@@ -168,8 +168,8 @@ export async function login(): Promise<SalesforceClient> {
       `Failed to login: ${res.status} ${res.statusText} ${JSON.stringify(
         data,
         null,
-        2
-      )}`
+        2,
+      )}`,
     );
   }
   return client({ token: data, apiVersion });
@@ -190,7 +190,7 @@ export function soqlQuote(value: string): string {
     "'" +
     value.replace(
       /[\n\r\t\b\f"'\\]/g,
-      (match) => escapes[match as keyof typeof escapes]
+      (match) => escapes[match as keyof typeof escapes],
     ) +
     "'"
   );
@@ -205,7 +205,7 @@ export function soql(
       (str, i) =>
         `${str}${
           typeof values[i] === "string" ? soqlQuote(values[i] as string) : ""
-        }`
+        }`,
     )
     .join("");
 }
@@ -285,7 +285,7 @@ const expandState = (state?: string | undefined | null): string | undefined =>
   state ? us.states[state]?.name : undefined;
 
 const metadataName = (
-  metadata: Stripe.Charge["metadata"]
+  metadata: Stripe.Charge["metadata"],
 ): ReturnType<typeof nameParser> | null =>
   metadata.user_first_name && metadata.user_last_name
     ? {
@@ -300,7 +300,7 @@ const metadataName = (
 
 export async function createOrFetchContactFromCharge(
   client: SalesforceClient,
-  charge: Stripe.Charge
+  charge: Stripe.Charge,
 ): Promise<ContactResult> {
   const stripeCustomerId = stripeCustomerIdFromCharge(charge);
   const email =
@@ -313,8 +313,8 @@ export async function createOrFetchContactFromCharge(
       `Expecting non-null email for charge ${charge.id}\n${JSON.stringify(
         charge,
         null,
-        2
-      )}`
+        2,
+      )}`,
     );
   }
   const parsedName =
@@ -334,11 +334,11 @@ export async function createOrFetchContactFromCharge(
   const { records } = await sQuery<ContactSearchResult>(
     client,
     `SELECT Id, AccountId, Stripe_Customer_ID__c, Email, Phone, FirstName, LastName, Donor__c FROM Contact WHERE ${clauses.join(
-      " OR "
-    )}`
+      " OR ",
+    )}`,
   );
   const chooseBestContactRecord = (
-    records: ContactSearchResult[]
+    records: ContactSearchResult[],
   ): ContactSearchResult | null => {
     let bestRecord = null;
     function rankRecord(record: ContactSearchResult | null): number {
@@ -364,7 +364,7 @@ export async function createOrFetchContactFromCharge(
   const nameFields = () => {
     const NAME_FIELD_MAP: [
       keyof ReturnType<typeof nameParser>,
-      keyof Contact
+      keyof Contact,
     ][] = [
       ["first", "FirstName"],
       ["middle", "MiddleName"],
@@ -376,8 +376,8 @@ export async function createOrFetchContactFromCharge(
     return {
       ...Object.fromEntries(
         NAME_FIELD_MAP.flatMap(([fromKey, toKey]) =>
-          parsedName[fromKey] ? [[toKey, parsedName[fromKey]]] : []
-        )
+          parsedName[fromKey] ? [[toKey, parsedName[fromKey]]] : [],
+        ),
       ),
       LastName: parsedName.last,
     };
@@ -395,7 +395,7 @@ export async function createOrFetchContactFromCharge(
       throw new Error(`Expecting AccountId for existing contact ${contactId}`);
     }
     console.log(
-      `Found existing contact ${contactId} account ${existingContact.AccountId} for Customer ${stripeCustomerId}`
+      `Found existing contact ${contactId} account ${existingContact.AccountId} for Customer ${stripeCustomerId}`,
     );
     return { ContactId: contactId, AccountId: existingContact.AccountId };
   } else {
@@ -420,7 +420,7 @@ export async function createOrFetchContactFromCharge(
             "MailingStreet",
             [address?.line1, address?.line2].filter(Boolean).join("\n"),
           ],
-        ].flatMap(([k, v]) => (v ? [[k, v]] : []))
+        ].flatMap(([k, v]) => (v ? [[k, v]] : [])),
       ),
       Email: email,
       Stripe_Customer_ID__c: stripeCustomerId,
@@ -439,7 +439,7 @@ export async function createOrFetchContactFromCharge(
 function getBalanceTransactionId(charge: Stripe.Charge): string {
   if (!charge.balance_transaction) {
     throw new Error(
-      `Expecting non-null balance_transaction for charge ${charge.id}`
+      `Expecting non-null balance_transaction for charge ${charge.id}`,
     );
   }
   return typeof charge.balance_transaction === "string"
@@ -467,21 +467,21 @@ function unixToISODate(unix: number): string {
 export async function createOrFetchOpportunityFromCharge(
   client: SalesforceClient,
   charge: Stripe.Charge,
-  subscription?: Stripe.Subscription
+  subscription?: Stripe.Subscription,
 ): Promise<void> {
   const opportunityApi = sObject(client, "opportunity");
   const existing = await opportunityApi.getFields(
     `Stripe_Charge_ID__c/${charge.id}`,
-    ["Id"]
+    ["Id"],
   );
   if (existing) {
     console.log(
-      `Existing Opportunity record found ${existing.Id} for charge ${charge.id}`
+      `Existing Opportunity record found ${existing.Id} for charge ${charge.id}`,
     );
     return;
   }
   const balanceTransaction = await stripe.balanceTransactions.retrieve(
-    getBalanceTransactionId(charge)
+    getBalanceTransactionId(charge),
   );
   const closeDate = unixToISODate(balanceTransaction.created);
   const contact = await createOrFetchContactFromCharge(client, charge);
@@ -496,11 +496,11 @@ export async function createOrFetchOpportunityFromCharge(
     const recurringApi = sObject(client, "npe03__Recurring_Donation__c");
     const existing = await recurringApi.getFields(
       `Stripe_Subscription_ID__c/${subscription.id}`,
-      ["Id"]
+      ["Id"],
     );
     if (existing) {
       console.log(
-        `Found existing Recurring Donation ${existing.Id} for subscription ${subscription.id}`
+        `Found existing Recurring Donation ${existing.Id} for subscription ${subscription.id}`,
       );
       return { npe03__Recurring_Donation__c: existing.Id };
     }
@@ -516,7 +516,7 @@ export async function createOrFetchOpportunityFromCharge(
       npe03__Installments__c: "1",
     });
     console.log(
-      `Created Recurring Donation ${res.id} for subscription ${subscription.id}`
+      `Created Recurring Donation ${res.id} for subscription ${subscription.id}`,
     );
     return { npe03__Recurring_Donation__c: res.id };
   };
@@ -539,7 +539,7 @@ export async function createOrFetchOpportunityFromCharge(
 
 export async function stripeCheckoutSessionCompletedPaymentSync(
   client: SalesforceClient,
-  sessionId: string
+  sessionId: string,
 ): Promise<void> {
   const payment_intent = await fetchSessionPaymentIntent(sessionId);
   const charge = payment_intent.charges.data[0];
@@ -548,7 +548,7 @@ export async function stripeCheckoutSessionCompletedPaymentSync(
 
 export async function stripeChargeSync(
   client: SalesforceClient,
-  chargeId: string
+  chargeId: string,
 ): Promise<void> {
   const charge = await stripe.charges.retrieve(chargeId);
   await createOrFetchOpportunityFromCharge(client, charge);
@@ -556,7 +556,7 @@ export async function stripeChargeSync(
 
 export async function stripeInvoicePaymentSync(
   client: SalesforceClient,
-  invoiceId: string
+  invoiceId: string,
 ): Promise<void> {
   const invoice = await fetchInvoiceWithPaymentIntent(invoiceId);
   const template = invoiceTemplate(invoice);
@@ -569,7 +569,7 @@ export async function stripeInvoicePaymentSync(
   //       for full subscription management.
   await createOrFetchOpportunityFromCharge(
     client,
-    charge
+    charge,
     // invoice.subscription
   );
 }

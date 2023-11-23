@@ -9,7 +9,7 @@ async function loadStripePromise() {
     throw new Error(
       `Missing STRIPE_PK${
         process.env.STRIPE_KEY_POSTFIX ?? ""
-      } configuration for Stripe`
+      } configuration for Stripe`,
     );
   }
   return await loadStripe(stripePublishableKey);

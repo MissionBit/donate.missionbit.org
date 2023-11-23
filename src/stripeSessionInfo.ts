@@ -7,7 +7,7 @@ function sendgridSafeName(name: string): string {
 }
 
 export function billingDetailsTo(
-  billing_details: Stripe.PaymentMethod.BillingDetails
+  billing_details: Stripe.PaymentMethod.BillingDetails,
 ): { name: string; email: string } {
   return {
     name: sendgridSafeName(billing_details.name ?? ""),
@@ -34,7 +34,7 @@ const CARD_BRANDS: { [k: string]: string } = {
 export function formatPaymentMethodDetailsSource(
   payment_method_details:
     | Stripe.PaymentMethod
-    | Stripe.Charge.PaymentMethodDetails
+    | Stripe.Charge.PaymentMethodDetails,
 ): string {
   const payment_type = payment_method_details.type;
   switch (payment_type) {
@@ -73,7 +73,7 @@ export interface StripeSessionInfo {
 }
 
 function metadataFromChargeOrSession(
-  charge: Stripe.Charge | Stripe.Checkout.Session
+  charge: Stripe.Charge | Stripe.Checkout.Session,
 ): Partial<StripeSessionInfo> {
   const name =
     typeof charge.payment_intent === "object"
@@ -85,12 +85,14 @@ function metadataFromChargeOrSession(
 export function stripeSessionInfoFromCharge(
   charge: Stripe.Charge,
   frequency: Frequency = "one-time",
-  subscriptionId: string | null = null
+  subscriptionId: string | null = null,
 ): StripeSessionInfo {
   const { payment_method_details, id, amount, created } = charge;
   if (typeof payment_method_details !== "object" || !payment_method_details) {
     throw new Error(
-      `Expected payment_method_details to be expanded ${JSON.stringify(charge)}`
+      `Expected payment_method_details to be expanded ${JSON.stringify(
+        charge,
+      )}`,
     );
   }
   return {
@@ -114,26 +116,26 @@ export function stripeCustomerIdFromCharge(charge: Stripe.Charge): string {
 }
 
 export function stripeSessionInfo(
-  session: Stripe.Checkout.Session
+  session: Stripe.Checkout.Session,
 ): StripeSessionInfo {
   switch (session.mode) {
     case "subscription": {
       const { subscription } = session;
       if (typeof subscription !== "object" || !subscription) {
         throw new Error(
-          `Expected subscription to be expanded ${JSON.stringify(session)}`
+          `Expected subscription to be expanded ${JSON.stringify(session)}`,
         );
       }
       const { latest_invoice } = subscription;
       if (typeof latest_invoice !== "object" || !latest_invoice) {
         throw new Error(
-          `Expected latest_invoice to be expanded ${JSON.stringify(session)}`
+          `Expected latest_invoice to be expanded ${JSON.stringify(session)}`,
         );
       }
       const { charge } = latest_invoice;
       if (typeof charge !== "object" || !charge) {
         throw new Error(
-          `Expected charge to be present ${JSON.stringify(session)}`
+          `Expected charge to be present ${JSON.stringify(session)}`,
         );
       }
       return {
@@ -145,13 +147,13 @@ export function stripeSessionInfo(
       const { payment_intent } = session;
       if (typeof payment_intent !== "object" || !payment_intent) {
         throw new Error(
-          `Expected payment_intent to be expanded ${JSON.stringify(session)}`
+          `Expected payment_intent to be expanded ${JSON.stringify(session)}`,
         );
       }
       const [charge] = payment_intent.charges.data;
       if (typeof charge !== "object" || !charge) {
         throw new Error(
-          `Expected charge to be present ${JSON.stringify(session)}`
+          `Expected charge to be present ${JSON.stringify(session)}`,
         );
       }
       return {

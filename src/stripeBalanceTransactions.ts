@@ -26,7 +26,7 @@ const DB_TABLE_NAME = `stripe_balance_transactions${
 function getSupabaseClient(): SupabaseClient {
   return createClient(
     process.env.SUPABASE_PROJECT_URL!,
-    process.env.SUPABASE_PRIVATE_API_KEY!
+    process.env.SUPABASE_PRIVATE_API_KEY!,
   );
 }
 
@@ -40,7 +40,7 @@ function isoTimestampToUnix(timestamp: string): number {
 
 async function getDbTransactions(
   supabase: SupabaseClient,
-  created?: number
+  created?: number,
 ): Promise<{ created: number; transactions: BalanceTransaction[] }> {
   created = created ?? dayjs(dayjs().format("YYYY-MM-01T00:00:00Z")).unix();
   const { data, error } = await supabase
@@ -70,7 +70,7 @@ async function getDbTransactions(
 
 async function insertStripeTransactions(
   supabase: SupabaseClient,
-  transactions: BalanceTransaction[]
+  transactions: BalanceTransaction[],
 ): Promise<void> {
   if (transactions.length === 0) {
     return;
@@ -80,12 +80,12 @@ async function insertStripeTransactions(
       ...row,
       created: unixToISOTimestamp(row.created),
     })),
-    { returning: "minimal", ignoreDuplicates: true }
+    { returning: "minimal", ignoreDuplicates: true },
   );
 }
 
 export async function getBalanceTransactions(
-  created?: number
+  created?: number,
 ): Promise<BalanceTransactionBatch> {
   const stripe = (
     require("src/getStripe") as typeof import("src/getStripe")

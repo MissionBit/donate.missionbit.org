@@ -89,7 +89,7 @@ function ordinalSuffix(n: number): string {
 export function hourStartEndParts(
   start: number,
   end: number,
-  opts?: Partial<HourStartEndPartsOpts>
+  opts?: Partial<HourStartEndPartsOpts>,
 ): { date: string; time: string } {
   const { format, ordinalDay } = {
     ...hourStartEndPartsOptsDefaults,
@@ -108,7 +108,7 @@ export function hourStartEndParts(
   const endHour = dropWhile(format.formatToParts(end), notHour);
   const dateParts: string[] = dropRightWhile(startDate, notYear).map(getValue);
   const timeParts: string[] = dropRightWhile(startHour, notDayPeriod).map(
-    getValue
+    getValue,
   );
   timeParts.push(" - ", ...endHour.map(getValue));
   return {

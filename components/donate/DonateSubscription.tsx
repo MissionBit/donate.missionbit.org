@@ -97,7 +97,7 @@ const DonateSubscription: React.FC<DonateSubscriptionProps> = ({
         setOpen(false);
       }
     },
-    [id]
+    [id],
   );
   return (
     <main id="main">

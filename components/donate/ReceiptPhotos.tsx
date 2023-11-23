@@ -6,8 +6,9 @@ import styles from "./ReceiptPhotos.module.scss";
 function loadPhoto(postfix: string, alt: string) {
   return {
     alt,
-    src: require(/* webpackInclude: /\.jpg$/ */ `public/images/donate/donate-receipt-${postfix}.jpg`)
-      .default,
+    src: require(
+      /* webpackInclude: /\.jpg$/ */ `public/images/donate/donate-receipt-${postfix}.jpg`,
+    ).default,
   };
 }
 

@@ -12,11 +12,11 @@ import {
 const stripe = getStripe();
 
 const STRIPE_WEBHOOK_SIGNING_SECRET = getStripeKey(
-  "STRIPE_WEBHOOK_SIGNING_SECRET"
+  "STRIPE_WEBHOOK_SIGNING_SECRET",
 );
 
 function eventObject<T extends Stripe.Event.Data.Object & { id: string }>(
-  event: Stripe.Event
+  event: Stripe.Event,
 ) {
   const obj = event.data.object as T;
   console.log(`handling ${event.type} id: ${obj.id}`);
@@ -73,7 +73,7 @@ const handler: NextApiHandler = async (req, res) => {
     event = stripe.webhooks.constructEvent(
       await buffer(req),
       sig,
-      STRIPE_WEBHOOK_SIGNING_SECRET
+      STRIPE_WEBHOOK_SIGNING_SECRET,
     );
   } catch (err) {
     console.error(err);

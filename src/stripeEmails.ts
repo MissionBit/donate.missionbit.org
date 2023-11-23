@@ -24,7 +24,7 @@ const EMAIL_TEMPLATES = {
 function donorName(billing_details: Stripe.Charge.BillingDetails): string {
   if (billing_details.email === null) {
     throw new Error(
-      `Expecting non-null email ${JSON.stringify(billing_details)}`
+      `Expecting non-null email ${JSON.stringify(billing_details)}`,
     );
   }
   return billing_details.name
@@ -50,7 +50,7 @@ async function sendEmail(templateData: EmailTemplateData) {
   const mailData = emailTemplateData(templateData);
   const email = billingDetailsTo(templateData.charge.billing_details).email;
   console.log(
-    `Sending ${templateData.frequency} ${templateData.template} for ${templateData.charge.id} to ${email}`
+    `Sending ${templateData.frequency} ${templateData.template} for ${templateData.charge.id} to ${email}`,
   );
   const result = await sg.send(mailData);
   console.log(`Mail statusCode: ${result[0].statusCode} for ${email}`);
@@ -66,12 +66,12 @@ function emailTemplateData({
   if (!charge?.payment_method_details) {
     throw new Error(
       `Expecting charge to have payment_method_details ${JSON.stringify(
-        charge
-      )}`
+        charge,
+      )}`,
     );
   }
   const payment_method = formatPaymentMethodDetailsSource(
-    charge.payment_method_details
+    charge.payment_method_details,
   );
   return {
     templateId: EMAIL_TEMPLATES[template],
@@ -94,7 +94,7 @@ function emailTemplateData({
 }
 
 export async function fetchSessionPaymentIntent(
-  sessionId: string
+  sessionId: string,
 ): Promise<Stripe.PaymentIntent> {
   const session = await stripe.checkout.sessions.retrieve(sessionId, {
     expand: ["payment_intent"],
@@ -106,22 +106,22 @@ export async function fetchSessionPaymentIntent(
   const payment_intent = session.payment_intent;
   if (!payment_intent || typeof payment_intent !== "object") {
     throw new Error(
-      `Expecting expanded payment_intent: ${JSON.stringify(payment_intent)}`
+      `Expecting expanded payment_intent: ${JSON.stringify(payment_intent)}`,
     );
   }
   return payment_intent;
 }
 
 export async function stripeCheckoutSessionCompletedPaymentEmail(
-  id: string
+  id: string,
 ): Promise<void> {
   const payment_intent = await fetchSessionPaymentIntent(id);
   const appMetadata = payment_intent.metadata?.app ?? null;
   if (appMetadata !== APP) {
     console.log(
       `Skipping checkout session ${id} with payment_intent.metadata ${JSON.stringify(
-        payment_intent.metadata
-      )}`
+        payment_intent.metadata,
+      )}`,
     );
     return;
   }
@@ -153,7 +153,7 @@ function legacyGetOrigin(origin?: string): string {
   // this will allow subscription emails to be routed to the correct place
   return getOrigin(origin).replace(
     /^https:\/\/(www|donate|legacy)\.missionbit\.org$/,
-    "https://donate.missionbit.org"
+    "https://donate.missionbit.org",
   );
 }
 
@@ -163,7 +163,7 @@ export type ExpandedInvoice = Stripe.Response<Stripe.Invoice> & {
 };
 
 export async function fetchInvoiceWithPaymentIntent(
-  invoiceId: string
+  invoiceId: string,
 ): Promise<ExpandedInvoice> {
   const invoice = await stripe.invoices.retrieve(invoiceId, {
     expand: ["subscription", "payment_intent"],
@@ -173,7 +173,7 @@ export async function fetchInvoiceWithPaymentIntent(
     invoice.subscription === null
   ) {
     throw new Error(
-      `Expecting expanded subcription ${JSON.stringify(invoice.subscription)}`
+      `Expecting expanded subcription ${JSON.stringify(invoice.subscription)}`,
     );
   }
   if (
@@ -181,7 +181,7 @@ export async function fetchInvoiceWithPaymentIntent(
     invoice.payment_intent === null
   ) {
     throw new Error(
-      `Expecting expanded payment_intent ${JSON.stringify(invoice)}`
+      `Expecting expanded payment_intent ${JSON.stringify(invoice)}`,
     );
   }
   return invoice as ExpandedInvoice;
@@ -192,7 +192,7 @@ export async function stripeInvoicePaymentEmail(id: string): Promise<void> {
   const template = invoiceTemplate(invoice);
   if (template === null) {
     console.log(
-      `Skipping invoice ${invoice.id} with billing_reason ${invoice.billing_reason} and status ${invoice.status}`
+      `Skipping invoice ${invoice.id} with billing_reason ${invoice.billing_reason} and status ${invoice.status}`,
     );
     return;
   }
@@ -200,7 +200,7 @@ export async function stripeInvoicePaymentEmail(id: string): Promise<void> {
   const subscriptionOrigin = subscription.metadata.origin;
   if (!subscriptionOrigin) {
     console.log(
-      `Skipping invoice ${invoice.id} with missing subscription origin`
+      `Skipping invoice ${invoice.id} with missing subscription origin`,
     );
     return;
   }
@@ -213,7 +213,7 @@ export async function stripeInvoicePaymentEmail(id: string): Promise<void> {
       frequency: "monthly",
       failure_message: charge.failure_message,
       renew_url: `${origin}/${usdFormatter.format(
-        charge.amount / 100
+        charge.amount / 100,
       )}?frequency=monthly`,
       subscription_id: subscription.id,
       subscription_url: `${origin}/subscriptions/${subscription.id}`,
