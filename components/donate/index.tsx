@@ -14,11 +14,11 @@ import { Agenda } from "./Agenda";
 import { useRouter } from "next/router";
 
 export interface DonateProps {
-  prefill?: DonatePrefill;
-  campaign?: BalanceProps;
+  prefill?: DonatePrefill | undefined;
+  campaign?: BalanceProps | undefined;
 }
 
-const Main: React.FC<DonateProps> = (props) => {
+const Donate: React.FC<DonateProps> = (props) => {
   const { campaign, prefill, gala } = useCampaign(props);
   const debugGala = typeof useRouter().query.gala === "string";
   const agenda = gala || debugGala ? campaign?.modifications.galaAgenda : null;
@@ -42,4 +42,4 @@ const Main: React.FC<DonateProps> = (props) => {
   );
 };
 
-export default Main;
+export default Donate;

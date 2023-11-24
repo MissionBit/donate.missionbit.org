@@ -6,8 +6,8 @@ export function useCampaign({
   campaign,
   prefill = DEFAULT_PREFILL,
 }: {
-  campaign?: BalanceProps;
-  prefill?: DonatePrefill;
+  campaign?: BalanceProps | undefined;
+  prefill?: DonatePrefill | undefined;
 }): {
   campaign: BalanceProps | undefined;
   prefill: DonatePrefill;

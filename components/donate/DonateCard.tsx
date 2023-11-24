@@ -233,7 +233,7 @@ export function parseDonatePrefill(obj: {
 
 export const DonateCard: React.FC<{
   className?: string;
-  prefill?: DonatePrefill;
+  prefill?: DonatePrefill | undefined;
 }> = ({ className, prefill = DEFAULT_PREFILL }) => {
   const classes = useStyles();
   const stripe = useStripe();
