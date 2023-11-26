@@ -20,10 +20,10 @@ async function main(): Promise<void> {
     if (row.status === "succeeded") {
       console.log(
         `Importing charge ${row.id} ${row.status} ${dollars(
-          row.amount
+          row.amount,
         )} ${new Date(row.created * 1000).toISOString()} ${
           row.billing_details.email
-        }`
+        }`,
       );
       await salesforce.stripeChargeSync(client, row.id);
     }

@@ -25,7 +25,7 @@ function isFrequency(s: unknown): s is Frequency {
 function stringObject(obj: unknown): { [k: string]: string } {
   return obj && typeof obj === "object"
     ? Object.fromEntries(
-        Object.entries(obj).filter((kv) => typeof kv[1] === "string")
+        Object.entries(obj).filter((kv) => typeof kv[1] === "string"),
       )
     : {};
 }
@@ -52,7 +52,7 @@ function session_args(
   origin: string,
   amount: number,
   frequency: Frequency,
-  metadata: { [k: string]: string }
+  metadata: { [k: string]: string },
 ): Stripe.Checkout.SessionCreateParams {
   const payment_method_types: Stripe.Checkout.SessionCreateParams.PaymentMethodType[] =
     ["card"];
@@ -65,9 +65,9 @@ function session_args(
       success_url,
       cancel_url,
       subscription_data: {
-        items: [{ plan: MONTHLY_PLAN_ID, quantity: amount }],
         metadata,
       },
+      line_items: [{ price: MONTHLY_PLAN_ID, quantity: amount }],
     };
   } else {
     return {
@@ -77,9 +77,13 @@ function session_args(
       cancel_url,
       line_items: [
         {
-          amount,
-          currency: "USD",
-          name: "One-time donation",
+          price_data: {
+            unit_amount: amount,
+            currency: "USD",
+            product_data: {
+              name: "One-time donation",
+            },
+          },
           quantity: 1,
         },
       ],
@@ -106,7 +110,7 @@ const handler: NextApiHandler = async (req, res) => {
             ...metadata,
             origin,
             app: APP,
-          })
+          }),
         );
 
       res.status(200).json({ sessionId: checkoutSession.id });

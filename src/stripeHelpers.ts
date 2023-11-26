@@ -43,7 +43,7 @@ export function parseCents(s: string): number | null {
 export function trackCheckoutEvent(
   amount: number,
   frequency: Frequency,
-  paymentMethod: PaymentMethod
+  paymentMethod: PaymentMethod,
 ): void {
   const item = donationItem(amount, frequency);
   gtag("event", "begin_checkout", {

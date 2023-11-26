@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
-import { SupabaseClient, createClient } from "@supabase/supabase-js";
+import { SupabaseClient } from "@supabase/supabase-js";
+import { getSupabaseClient } from "./getSupabaseClient";
 
 export interface BalanceTransaction {
   readonly id: string;
@@ -23,13 +24,6 @@ const DB_TABLE_NAME = `stripe_balance_transactions${
   process.env.STRIPE_KEY_POSTFIX === "_LIVE" ? "" : "_test"
 }`;
 
-function getSupabaseClient(): SupabaseClient {
-  return createClient(
-    process.env.SUPABASE_PROJECT_URL!,
-    process.env.SUPABASE_PRIVATE_API_KEY!
-  );
-}
-
 function unixToISOTimestamp(unix: number): string {
   return new Date(1000 * unix).toISOString();
 }
@@ -40,7 +34,7 @@ function isoTimestampToUnix(timestamp: string): number {
 
 async function getDbTransactions(
   supabase: SupabaseClient,
-  created?: number
+  created?: number,
 ): Promise<{ created: number; transactions: BalanceTransaction[] }> {
   created = created ?? dayjs(dayjs().format("YYYY-MM-01T00:00:00Z")).unix();
   const { data, error } = await supabase
@@ -70,7 +64,7 @@ async function getDbTransactions(
 
 async function insertStripeTransactions(
   supabase: SupabaseClient,
-  transactions: BalanceTransaction[]
+  transactions: BalanceTransaction[],
 ): Promise<void> {
   if (transactions.length === 0) {
     return;
@@ -80,16 +74,14 @@ async function insertStripeTransactions(
       ...row,
       created: unixToISOTimestamp(row.created),
     })),
-    { returning: "minimal", ignoreDuplicates: true }
+    { ignoreDuplicates: true },
   );
 }
 
 export async function getBalanceTransactions(
-  created?: number
+  created?: number,
 ): Promise<BalanceTransactionBatch> {
-  const stripe = (
-    require("src/getStripe") as typeof import("src/getStripe")
-  ).getStripe();
+  const stripe = (await import("src/getStripe")).getStripe();
   const pollTime = dayjs().unix();
   const supabase = getSupabaseClient();
   const res = await getDbTransactions(supabase, created);

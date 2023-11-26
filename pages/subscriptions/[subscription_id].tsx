@@ -40,7 +40,7 @@ function ensureString(x: unknown, context: string): string {
 }
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async (
-  ctx
+  ctx,
 ) => {
   const { res } = ctx;
   if (typeof window !== "undefined") {
@@ -52,15 +52,13 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
     res.statusCode = 404;
     return { props: layoutProps };
   }
-  const stripe = (
-    require("src/getStripe") as typeof import("src/getStripe")
-  ).getStripe();
+  const stripe = (await import("src/getStripe")).getStripe();
   const subscription = await stripe.subscriptions.retrieve(subscription_id, {
     expand: ["default_payment_method"],
   });
   if (subscription.items.data.length !== 1) {
     throw new Error(
-      `Expecting one subscription item ${JSON.stringify(subscription)}`
+      `Expecting one subscription item ${JSON.stringify(subscription)}`,
     );
   }
   const item = subscription.items.data[0];
@@ -70,16 +68,16 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   ) {
     throw new Error(
       `Expecting non-null subscription amount and quantity ${JSON.stringify(
-        subscription
-      )}`
+        subscription,
+      )}`,
     );
   }
   const pm = subscription.default_payment_method;
   if (typeof pm !== "object" || pm === null) {
     throw new Error(
       `Expecting non-null default_payment_method ${JSON.stringify(
-        subscription
-      )}`
+        subscription,
+      )}`,
     );
   }
   const nextCycle =

@@ -15,7 +15,7 @@ async function handleOrderPlaced(api_url: string): Promise<void> {
     `${api_url}?expand=event,attendees,attendees.promotional_code`,
     {
       headers: eventbriteAuth(),
-    }
+    },
   ).then((res) => res.json());
   const { id, costs, event, attendees } = order;
 
@@ -26,7 +26,7 @@ async function handleOrderPlaced(api_url: string): Promise<void> {
       (v: any) =>
         `- ${v.profile.name} (${v.profile.email})${
           v.promotional_code ? ` | _${v.promotional_code.code}_` : ""
-        }`
+        }`,
     ),
   ].join("\n");
   await web.chat.postMessage({
@@ -39,7 +39,7 @@ async function handleOrderPlaced(api_url: string): Promise<void> {
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ): Promise<void> {
   if (
     req.method !== "POST" ||

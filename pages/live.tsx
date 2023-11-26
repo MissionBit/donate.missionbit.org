@@ -242,7 +242,7 @@ export interface PageProps extends LayoutStaticProps {
 
 function mergeBatch(
   current: BalanceTransactionBatch,
-  update: BalanceTransactionBatch
+  update: BalanceTransactionBatch,
 ): BalanceTransactionBatch {
   const ids = new Set<string>(update.transactions.map((txn) => txn.id));
   const transactions = [
@@ -253,7 +253,7 @@ function mergeBatch(
 }
 
 function addSimulatedTransaction(
-  batch: BalanceTransactionBatch
+  batch: BalanceTransactionBatch,
 ): BalanceTransactionBatch {
   const created = dayjs().unix();
   const item = {
@@ -296,7 +296,7 @@ export interface LiveDashboardProps {
 
 export function useLiveDashboard(
   initial: BalanceProps,
-  simulate = false
+  simulate = false,
 ): LiveDashboardProps {
   const [batch, setBatch] = useState(initial.batch);
   const [modifications, setModifications] = useState(initial.modifications);
@@ -310,7 +310,7 @@ export function useLiveDashboard(
       }
       try {
         const res = await fetch(
-          `/api/balance-transactions?created=${batch.created}`
+          `/api/balance-transactions?created=${batch.created}`,
         );
         if (!mounted) {
           return;
@@ -340,7 +340,7 @@ export function useLiveDashboard(
 
   const batchTransactions = useMemo(() => {
     const ignored = new Set(
-      modifications.ignoredTransactions.map((ignored) => ignored.id)
+      modifications.ignoredTransactions.map((ignored) => ignored.id),
     );
     return batch.transactions.filter((txn) => !ignored.has(txn.id));
   }, [batch.transactions, modifications.ignoredTransactions]);
@@ -365,7 +365,7 @@ export function useLiveDashboard(
   }, [batchTransactions, modifications.transactions]);
   const totalCents = batchTransactions.reduce(
     (amount, txn) => amount + txn.amount,
-    modifications.transactions.reduce((amount, txn) => amount + txn.amount, 0)
+    modifications.transactions.reduce((amount, txn) => amount + txn.amount, 0),
   );
   const goalCents =
     modifications.allGoalCents.find((v) => v >= totalCents) ??
@@ -425,20 +425,20 @@ function easeGoal(
   elapsedTime: number,
   duration: number,
   start: GoalValues,
-  goal: GoalValues
+  goal: GoalValues,
 ): GoalValues {
   return {
     totalCents: easeOutCubic(
       elapsedTime,
       start.totalCents,
       goal.totalCents - start.totalCents,
-      duration
+      duration,
     ),
     goalCents: easeOutCubic(
       elapsedTime,
       start.goalCents,
       goal.goalCents - start.goalCents,
-      duration
+      duration,
     ),
   };
 }
@@ -471,7 +471,7 @@ export function useAnimatedGoal(goal: GoalValues): GoalValues {
     elapsedTime,
     duration,
     startGoalRef.current,
-    prevGoalRef.current
+    prevGoalRef.current,
   );
   return animGoalRef.current;
 }
@@ -609,7 +609,7 @@ const Page: NextPage<PageProps> = ({ batch, modifications, ...props }) => {
 };
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async (
-  ctx
+  ctx,
 ) => {
   if (typeof window !== "undefined") {
     throw new Error("Must be called server-side");

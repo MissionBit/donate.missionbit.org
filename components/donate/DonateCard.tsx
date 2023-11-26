@@ -56,7 +56,7 @@ const FontSize = {
 
 function mkFontSize(
   theme: Theme,
-  k: "arrow" | "heading" | "smallInput" | "input"
+  k: "arrow" | "heading" | "smallInput" | "input",
 ) {
   return {
     fontSize: FontSize.large[k],
@@ -174,7 +174,7 @@ async function checkoutDonation(
   stripe: Stripe,
   amount: number,
   frequency: Frequency,
-  metadata: { [k: string]: string } = {}
+  metadata: { [k: string]: string } = {},
 ) {
   trackCheckoutEvent(amount, frequency, "Stripe Checkout");
   const response = await fetch("/api/checkout-sessions", {
@@ -233,13 +233,13 @@ export function parseDonatePrefill(obj: {
 
 export const DonateCard: React.FC<{
   className?: string;
-  prefill?: DonatePrefill;
+  prefill?: DonatePrefill | undefined;
 }> = ({ className, prefill = DEFAULT_PREFILL }) => {
   const classes = useStyles();
   const stripe = useStripe();
   const [frequency, setFrequency] = useState<Frequency>(prefill.frequency);
   const [amountString, setAmountString] = useState<string>(
-    prefill.amount || (prefill.presetAmounts[0] * 0.01).toString()
+    prefill.amount || (prefill.presetAmounts[0] * 0.01).toString(),
   );
   const [loading, setLoading] = useState<boolean>(false);
   const [anonymous, setAnonymous] = useState<boolean>(false);
@@ -271,7 +271,7 @@ export const DonateCard: React.FC<{
           stripe,
           amountCents,
           frequency,
-          anonymous ? { anonymous: "anonymous" } : {}
+          anonymous ? { anonymous: "anonymous" } : {},
         );
       } catch (err) {
         setLoading(false);
@@ -279,7 +279,7 @@ export const DonateCard: React.FC<{
         setErrorMessage((err as Error).message);
       }
     },
-    [disabled, stripe, amountCents, frequency, anonymous]
+    [disabled, stripe, amountCents, frequency, anonymous],
   );
   const [matchAvailable, setMatchAvailable] = useState(false);
   useEffect(() => setMatchAvailable(() => Date.now() < matchEnd), []);

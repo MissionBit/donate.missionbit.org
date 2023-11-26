@@ -23,7 +23,7 @@ export const OtherWaysToGive: React.FC<{ className?: string }> = ({
         "pxblock--accordion",
         "style--default",
         "align--center",
-        "padding--none"
+        "padding--none",
       )}
     >
       <div className="px-container">

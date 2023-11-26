@@ -3,7 +3,7 @@ import getBalanceModifications from "src/googleBalanceModifications";
 import getBalanceTransactions from "src/stripeBalanceTransactions";
 
 function parseCreated(
-  created: string | string[] | undefined
+  created: string | string[] | undefined,
 ): number | undefined {
   if (typeof created !== "string") {
     return undefined;

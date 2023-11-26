@@ -5,7 +5,7 @@ import { ExtendButtonBase } from "@material-ui/core/ButtonBase";
 import buttonStyles from "src/buttonStyles";
 
 export const IndigoButton = withStyles(buttonStyles(ssBrand.purple))(
-  MuiButton
+  MuiButton,
 ) as ExtendButtonBase<ButtonTypeMap>;
 
 export default IndigoButton;

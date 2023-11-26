@@ -33,7 +33,7 @@ const ArrowRight = createSvgIcon(
     strokeLinecap="round"
     strokeLinejoin="round"
   />,
-  "ArrowRight"
+  "ArrowRight",
 );
 
 const ArrowRightIcon = (props: SvgIconProps): JSX.Element => (

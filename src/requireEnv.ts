@@ -8,6 +8,6 @@ function expectString(value: unknown, message?: string): string {
 export default function requireEnv(key: string): string {
   return expectString(
     process.env[key],
-    `Required environment variable ${key} missing`
+    `Required environment variable ${key} missing`,
   );
 }
