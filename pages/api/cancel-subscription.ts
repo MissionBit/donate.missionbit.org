@@ -23,7 +23,7 @@ const handler: NextApiHandler = async (req, res) => {
         res.status(400).json({ error: "Invalid input" });
         return;
       }
-      const subscription = await stripe.subscriptions.del(body.id);
+      const subscription = await stripe.subscriptions.cancel(body.id);
       res.status(200).json({ subscription });
     } catch (err) {
       console.error(err);

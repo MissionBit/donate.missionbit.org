@@ -542,7 +542,12 @@ export async function stripeCheckoutSessionCompletedPaymentSync(
   sessionId: string,
 ): Promise<void> {
   const payment_intent = await fetchSessionPaymentIntent(sessionId);
-  const charge = payment_intent.charges.data[0];
+  const charge = payment_intent.latest_charge;
+  if (!charge || typeof charge !== "object") {
+    throw new Error(
+      `Expecting expanded latest_charge ${JSON.stringify(charge)}`,
+    );
+  }
   await createOrFetchOpportunityFromCharge(client, charge);
 }
 
@@ -563,7 +568,12 @@ export async function stripeInvoicePaymentSync(
   if (template === null) {
     return;
   }
-  const charge = invoice.payment_intent.charges.data[0];
+  const charge = invoice.payment_intent.latest_charge;
+  if (!charge || typeof charge !== "object") {
+    throw new Error(
+      `Expecting expanded latest_charge ${JSON.stringify(charge)}`,
+    );
+  }
   // TODO: Projection of recurring donations is disabled until we
   //       can do further investigation of the model and add hooks
   //       for full subscription management.

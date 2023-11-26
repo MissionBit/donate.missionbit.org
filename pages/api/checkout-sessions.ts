@@ -65,9 +65,9 @@ function session_args(
       success_url,
       cancel_url,
       subscription_data: {
-        items: [{ plan: MONTHLY_PLAN_ID, quantity: amount }],
         metadata,
       },
+      line_items: [{ price: MONTHLY_PLAN_ID, quantity: amount }],
     };
   } else {
     return {
@@ -77,9 +77,13 @@ function session_args(
       cancel_url,
       line_items: [
         {
-          amount,
-          currency: "USD",
-          name: "One-time donation",
+          price_data: {
+            unit_amount: amount,
+            currency: "USD",
+            product_data: {
+              name: "One-time donation",
+            },
+          },
           quantity: 1,
         },
       ],

@@ -97,7 +97,7 @@ export async function fetchSessionPaymentIntent(
   sessionId: string,
 ): Promise<Stripe.PaymentIntent> {
   const session = await stripe.checkout.sessions.retrieve(sessionId, {
-    expand: ["payment_intent"],
+    expand: ["payment_intent", "payment_intent.latest_charge"],
   });
   if (session.mode !== "payment") {
     throw new Error(`Expecting session.mode === "payment"`);
@@ -125,7 +125,12 @@ export async function stripeCheckoutSessionCompletedPaymentEmail(
     );
     return;
   }
-  const charge = payment_intent.charges.data[0];
+  const charge = payment_intent.latest_charge;
+  if (!charge || typeof charge !== "object") {
+    throw new Error(
+      `Expecting expanded latest_charge ${JSON.stringify(charge)}`,
+    );
+  }
   await sendEmail({
     template: "receipt",
     charge,
@@ -166,7 +171,7 @@ export async function fetchInvoiceWithPaymentIntent(
   invoiceId: string,
 ): Promise<ExpandedInvoice> {
   const invoice = await stripe.invoices.retrieve(invoiceId, {
-    expand: ["subscription", "payment_intent"],
+    expand: ["subscription", "payment_intent", "payment_intent.latest_charge"],
   });
   if (
     typeof invoice.subscription !== "object" ||
@@ -204,7 +209,12 @@ export async function stripeInvoicePaymentEmail(id: string): Promise<void> {
     );
     return;
   }
-  const charge = invoice.payment_intent.charges.data[0];
+  const charge = invoice.payment_intent.latest_charge;
+  if (!charge || typeof charge !== "object") {
+    throw new Error(
+      `Expecting expanded latest_charge ${JSON.stringify(charge)}`,
+    );
+  }
   const origin = legacyGetOrigin(subscriptionOrigin);
   if (template === "failure") {
     await sendEmail({

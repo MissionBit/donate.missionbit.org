@@ -150,7 +150,7 @@ export function stripeSessionInfo(
           `Expected payment_intent to be expanded ${JSON.stringify(session)}`,
         );
       }
-      const [charge] = payment_intent.charges.data;
+      const charge = payment_intent.latest_charge;
       if (typeof charge !== "object" || !charge) {
         throw new Error(
           `Expected charge to be present ${JSON.stringify(session)}`,

@@ -42,9 +42,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
     res.statusCode = 404;
     return { props: layoutProps };
   }
-  const stripe = (
-    require("src/getStripe") as typeof import("src/getStripe")
-  ).getStripe();
+  const stripe = (await import("src/getStripe")).getStripe();
   const charge = await stripe.charges.retrieve(charge_id, {
     expand: ["customer", "payment_intent"],
   });
