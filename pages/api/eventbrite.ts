@@ -1,14 +1,11 @@
-import { WebClient } from "@slack/web-api";
 import { NextApiRequest, NextApiResponse } from "next";
+import slack from "src/slack";
 
-const token = process.env.SLACK_TOKEN;
 const eventbriteToken = process.env.EVENTBRITE_TOKEN;
 
 function eventbriteAuth() {
   return { Authorization: `Bearer ${eventbriteToken}` } as const;
 }
-
-const web = new WebClient(token);
 
 async function handleOrderPlaced(api_url: string): Promise<void> {
   const order = await fetch(
@@ -29,7 +26,7 @@ async function handleOrderPlaced(api_url: string): Promise<void> {
         }`,
     ),
   ].join("\n");
-  await web.chat.postMessage({
+  await slack.chat.postMessage({
     channel: "#eventbrite",
     text,
     unfurl_links: false,
