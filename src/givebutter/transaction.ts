@@ -423,7 +423,7 @@ export const EXAMPLE_TRANSACTIONS_RESPONSE: S.Schema.To<
       session_id: "eaa4bb65-aac0-4ec1-b166-f5325597b726",
     },
     {
-      id: "hD0G2BjhuVpUVJwg",
+      id: "hD0G2jBhuVpUVJwg",
       campaign_id: 172267,
       campaign_code: "ASUIS2",
       plan_id: null,

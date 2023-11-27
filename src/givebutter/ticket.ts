@@ -30,7 +30,7 @@ export const EXAMPLE_TICKETS_RESPONSE: S.Schema.To<typeof TicketsResponse> = {
     {
       id: "81347746A0020",
       id_suffix: "A0020",
-      transaction_id: "YLdFHoavm2jSiNN3",
+      transaction_id: "hD0G2jBhuVpUVJwg",
       name: "Brooke Richards",
       first_name: "Brooke",
       last_name: "Richards",
@@ -46,7 +46,7 @@ export const EXAMPLE_TICKETS_RESPONSE: S.Schema.To<typeof TicketsResponse> = {
     {
       id: "80270576A0019",
       id_suffix: "A0019",
-      transaction_id: "XSxwZhmqU84DGBKY",
+      transaction_id: "hD0G2jBhuVpUVJwg",
       name: "Brent Gannetta",
       first_name: "Brent",
       last_name: "Gannetta",

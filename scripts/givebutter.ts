@@ -118,9 +118,6 @@ function upsertCampaignMembers() {
   }).pipe(Effect.flatMap((ids) => Effect.all(ids.map(upsertMembers))));
 }
 
-// Wire up to cron
-// Notifications happen elsewhere
-
 async function main() {
   Effect.runPromise(
     Effect.all([
