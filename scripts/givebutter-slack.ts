@@ -129,11 +129,10 @@ function formatBlocks({
       ? `${txnName} (${givingSpaceName})`
       : txnName;
   const contactInfo = [contactName, txn.email, txn.phone].filter(Boolean);
-  const frequency = plan?.frequency
-    ? `:calendar: ${titleCase(plan.frequency)}`
-    : undefined;
   const headingLines = [
-    `*$${txn.amount}* ${frequency ? " " + frequency + " " : ""}from ${name}`,
+    `*$${txn.amount}* ${
+      plan?.frequency ? `${titleCase(plan.frequency)} ` : ""
+    }from ${name}`,
   ];
   if (isAnonymous) {
     headingLines.push(
@@ -160,9 +159,6 @@ function formatBlocks({
       ].map(mrkdwn),
     },
     {
-      type: "divider",
-    },
-    {
       type: "rich_text",
       elements: [
         {
@@ -173,6 +169,9 @@ function formatBlocks({
           ),
         },
       ],
+    },
+    {
+      type: "divider",
     },
   ] satisfies KnownBlock[];
   return { text: sectionText, blocks };
