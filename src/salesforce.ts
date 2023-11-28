@@ -250,6 +250,7 @@ interface Opportunity {
   Transaction_ID__c?: string;
   Form_of_Payment__c?: string;
   Payment_Fees__c?: string;
+  Givebutter_Transaction_ID__c?: string;
 }
 
 interface RecurringDonation {
@@ -262,6 +263,7 @@ interface RecurringDonation {
   npe03__Installments__c: string;
   npe03__Date_Established__c: string;
   Stripe_Subscription_ID__c?: string;
+  Givebutter_Plan_ID__c?: string;
 }
 
 type ContactSearchResult = Pick<

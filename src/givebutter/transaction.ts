@@ -61,7 +61,19 @@ export const Transaction = S.struct({
   phone: S.nullable(S.string),
   address: S.nullable(BaseAddress),
   status: S.literal("succeeded", "authorized", "failed", "cancelled"),
-  method: S.literal("card", "paypal", "venmo", "check", "cash", "ach", "none"),
+  method: S.union(
+    S.literal(
+      "card",
+      "paypal",
+      "venmo",
+      "check",
+      "cash",
+      "ach",
+      "terminal",
+      "none",
+    ),
+    S.string,
+  ),
   // Presumably a legacy field
   payment_method: S.optional(S.unknown),
   amount: S.number,
