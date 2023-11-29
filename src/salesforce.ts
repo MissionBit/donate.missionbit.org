@@ -216,7 +216,7 @@ export interface Schema {
   npe03__Recurring_Donation__c: RecurringDonation;
 }
 
-interface Contact {
+export interface Contact {
   Id: string;
   AccountId?: string;
   Stripe_Customer_ID__c?: string;
@@ -236,7 +236,7 @@ interface Contact {
   MailingStreet?: string;
 }
 
-interface Opportunity {
+export interface Opportunity {
   Id: string;
   Type: string; // "Donation"
   Name: string; // "Donation #$donationId"
@@ -253,7 +253,7 @@ interface Opportunity {
   Givebutter_Transaction_ID__c?: string;
 }
 
-interface RecurringDonation {
+export interface RecurringDonation {
   Id: string;
   Name: string;
   npe03__Contact__c: Contact["Id"];
@@ -266,7 +266,7 @@ interface RecurringDonation {
   Givebutter_Plan_ID__c?: string;
 }
 
-type ContactSearchResult = Pick<
+export type ContactSearchResult = Pick<
   Contact,
   | "Id"
   | "AccountId"
@@ -278,7 +278,7 @@ type ContactSearchResult = Pick<
   | "Donor__c"
 >;
 
-interface ContactResult {
+export interface ContactResult {
   ContactId: Contact["Id"];
   AccountId: NonNullable<Contact["AccountId"]>;
 }

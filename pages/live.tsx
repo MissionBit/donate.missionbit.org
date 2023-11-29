@@ -14,9 +14,7 @@ import {
 import Head from "next/head";
 import Error404 from "pages/404";
 
-import getBalanceTransactions, {
-  BalanceTransactionBatch,
-} from "src/stripeBalanceTransactions";
+import { BalanceTransactionBatch } from "src/stripeBalanceTransactions";
 import { makeStyles } from "@material-ui/core/styles";
 
 import getBalanceModifications, {
@@ -43,6 +41,7 @@ import Logo from "components/MissionBitLogo";
 import dollars from "src/dollars";
 import liveTheme from "src/liveTheme";
 import Embellishment from "public/images/Embellishment_2_Teal_RGB.png";
+import getBatch from "src/getBatch";
 
 dayjs.extend(relativeTime);
 
@@ -614,11 +613,11 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (
   if (typeof window !== "undefined") {
     throw new Error("Must be called server-side");
   }
-  const [layoutProps, modifications] = await Promise.all([
+  const [layoutProps, { startTimestamp }] = await Promise.all([
     getLayoutStaticProps(),
     getBalanceModifications(),
   ]);
-  const batch = await getBalanceTransactions(modifications.startTimestamp);
+  const { batch, modifications } = await getBatch(startTimestamp);
   return {
     props: {
       origin: getOrigin(ctx.req.headers.origin),

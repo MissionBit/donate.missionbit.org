@@ -1,6 +1,6 @@
 import { NextApiHandler } from "next";
-import getBalanceModifications from "src/googleBalanceModifications";
-import getBalanceTransactions from "src/stripeBalanceTransactions";
+
+import getBatch from "src/getBatch";
 
 function parseCreated(
   created: string | string[] | undefined,
@@ -19,11 +19,8 @@ const handler: NextApiHandler = async (req, res) => {
       return;
     }
     try {
-      const [batch, modifications] = await Promise.all([
-        getBalanceTransactions(created),
-        getBalanceModifications(),
-      ]);
-      res.status(200).json({ batch, modifications });
+      const data = await getBatch(created);
+      res.status(200).json(data);
     } catch (err) {
       console.error(err);
       res

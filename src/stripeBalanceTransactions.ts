@@ -79,7 +79,7 @@ async function insertStripeTransactions(
 }
 
 export async function getBalanceTransactions(
-  created?: number,
+  created: number,
 ): Promise<BalanceTransactionBatch> {
   const stripe = (await import("src/getStripe")).getStripe();
   const pollTime = dayjs().unix();
