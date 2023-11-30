@@ -66,6 +66,10 @@ export async function createOrFetchOpportunityFromGivebutterTransaction(
   const opportunityName = [
     transaction.first_name,
     transaction.last_name,
+    transaction.giving_space.name !==
+    `${transaction.first_name} ${transaction.last_name}`
+      ? `(${transaction.giving_space.name})`
+      : null,
     dollarFormatter.format(transaction.amount),
     plan ? "Recurring" : null,
     "Donation",
