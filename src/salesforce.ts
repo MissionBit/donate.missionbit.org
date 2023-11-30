@@ -283,8 +283,9 @@ export interface ContactResult {
   AccountId: NonNullable<Contact["AccountId"]>;
 }
 
-const expandState = (state?: string | undefined | null): string | undefined =>
-  state ? us.states[state]?.name : undefined;
+export const expandState = (
+  state?: string | undefined | null,
+): string | undefined => (state ? us.states[state]?.name : undefined);
 
 const metadataName = (
   metadata: Stripe.Charge["metadata"],

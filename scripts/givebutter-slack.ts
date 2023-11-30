@@ -21,7 +21,7 @@ function mrkdwn(text: string): MrkdwnElement {
   return { type: "mrkdwn", text };
 }
 
-interface FormatBlocksOptions {
+export interface FormatBlocksOptions {
   readonly transaction: S.Schema.To<typeof Transaction>;
   readonly campaign: S.Schema.To<typeof Campaign> | null;
   readonly plan: S.Schema.To<typeof Plan> | null;

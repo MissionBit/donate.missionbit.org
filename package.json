@@ -19,7 +19,7 @@
     "analyze:browser": "cross-env BUNDLE_ANALYZE=browser next build",
     "postinstall": "husky install",
     "tsx": "NODE_OPTIONS='--import tsx -r dotenv/config' node",
-    "cron": "export NODE_OPTIONS='--import tsx -r dotenv/config' && node scripts/givebutter.ts && node scripts/givebutter-slack.ts"
+    "cron": "export NODE_OPTIONS='--import tsx -r dotenv/config' && node scripts/givebutter.ts && node scripts/givebutter-slack.ts && node scripts/givebutter-salesforce.ts"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix"
