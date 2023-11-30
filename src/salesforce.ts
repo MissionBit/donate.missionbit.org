@@ -486,6 +486,9 @@ export async function createOrFetchOpportunityFromCharge(
   const balanceTransaction = await stripe.balanceTransactions.retrieve(
     getBalanceTransactionId(charge),
   );
+  const extraNameInfo = charge.source?.metadata?.anonymous
+    ? " (Anonymous)"
+    : "";
   const closeDate = unixToISODate(balanceTransaction.created);
   const contact = await createOrFetchContactFromCharge(client, charge);
   const getRecurringDetails = async () => {
@@ -509,7 +512,9 @@ export async function createOrFetchOpportunityFromCharge(
     }
     const monthlyAmount = (item.plan.amount ?? 0) * (item.quantity ?? 1);
     const res = await recurringApi.create({
-      Name: `Subscription ${dollars(monthlyAmount)}/mo ${subscription.id}`,
+      Name: `Subscription ${dollars(monthlyAmount)}/mo ${
+        subscription.id
+      }${extraNameInfo}`,
       Stripe_Subscription_ID__c: subscription.id,
       npe03__Contact__c: contact.ContactId,
       npe03__Amount__c: (monthlyAmount / 100).toFixed(2),
@@ -528,9 +533,9 @@ export async function createOrFetchOpportunityFromCharge(
     ...(await getRecurringDetails()),
     Type: "Donation",
     StageName: stageForStatus(charge.status),
-    Name: `${charge.billing_details.name} ${dollars(charge.amount)} ${
-      subscription ? "Recurring " : ""
-    } Donation ${closeDate}`,
+    Name: `${charge.billing_details.name}${extraNameInfo} ${dollars(
+      charge.amount,
+    )} ${subscription ? "Recurring " : ""} Donation ${closeDate}`,
     Amount: (charge.amount / 100).toFixed(2),
     Payment_Fees__c: (balanceTransaction.fee / 100).toFixed(2),
     CloseDate: new Date(charge.created * 1000).toISOString(),
