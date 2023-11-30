@@ -26,9 +26,9 @@ jobs:
           SALESFORCE_INSTANCE_URL: ${{ secrets.SALESFORCE_INSTANCE_URL }}
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY }}
           SLACK_TOKEN: ${{ secrets.SLACK_TOKEN }}
-          STRIPE_PK_LIVE: ${{ secrets.STRIPE_PK_LIVE }}
-          STRIPE_SK_LIVE: ${{ secrets.STRIPE_SK_LIVE }}
-          STRIPE_WEBHOOK_SIGNING_SECRET_LIVE: ${{ secrets.STRIPE_WEBHOOK_SIGNING_SECRET_LIVE }}
+          STRIPE_PK: ${{ secrets.STRIPE_PK_LIVE }}
+          STRIPE_SK: ${{ secrets.STRIPE_SK_LIVE }}
+          STRIPE_WEBHOOK_SIGNING_SECRET: ${{ secrets.STRIPE_WEBHOOK_SIGNING_SECRET_LIVE }}
           SUPABASE_JWT_SECRET: ${{ secrets.SUPABASE_JWT_SECRET }}
           SUPABASE_PASSWORD: ${{ secrets.SUPABASE_PASSWORD }}
           SUPABASE_PRIVATE_API_KEY: ${{ secrets.SUPABASE_PRIVATE_API_KEY }}
