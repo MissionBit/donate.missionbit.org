@@ -19,6 +19,7 @@ import { Transaction } from "src/givebutter/transaction";
 import { Plan } from "src/givebutter/plan";
 import { Ticket } from "src/givebutter/ticket";
 import { dollarFormatter } from "src/dollars";
+import { ShortDateFormat } from "src/dates";
 
 export interface ExtendedContactResult extends ContactResult {
   type: "create" | "read" | "update";
@@ -68,7 +69,7 @@ export async function createOrFetchOpportunityFromGivebutterTransaction(
     dollarFormatter.format(transaction.amount),
     plan ? "Recurring" : null,
     "Donation",
-    closeDate,
+    ShortDateFormat.format(new Date(closeDate)),
   ]
     .filter(Boolean)
     .join(" ");
