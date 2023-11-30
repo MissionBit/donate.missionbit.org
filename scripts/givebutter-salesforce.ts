@@ -37,9 +37,9 @@ function stageForGivebutterStatus(
   chargeStatus: S.Schema.To<typeof Transaction>["status"],
 ): string {
   switch (chargeStatus) {
-    case "succeeded":
-      return "01-Pledged";
     case "authorized":
+      return "01-Pledged";
+    case "succeeded":
       return "02-Won";
     case "failed":
       return "03-Lost";
@@ -60,15 +60,38 @@ export async function createOrFetchOpportunityFromGivebutterTransaction(
   }
   const { transaction, plan } = options;
   const opportunityApi = sObject(client, "opportunity");
+  const closeDate = transaction.created_at;
+  const stageName = stageForGivebutterStatus(transaction.status);
+  const opportunityName = [
+    transaction.first_name,
+    transaction.last_name,
+    dollarFormatter.format(transaction.amount),
+    plan ? "Recurring" : null,
+    "Donation",
+    closeDate,
+  ]
+    .filter(Boolean)
+    .join(" ");
   const existing = await opportunityApi.getFields(
     `Givebutter_Transaction_ID__c/${transaction.id}`,
-    ["Id"],
+    ["Id", "Name", "StageName"],
   );
   if (existing) {
     console.log(
       `Existing Opportunity record found ${existing.Id} for transaction ${transaction.id}`,
     );
-    return { type: "existing", OpportunityId: existing.Id };
+    if (existing.Name !== opportunityName || existing.StageName !== stageName) {
+      console.log(
+        `Updating Opportunity ${existing.Id} with new name ${opportunityName} and stage ${stageName}`,
+      );
+      await opportunityApi.update(existing.Id, {
+        Name: opportunityName,
+        StageName: stageName,
+      });
+      return { type: "update-existing", OpportunityId: existing.Id };
+    } else {
+      return { type: "existing", OpportunityId: existing.Id };
+    }
   }
   const contact = await createOrFetchContactFromGivebutterTransaction(
     client,
@@ -81,22 +104,12 @@ export async function createOrFetchOpportunityFromGivebutterTransaction(
     }
     return {};
   };
-  const closeDate = transaction.created_at;
   const opportunity = await opportunityApi.create({
     ...contact,
     ...(await getRecurringDetails()),
     Type: "Donation",
-    StageName: stageForGivebutterStatus(transaction.status),
-    Name: [
-      transaction.first_name,
-      transaction.last_name,
-      dollarFormatter.format(transaction.amount),
-      plan ? "Recurring" : null,
-      "Donation",
-      closeDate,
-    ]
-      .filter(Boolean)
-      .join(" "),
+    StageName: stageName,
+    Name: opportunityName,
     Amount: transaction.amount.toFixed(2),
     Payment_Fees__c: (transaction.fee - transaction.fee_covered).toFixed(2),
     CloseDate: closeDate,
