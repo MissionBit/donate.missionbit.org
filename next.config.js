@@ -24,6 +24,7 @@ const STRIPE_KEY_POSTFIX =
 const nextConfig = {
   experimental: {
     optimizeCss: true,
+    runtime: "experimental-edge",
   },
   redirects() {
     return netlifyRedirects;

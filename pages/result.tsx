@@ -26,6 +26,11 @@ const Page: NextPage<PageProps> = ({ sessionInfo, ...props }) =>
     </Layout>
   );
 
+export const config = {
+  runtime: "edge",
+};
+export const runtime = "edge";
+
 export const getServerSideProps: GetServerSideProps<PageProps> = async (
   ctx,
 ) => {

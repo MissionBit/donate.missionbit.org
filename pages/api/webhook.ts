@@ -57,7 +57,9 @@ const HANDLERS: { [k: string]: (event: Stripe.Event) => Promise<void> } = {
   "invoice.payment_failed": stripeInvoicePaymentFailed,
 };
 
+export const runtime = "edge";
 export const config = {
+  runtime: "edge",
   api: {
     bodyParser: false,
   },

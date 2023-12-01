@@ -607,6 +607,11 @@ const Page: NextPage<PageProps> = ({ batch, modifications, ...props }) => {
   }
 };
 
+export const config = {
+  runtime: "edge",
+};
+export const runtime = "edge";
+
 export const getServerSideProps: GetServerSideProps<PageProps> = async (
   ctx,
 ) => {

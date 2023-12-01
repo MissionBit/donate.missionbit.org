@@ -37,4 +37,9 @@ const handler: NextApiHandler = async (req, res) => {
   }
 };
 
+export const runtime = "edge";
+export const config = {
+  runtime: "edge",
+};
+
 export default handler;

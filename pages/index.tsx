@@ -23,5 +23,10 @@ const Page: NextPage<PageProps> = ({
   </Layout>
 );
 
+export const config = {
+  runtime: "edge",
+};
+export const runtime = "edge";
+
 export { getServerSideProps };
 export default Page;

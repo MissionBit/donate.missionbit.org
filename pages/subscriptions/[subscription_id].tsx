@@ -39,6 +39,11 @@ function ensureString(x: unknown, context: string): string {
   return x;
 }
 
+export const config = {
+  runtime: "edge",
+};
+export const runtime = "edge";
+
 export const getServerSideProps: GetServerSideProps<PageProps> = async (
   ctx,
 ) => {

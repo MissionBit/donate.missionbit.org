@@ -36,7 +36,9 @@ const HANDLERS: { [k: string]: (event: Stripe.Event) => Promise<void> } = {
   "charge.succeeded": stripeChargeSucceeded,
 };
 
+export const runtime = "edge";
 export const config = {
+  runtime: "edge",
   api: {
     bodyParser: false,
   },

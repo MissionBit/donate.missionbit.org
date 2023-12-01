@@ -72,6 +72,7 @@
     "webp-loader": "^0.6.0"
   },
   "devDependencies": {
+    "@cloudflare/next-on-pages": "^1.8.0",
     "@netlify/plugin-nextjs": "^4.41.2",
     "@next/eslint-plugin-next": "^11.1.2",
     "@supabase/supabase-js": "^2.38.5",
