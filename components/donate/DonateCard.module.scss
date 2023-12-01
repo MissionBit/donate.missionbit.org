@@ -56,6 +56,7 @@
 .anonymousLabel {
   user-select: none;
   display: flex;
+  justify-self: flex-start;
 }
 
 .anonymousCheckbox:global(.MuiCheckbox-root) {

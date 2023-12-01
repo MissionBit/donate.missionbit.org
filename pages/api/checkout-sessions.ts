@@ -6,6 +6,7 @@ import { getOrigin } from "src/absoluteUrl";
 import { APP } from "src/stripeMetadata";
 
 const MONTHLY_PLAN_ID = "mb-monthly-001";
+const MONTHLY_COVER_FEES_PLAN_ID = "mb-monthly-fees-001";
 
 const stripe = getStripe();
 
@@ -48,6 +49,19 @@ function parseBody(body: unknown): PostBody | undefined {
   return { amount, frequency, metadata: stringObject(metadata) };
 }
 
+function lineItem(name: string, unit_amount: number) {
+  return {
+    price_data: {
+      unit_amount,
+      currency: "USD",
+      product_data: {
+        name,
+      },
+    },
+    quantity: 1,
+  };
+}
+
 function session_args(
   origin: string,
   amount: number,
@@ -57,7 +71,9 @@ function session_args(
   const payment_method_types: Stripe.Checkout.SessionCreateParams.PaymentMethodType[] =
     ["card"];
   const success_url = `${origin}/result?session_id={CHECKOUT_SESSION_ID}`;
-  const cancel_url = `${origin}/cancel`;
+  const cancel_url = `${origin}/`;
+  const coverFees =
+    metadata.coverFees === "coverFees" ? Math.ceil(amount * 0.03) : 0;
   if (frequency === "monthly") {
     return {
       mode: "subscription",
@@ -67,7 +83,12 @@ function session_args(
       subscription_data: {
         metadata,
       },
-      line_items: [{ price: MONTHLY_PLAN_ID, quantity: amount }],
+      line_items: [
+        { price: MONTHLY_PLAN_ID, quantity: amount },
+        ...(coverFees > 0
+          ? [{ price: MONTHLY_COVER_FEES_PLAN_ID, quantity: coverFees }]
+          : []),
+      ],
     };
   } else {
     return {
@@ -76,16 +97,10 @@ function session_args(
       success_url,
       cancel_url,
       line_items: [
-        {
-          price_data: {
-            unit_amount: amount,
-            currency: "USD",
-            product_data: {
-              name: "One-time donation",
-            },
-          },
-          quantity: 1,
-        },
+        lineItem("One-time donation", amount),
+        ...(coverFees > 0
+          ? [lineItem("Cover processing fees (3%)", coverFees)]
+          : []),
       ],
       submit_type: "donate",
       payment_intent_data: { description: "Donation", metadata },

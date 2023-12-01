@@ -243,6 +243,8 @@ export const DonateCard: React.FC<{
   );
   const [loading, setLoading] = useState<boolean>(false);
   const [anonymous, setAnonymous] = useState<boolean>(false);
+  const [coverFees, setCoverFees] = useState<boolean>(true);
+  const [optIn, setOptIn] = useState<boolean>(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const amountCents = parseCents(amountString);
   const disabled = stripe === null || loading || (amountCents ?? 0) <= 0;
@@ -267,19 +269,18 @@ export const DonateCard: React.FC<{
       }
       try {
         setLoading(true);
-        await checkoutDonation(
-          stripe,
-          amountCents,
-          frequency,
-          anonymous ? { anonymous: "anonymous" } : {},
-        );
+        await checkoutDonation(stripe, amountCents, frequency, {
+          ...(optIn ? { optIn: "optIn" } : {}),
+          ...(coverFees ? { coverFees: "coverFees" } : {}),
+          ...(anonymous ? { anonymous: "anonymous" } : {}),
+        });
       } catch (err) {
         setLoading(false);
         console.error(err);
         setErrorMessage((err as Error).message);
       }
     },
-    [disabled, stripe, amountCents, frequency, anonymous],
+    [disabled, stripe, amountCents, frequency, optIn, coverFees, anonymous],
   );
   const [matchAvailable, setMatchAvailable] = useState(false);
   useEffect(() => setMatchAvailable(() => Date.now() < matchEnd), []);
@@ -354,6 +355,31 @@ export const DonateCard: React.FC<{
             <Typography className={styles.anonymousCopy}>
               Show my name as "Anonymous"
               <span className={styles.toThePublic}> to the public</span>
+            </Typography>
+          </label>
+          <label
+            htmlFor="cover-fees-checkbox"
+            className={styles.anonymousLabel}
+          >
+            <Checkbox
+              id="cover-fees-checkbox"
+              checked={coverFees}
+              onChange={() => setCoverFees((prev) => !prev)}
+              className={styles.anonymousCheckbox}
+            />
+            <Typography className={styles.anonymousCopy}>
+              Add 3% to help cover payment processing fees
+            </Typography>
+          </label>
+          <label htmlFor="opt-in-checkbox" className={styles.anonymousLabel}>
+            <Checkbox
+              id="opt-in-checkbox"
+              checked={optIn}
+              onChange={() => setOptIn((prev) => !prev)}
+              className={styles.anonymousCheckbox}
+            />
+            <Typography className={styles.anonymousCopy}>
+              Allow Mission Bit to contact me after this donation
             </Typography>
           </label>
           {errorMessage ? <Typography>{errorMessage}</Typography> : null}

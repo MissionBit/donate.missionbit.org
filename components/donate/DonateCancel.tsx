@@ -22,7 +22,7 @@ const DonateCancel: React.FC<{}> = () => {
           .
         </p>
         <p className="large">
-          <Link href="/donate">Back to the donate page</Link>
+          <Link href="/">Back to the donate page</Link>
         </p>
       </div>
     </main>
