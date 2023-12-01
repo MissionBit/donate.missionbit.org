@@ -12,7 +12,7 @@ const Page: NextPage<PageProps> = ({
 }) => (
   <Layout
     {...props}
-    canonicalPath="/donate"
+    canonicalPath="/"
     title="Donate Today - Mission Bit"
     description="Donate and support San Francisco area 501c3 Mission Bit today with a tax-deductible donation."
   >

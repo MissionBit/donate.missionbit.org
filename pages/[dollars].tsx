@@ -10,7 +10,7 @@ const Page: NextPage<PageProps> = ({
   modifications,
   ...layout
 }) => (
-  <Layout {...layout} canonicalPath="/donate" title="Mission Bit – Donate">
+  <Layout {...layout} canonicalPath="/" title="Mission Bit – Donate">
     <Donate
       prefill={prefill}
       campaign={batch && modifications ? { batch, modifications } : undefined}
