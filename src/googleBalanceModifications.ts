@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import { fetch } from "cross-fetch";
+import { getSupabaseClient } from "./getSupabaseClient";
 
 // https://docs.google.com/spreadsheets/d/1h06Ee495xC7q_WEwa9cGxBv_31hj7t_c7qcREoFacTk/edit
 // This spreadsheet must have "Anyone with the link can view" permission
@@ -124,7 +125,7 @@ function parseDocToSheetsAndRows(
   return sheets;
 }
 
-export async function getBalanceModifications(): Promise<BalanceModifications> {
+export async function _getBalanceModifications(): Promise<BalanceModifications> {
   const pollTime = dayjs().unix();
   const transactions: BalanceModification[] = [];
   const id = SPREADSHEET_ID;
@@ -239,6 +240,31 @@ export async function getBalanceModifications(): Promise<BalanceModifications> {
         ? { href: galaAgendaUrl, title: galaAgendaTitle }
         : null,
   };
+}
+
+const CACHE_ID = "google-sheet";
+
+export async function upsertBalanceModifications(): Promise<void> {
+  const supabase = getSupabaseClient();
+  const data = await _getBalanceModifications();
+  const res = await supabase
+    .from("cache")
+    .upsert({ id: CACHE_ID, data }, { count: "exact" });
+  if (res.error) {
+    throw res.error;
+  }
+}
+
+export async function getBalanceModifications(): Promise<BalanceModifications> {
+  const supabase = getSupabaseClient();
+  const res = await supabase.from("cache").select("data").eq("id", CACHE_ID);
+  if (res.error) {
+    throw res.error;
+  }
+  if (res.data.length !== 1) {
+    throw new Error("Expecitng 1 result in cache");
+  }
+  return res.data[0].data;
 }
 
 export default getBalanceModifications;
