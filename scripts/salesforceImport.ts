@@ -18,6 +18,9 @@ async function main(): Promise<void> {
     },
   })) {
     if (row.status === "succeeded") {
+      if (!row.metadata.anonymous) {
+        continue;
+      }
       console.log(
         `Importing charge ${row.id} ${row.status} ${dollars(
           row.amount,

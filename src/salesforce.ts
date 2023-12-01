@@ -473,23 +473,36 @@ export async function createOrFetchOpportunityFromCharge(
   subscription?: Stripe.Subscription,
 ): Promise<void> {
   const opportunityApi = sObject(client, "opportunity");
+  const extraNameInfo = charge.metadata?.anonymous ? " (Anonymous)" : "";
+  const balanceTransaction = await stripe.balanceTransactions.retrieve(
+    getBalanceTransactionId(charge),
+  );
+  const closeDate = unixToISODate(balanceTransaction.created);
+  const stageName = stageForStatus(charge.status);
+  const opportunityName = `${
+    charge.billing_details.name
+  }${extraNameInfo} ${dollars(charge.amount)} ${
+    subscription ? "Recurring " : ""
+  } Donation ${closeDate}`;
   const existing = await opportunityApi.getFields(
     `Stripe_Charge_ID__c/${charge.id}`,
-    ["Id"],
+    ["Id", "Name", "StageName"],
   );
   if (existing) {
     console.log(
       `Existing Opportunity record found ${existing.Id} for charge ${charge.id}`,
     );
+    if (existing.Name !== opportunityName || existing.StageName !== stageName) {
+      console.log(
+        `Updating StageName and Name for Opportunity ${existing.Id} ${stageName} ${opportunityName}`,
+      );
+      await opportunityApi.update(existing.Id, {
+        Name: opportunityName,
+        StageName: stageName,
+      });
+    }
     return;
   }
-  const balanceTransaction = await stripe.balanceTransactions.retrieve(
-    getBalanceTransactionId(charge),
-  );
-  const extraNameInfo = charge.source?.metadata?.anonymous
-    ? " (Anonymous)"
-    : "";
-  const closeDate = unixToISODate(balanceTransaction.created);
   const contact = await createOrFetchContactFromCharge(client, charge);
   const getRecurringDetails = async () => {
     if (!subscription || subscription.items.data.length !== 1) {
@@ -532,10 +545,8 @@ export async function createOrFetchOpportunityFromCharge(
     ...contact,
     ...(await getRecurringDetails()),
     Type: "Donation",
-    StageName: stageForStatus(charge.status),
-    Name: `${charge.billing_details.name}${extraNameInfo} ${dollars(
-      charge.amount,
-    )} ${subscription ? "Recurring " : ""} Donation ${closeDate}`,
+    StageName: stageName,
+    Name: opportunityName,
     Amount: (charge.amount / 100).toFixed(2),
     Payment_Fees__c: (balanceTransaction.fee / 100).toFixed(2),
     CloseDate: new Date(charge.created * 1000).toISOString(),
