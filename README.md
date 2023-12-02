@@ -83,10 +83,6 @@ format, such as
 `"2020-06-20T08:00-07:00"` for June 20, 2020 at 8am Pacific Daylight Time or
 `"2020-11-12T18:00-08:00"` for November 12 at 6pm Pacific Standard Time.
 
-As we are deployed on [Netlify](https://www.netlify.com/), the site is built
-in a way such that it can be statically rendered statically as plain HTML
-with `next export`, there are no routes that depend on any server-side code.
-
 ## Asset Conventions
 
 PDFs, zip files, and other data formats that are not displayed inline on
@@ -138,15 +134,14 @@ name as the page it is associated with.
 
 ## Runbook
 
-The site is deployed by Netlify for both production and PR deployment previews.
+The site is deployed by Vercel for both production and PR deployment previews.
 
-The Netlify dashboard is at
-[app.netlify.com/sites/mb-donate/overview](https://app.netlify.com/sites/mb-donate/overview).
-Contact bob@missionbit.org or cora@missionbit.org if you need access to this
-team for some reason.
+The Vercel dashboard is at
+[vercel.com/missionbit/donate-missionbit-org](https://vercel.com/missionbit/donate-missionbit-org).
+Contact bob@missionbit.org if you need access to this team for some reason.
 
 The deployment configuration is at
-[app.netlify.com/sites/mb-donate/settings/deploys](https://app.netlify.com/sites/mb-donate/settings/deploys).
+[vercel.com/missionbit/donate-missionbit-org/settings/environment-variables](https://vercel.com/missionbit/donate-missionbit-org/settings/environment-variables).
 These environment variables are used by APIs on the site:
 
 * `SENTRY_AUTH_TOKEN` - Sentry authorization token (for marking releases)
@@ -162,6 +157,10 @@ These environment variables are used by APIs on the site:
 * `STRIPE_WEBHOOK_SIGNING_SECRET_TEST` - Webhook signing key for testing (PR builds)
 * `EVENTBRITE_TOKEN` - An Eventbrite API key "Private token" for processing webhooks
 * `SLACK_TOKEN` - A Slack token for processing Eventbrite webhooks
+* `SALESFORCE_INSTANCE_URL` - Salesforce instance for syncing opportunities
+* `SALESFORCE_CLIENT_ID` - Salesforce credentials for syncing opportunities
+* `SALESFORCE_CLIENT_SECRET` - Salesforce credentials for syncing opportunities
+* `GIVEBUTTER_API_KEY` - Givebutter API key for syncing
 
 The webhook for Stripe should be at `https://donate.missionbit.org/api/webhook` for the following event types:
 
@@ -171,9 +170,7 @@ The webhook for Stripe should be at `https://donate.missionbit.org/api/webhook` 
 
 DNS is currently hosted by:
 
-* Cloudflare (missionbit.com)
-* Azure (missionbit.org)
-* [Netlify](https://app.netlify.com/teams/missionbit/dns) (missionbits.com, missionbits.org)
+* Cloudflare (missionbit.com, missionbit.org)
 
 Errors are collected with sentry.io at
 [https://sentry.io/organizations/mission-bit/projects/donatemissionbitorg/](https://sentry.io/organizations/mission-bit/projects/donatemissionbitorg/)
