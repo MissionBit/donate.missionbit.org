@@ -114,10 +114,8 @@
       color: #fff;
     }
     @media (hover: hover) {
-      &:hover {
-        background-color: color.scale($purple, $lightness: 50%);
-        opacity: 0.8;
-        color: #fff;
+      &:hover[aria-checked=false] {
+        background-color: color.scale($purple, $lightness: 80%);
       }
     }
     &:first-child {
