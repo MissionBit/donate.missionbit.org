@@ -1,13 +1,6 @@
 import * as React from "react";
-import { withStyles } from "@material-ui/core/styles";
-import Box from "@material-ui/core/Box";
 import { useStripe } from "@stripe/react-stripe-js";
 import clsx from "clsx";
-import { ssBrand } from "src/colors";
-import BaseOutlinedInput from "@material-ui/core/OutlinedInput";
-import FormControl from "@material-ui/core/FormControl";
-import BaseInputLabel from "@material-ui/core/InputLabel";
-import InputAdornment from "@material-ui/core/InputAdornment";
 import { useCallback, useEffect, useState } from "react";
 import IndigoButton from "components/IndigoButton";
 import ArrowRightIcon from "components/icons/ArrowRightIcon";
@@ -19,54 +12,13 @@ import {
   isFrequency,
 } from "src/stripeHelpers";
 import { Stripe } from "@stripe/stripe-js";
-import { Typography, Collapse } from "@material-ui/core";
 import dollars from "src/dollars";
 import styles from "./DonateCard.module.scss";
 import Checkbox from "./Checkbox";
 import { RadioGroup } from "@headlessui/react";
+import InputAmount from "./InputAmount";
 
 const matchEnd = Date.parse("2021-08-01T00:00:00-07:00");
-
-const brandColor = ssBrand.purple;
-const borderColor = brandColor;
-
-const InputLabel = withStyles({
-  root: {
-    "&$focused": {
-      color: brandColor,
-    },
-  },
-  focused: {},
-})(BaseInputLabel);
-
-const OutlinedInput = withStyles((theme) => ({
-  root: {
-    "&:hover $notchedOutline": {
-      borderColor: brandColor,
-    },
-    // Reset on touch devices, it doesn't add specificity
-    "@media (hover: none)": {
-      "&:hover $notchedOutline": {
-        borderColor: brandColor,
-      },
-    },
-    "&$focused $notchedOutline": {
-      borderColor: brandColor,
-    },
-    "&$error $notchedOutline": {
-      borderColor: theme.palette.error.main,
-    },
-    "&$disabled $notchedOutline": {
-      borderColor: theme.palette.action.disabled,
-    },
-  },
-  focused: {},
-  error: {},
-  disabled: {},
-  notchedOutline: {
-    borderColor,
-  },
-}))(BaseOutlinedInput);
 
 async function checkoutDonation(
   stripe: Stripe,
@@ -186,8 +138,9 @@ export const DonateCard: React.FC<{
     <div className={clsx(styles.root, className)}>
       <div className={styles.heading}>Donate Online</div>
       <div className={styles.content}>
-        <Collapse in={matchAvailable}>
-          <Box className={clsx(styles.inputTextSize, styles.match)}>
+        {/* todo add Collapse animation */}
+        {matchAvailable ? (
+          <div className={clsx(styles.inputTextSize, styles.match)}>
             <span role="img" aria-label="Party popper">
               🎉
             </span>
@@ -197,8 +150,8 @@ export const DonateCard: React.FC<{
             <span role="img" aria-label="Party popper">
               🎉
             </span>
-          </Box>
-        </Collapse>
+          </div>
+        ) : null}
         <form className={styles.form} onSubmit={handleOnSubmit}>
           <RadioGroup
             value={frequency}
@@ -221,26 +174,13 @@ export const DonateCard: React.FC<{
               </RadioGroup.Option>
             ))}
           </RadioGroup>
-          <FormControl fullWidth variant="outlined">
-            <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
-            <OutlinedInput
-              id="outlined-adornment-amount"
-              value={amountString}
-              onChange={handleChangeAmount}
-              className={styles.inputTextSize}
-              startAdornment={
-                <InputAdornment position="start">
-                  <Typography
-                    color="textSecondary"
-                    className={styles.inputTextSize}
-                  >
-                    $
-                  </Typography>
-                </InputAdornment>
-              }
-              labelWidth={60}
-            />
-          </FormControl>
+          <InputAmount
+            id="input-amount"
+            name="Amount"
+            value={amountString}
+            onChange={handleChangeAmount}
+            className={clsx(styles.inputTextSize, styles.fullWidth)}
+          />
           <Checkbox
             id="anonymous-checkbox"
             checked={anonymous}
@@ -259,7 +199,11 @@ export const DonateCard: React.FC<{
           <Checkbox id="opt-in-checkbox" checked={optIn} onChange={setOptIn}>
             Allow Mission Bit to contact me after this donation
           </Checkbox>
-          {errorMessage ? <Typography>{errorMessage}</Typography> : null}
+          {errorMessage ? (
+            <span className={clsx(styles.error, styles.fullWidth)}>
+              {errorMessage}
+            </span>
+          ) : null}
           <IndigoButton
             disabled={disabled}
             type="submit"

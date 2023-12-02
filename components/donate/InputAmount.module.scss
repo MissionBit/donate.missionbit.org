@@ -1,0 +1,61 @@
+@import "src/scss/variables";
+@import "src/scss/mixins";
+
+.root {
+  position: relative;
+  border-radius: 4px;
+  border: 1px solid $purple;
+  box-sizing: content-box;
+  margin: 1px;
+  &:focus-within {
+    border-width: 2px;
+    margin: 0;
+  }
+}
+
+.input {
+  padding: 18.5px 14px;
+  padding-left: 0;
+  height: 1.1876em;
+  border: 0;
+  margin: 0;
+  min-width: 0;
+  background: none;
+  box-sizing: content-box;
+  letter-spacing: inherit;
+  &:focus {
+    outline: 0;
+  }
+}
+
+.wrapper {
+  padding-left: 14px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.name {
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0 4px;
+  background-color: $white;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1;
+  color: $black;
+  pointer-events: none;
+  z-index: 1;
+  transform-origin: top-left;
+  transform: translate(0px, -9px) scale(0.75);
+  .root:focus-within & {
+    color: $purple;
+  }
+}
+
+.adornment {
+  font-size: 1rem;
+  margin-right: 8px;
+  display: flex;
+}

@@ -27,6 +27,7 @@
     font-size: 28px;
   }
 }
+
 .arrowIcon {
   fill: currentColor;
   width: 1em;
@@ -156,4 +157,12 @@
       border-radius: 0 4px 4px 0;
     }
   }
+}
+
+.fullWidth {
+  width: 100%;
+}
+
+.error {
+  color: $error-red;
 }

@@ -69,9 +69,9 @@ This site is built with the [Next.js](https://nextjs.org/) framework in
 [React](https://reactjs.org/).
 
 The user interface is primarily built using components from
-[Material-UI](https://material-ui.com/) and we use Material-UI's styling
-solution [@material-ui/styles](https://material-ui.com/styles/basics/)
-to manage CSS.
+[Headless UI](https://headlessui.com/) and we use
+[Sass](https://sass-lang.com/) modules to manage CSS, much of it
+is ported from the missionbit.org Wordpress theme.
 
 Code formatting and style is managed automatically with
 [Prettier](https://prettier.io/) and [ESLint](https://eslint.org/).
