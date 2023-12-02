@@ -17,7 +17,8 @@
 }
 .button,
 .arrowIcon,
-.frequency {
+.frequency,
+.amounts {
   font-size: 20px;
   @include bp(375px) {
     font-size: 24px;
@@ -91,6 +92,36 @@
   font-size: 24px;
   @include bpmax(960px) {
     font-size: 20px;
+  }
+}
+
+.amounts {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(3,minmax(0,1fr));
+  width: 100%;
+  height: auto;
+  font-weight: 600;
+  cursor: pointer;
+  & > *[role=radio] {
+    height: 3.5rem;
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    border: 1px solid $purple;
+    color: $purple;
+    border-radius: 4px;
+    &[aria-checked=true] {
+      background-color: $purple;
+      color: #fff;
+    }
+    @media (hover: hover) {
+      &:hover[aria-checked=false] {
+        background-color: color.scale($purple, $lightness: 80%);
+      }
+    }
   }
 }
 

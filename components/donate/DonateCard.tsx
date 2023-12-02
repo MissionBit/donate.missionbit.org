@@ -1,11 +1,9 @@
 import * as React from "react";
-import { alpha, withStyles } from "@material-ui/core/styles";
+import { withStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
 import { useStripe } from "@stripe/react-stripe-js";
 import clsx from "clsx";
 import { ssBrand } from "src/colors";
-import BaseToggleButton from "@material-ui/lab/ToggleButton";
-import BaseToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 import BaseOutlinedInput from "@material-ui/core/OutlinedInput";
 import FormControl from "@material-ui/core/FormControl";
 import BaseInputLabel from "@material-ui/core/InputLabel";
@@ -21,7 +19,7 @@ import {
   isFrequency,
 } from "src/stripeHelpers";
 import { Stripe } from "@stripe/stripe-js";
-import { Typography, Theme, Collapse } from "@material-ui/core";
+import { Typography, Collapse } from "@material-ui/core";
 import dollars from "src/dollars";
 import styles from "./DonateCard.module.scss";
 import Checkbox from "./Checkbox";
@@ -40,55 +38,6 @@ const InputLabel = withStyles({
   },
   focused: {},
 })(BaseInputLabel);
-
-const FontSize = {
-  large: {
-    arrow: 28,
-    heading: 28,
-    smallInput: 16,
-    input: 24,
-  },
-  small: {
-    arrow: 24,
-    heading: 24,
-    smallInput: 14,
-    input: 20,
-  },
-} as const;
-
-function mkFontSize(
-  theme: Theme,
-  k: "arrow" | "heading" | "smallInput" | "input",
-) {
-  return {
-    fontSize: FontSize.large[k],
-    [theme.breakpoints.down("sm")]: {
-      fontSize: FontSize.small[k],
-    },
-  };
-}
-
-const AmountToggleButtonGroup = withStyles((theme) => ({
-  root: {
-    width: "100%",
-    display: "grid",
-    gridGap: theme.spacing(3),
-    gridTemplateColumns: "repeat(3, 1fr)",
-  },
-  groupedHorizontal: {
-    ...mkFontSize(theme, "input"),
-    "&:not(:first-child)": {
-      borderTopLeftRadius: "inherit",
-      borderBottomLeftRadius: "inherit",
-      borderLeft: "1px solid",
-      marginLeft: "inherit",
-    },
-    "&:not(:last-child)": {
-      borderTopRightRadius: "inherit",
-      borderBottomRightRadius: "inherit",
-    },
-  },
-}))(BaseToggleButtonGroup);
 
 const OutlinedInput = withStyles((theme) => ({
   root: {
@@ -118,24 +67,6 @@ const OutlinedInput = withStyles((theme) => ({
     borderColor,
   },
 }))(BaseOutlinedInput);
-
-const ToggleButton = withStyles((theme) => ({
-  root: {
-    color: brandColor,
-    borderColor: brandColor,
-    "&$selected": {
-      color: theme.palette.common.white,
-      backgroundColor: brandColor,
-      "&:hover": {
-        backgroundColor: alpha(brandColor, 0.8),
-      },
-    },
-    "&:hover": {
-      backgroundColor: alpha(brandColor, 0.1),
-    },
-  },
-  selected: {},
-}))(BaseToggleButton);
 
 async function checkoutDonation(
   stripe: Stripe,
@@ -219,7 +150,7 @@ export const DonateCard: React.FC<{
       setFrequency(newFrequency);
     }
   }, []);
-  const handleAmountCents = useCallback((_event, newAmountCents) => {
+  const handleAmountCents = useCallback((newAmountCents) => {
     if (newAmountCents) {
       setAmountString(formatCents(newAmountCents));
     }
@@ -278,18 +209,18 @@ export const DonateCard: React.FC<{
             <RadioGroup.Option value="one-time">One-time</RadioGroup.Option>
             <RadioGroup.Option value="monthly">Monthly</RadioGroup.Option>
           </RadioGroup>
-          <AmountToggleButtonGroup
+          <RadioGroup
             value={amountCents}
-            exclusive
             onChange={handleAmountCents}
             aria-label="Preset donation amounts"
+            className={styles.amounts}
           >
             {prefill.presetAmounts.map((cents) => (
-              <ToggleButton key={cents} value={cents}>
+              <RadioGroup.Option key={cents} value={cents}>
                 {dollars(cents)}
-              </ToggleButton>
+              </RadioGroup.Option>
             ))}
-          </AmountToggleButtonGroup>
+          </RadioGroup>
           <FormControl fullWidth variant="outlined">
             <InputLabel htmlFor="outlined-adornment-amount">Amount</InputLabel>
             <OutlinedInput
