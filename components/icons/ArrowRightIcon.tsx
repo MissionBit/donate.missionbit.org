@@ -1,6 +1,4 @@
 import * as React from "react";
-import { SvgIconProps } from "@material-ui/core/SvgIcon";
-import { createSvgIcon } from "@material-ui/core";
 
 const scale = 100;
 
@@ -24,20 +22,21 @@ const points = [
   p(xMid, yMax),
 ].join(" ");
 
-const ArrowRight = createSvgIcon(
-  <polyline
-    points={points}
-    stroke="currentColor"
-    fill="none"
-    strokeWidth="18%"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  />,
-  "ArrowRight",
-);
-
-const ArrowRightIcon = (props: SvgIconProps): JSX.Element => (
-  <ArrowRight viewBox="-50 -50 100 100" {...props} />
-);
+export function ArrowRightIcon(
+  props: React.SVGProps<SVGSVGElement>,
+): JSX.Element {
+  return (
+    <svg viewBox="-50 -50 100 100" {...props}>
+      <polyline
+        points={points}
+        stroke="currentColor"
+        fill="none"
+        strokeWidth="18%"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 export default ArrowRightIcon;

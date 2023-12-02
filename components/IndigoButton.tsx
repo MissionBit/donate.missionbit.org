@@ -1,11 +1,23 @@
-import { withStyles } from "@material-ui/core/styles";
-import MuiButton, { ButtonTypeMap } from "@material-ui/core/Button";
-import { ssBrand } from "src/colors";
-import { ExtendButtonBase } from "@material-ui/core/ButtonBase";
-import buttonStyles from "src/buttonStyles";
+import * as React from "react";
+import styles from "./IndigoButton.module.scss";
+import clsx from "clsx";
 
-export const IndigoButton = withStyles(buttonStyles(ssBrand.purple))(
-  MuiButton,
-) as ExtendButtonBase<ButtonTypeMap>;
+export type IndigoButtonProps = React.DetailedHTMLProps<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  HTMLButtonElement
+>;
+
+export function IndigoButton(props: IndigoButtonProps): JSX.Element {
+  return (
+    <button
+      {...props}
+      className={clsx(
+        styles.root,
+        props.disabled && styles.disabled,
+        props.className,
+      )}
+    />
+  );
+}
 
 export default IndigoButton;

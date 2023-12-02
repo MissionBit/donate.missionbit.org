@@ -21,9 +21,10 @@ import {
   isFrequency,
 } from "src/stripeHelpers";
 import { Stripe } from "@stripe/stripe-js";
-import { Typography, Theme, Collapse, Checkbox } from "@material-ui/core";
+import { Typography, Theme, Collapse } from "@material-ui/core";
 import dollars from "src/dollars";
 import styles from "./DonateCard.module.scss";
+import Checkbox from "./Checkbox";
 
 const matchEnd = Date.parse("2021-08-01T00:00:00-07:00");
 
@@ -345,46 +346,26 @@ export const DonateCard: React.FC<{
               labelWidth={60}
             />
           </FormControl>
-          <label htmlFor="anonymous-checkbox" className={styles.anonymousLabel}>
-            <Checkbox
-              id="anonymous-checkbox"
-              checked={anonymous}
-              onChange={() => setAnonymous((prev) => !prev)}
-              className={styles.anonymousCheckbox}
-            />
-            <Typography className={styles.anonymousCopy}>
-              Show my name as "Anonymous"
-              <span className={styles.toThePublic}> to the public</span>
-            </Typography>
-          </label>
-          <label
-            htmlFor="cover-fees-checkbox"
-            className={styles.anonymousLabel}
+          <Checkbox
+            id="anonymous-checkbox"
+            checked={anonymous}
+            onChange={setAnonymous}
           >
-            <Checkbox
-              id="cover-fees-checkbox"
-              checked={coverFees}
-              onChange={() => setCoverFees((prev) => !prev)}
-              className={styles.anonymousCheckbox}
-            />
-            <Typography className={styles.anonymousCopy}>
-              Add 3% to help cover payment processing fees
-            </Typography>
-          </label>
-          <label htmlFor="opt-in-checkbox" className={styles.anonymousLabel}>
-            <Checkbox
-              id="opt-in-checkbox"
-              checked={optIn}
-              onChange={() => setOptIn((prev) => !prev)}
-              className={styles.anonymousCheckbox}
-            />
-            <Typography className={styles.anonymousCopy}>
-              Allow Mission Bit to contact me after this donation
-            </Typography>
-          </label>
+            Show my name as "Anonymous"
+            <span className={styles.toThePublic}> to the public</span>
+          </Checkbox>
+          <Checkbox
+            id="cover-fees-checkbox"
+            checked={coverFees}
+            onChange={setCoverFees}
+          >
+            Add 3% to help cover payment processing fees
+          </Checkbox>
+          <Checkbox id="opt-in-checkbox" checked={optIn} onChange={setOptIn}>
+            Allow Mission Bit to contact me after this donation
+          </Checkbox>
           {errorMessage ? <Typography>{errorMessage}</Typography> : null}
           <IndigoButton
-            variant="contained"
             disabled={disabled}
             type="submit"
             className={styles.button}

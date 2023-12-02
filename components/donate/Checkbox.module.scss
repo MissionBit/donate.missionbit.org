@@ -1,0 +1,17 @@
+@import "src/scss/variables";
+@import "src/scss/mixins";
+
+.label {
+  user-select: none;
+  display: flex;
+  justify-self: flex-start;
+}
+.copy {
+  padding-left: 8px;
+}
+input[type=checkbox].checkbox {
+  margin: 0.20rem 0;
+  width: 1rem;
+  height: 1rem;
+  accent-color: $purple;
+}

@@ -14,8 +14,8 @@
 .button {
   margin: 0;
 }
-.button:global(.MuiButtonBase-root),
-.arrowIcon:global(.MuiSvgIcon-root) {
+.button,
+.arrowIcon {
   font-size: 20px;
   @include bp(375px) {
     font-size: 24px;
@@ -23,6 +23,15 @@
   @include bp($m) {
     font-size: 28px;
   }
+}
+.arrowIcon {
+  fill: currentColor;
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  flex-shrink: 0;
+  user-select: none;
 }
 
 .heading {
@@ -51,20 +60,6 @@
   line-height: 1.5;
   grid-template: auto / 1fr;
   justify-items: center;
-}
-
-.anonymousLabel {
-  user-select: none;
-  display: flex;
-  justify-self: flex-start;
-}
-
-.anonymousCheckbox:global(.MuiCheckbox-root) {
-  padding: 0;
-}
-
-.anonymousCopy {
-  padding-left: 8px;
 }
 
 .toThePublic {
