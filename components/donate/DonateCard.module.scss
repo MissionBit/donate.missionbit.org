@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import "src/scss/variables";
 @import "src/scss/mixins";
 
@@ -15,7 +16,8 @@
   margin: 0;
 }
 .button,
-.arrowIcon {
+.arrowIcon,
+.frequency {
   font-size: 20px;
   @include bp(375px) {
     font-size: 24px;
@@ -48,7 +50,10 @@
 
 .content {
   border: 1px solid $purple;
-  padding: 16px;
+  padding: 16px 32px;
+  @include bpmax($s) {
+    padding: 16px;
+  }
 }
 
 .form {
@@ -56,7 +61,6 @@
   display: grid;
   grid-gap: 16px;
   font-size: 1rem;
-  max-width: 550px;
   line-height: 1.5;
   grid-template: auto / 1fr;
   justify-items: center;
@@ -65,5 +69,62 @@
 .toThePublic {
   @include bpmax(960px) {
     display: none;
+  }
+}
+
+.match {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+
+.matchCopy {
+  flex-grow: 1;
+  padding: 0 8px;
+  text-align: center;
+  font-style: oblique;
+}
+
+.inputTextSize,
+.inputTextSize:global(.MuiInputBase-root) {
+  font-size: 24px;
+  @include bpmax(960px) {
+    font-size: 20px;
+  }
+}
+
+.frequency {
+  display: flex;
+  width: 100%;
+  height: auto;
+  font-weight: 700;
+  cursor: pointer;
+  height: 3.5rem;
+  & > *[role=radio] {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    border: 1px solid $purple;
+    color: $purple;
+    &[aria-checked=true] {
+      background-color: $purple;
+      color: #fff;
+    }
+    @media (hover: hover) {
+      &:hover {
+        background-color: color.scale($purple, $lightness: 50%);
+        opacity: 0.8;
+        color: #fff;
+      }
+    }
+    &:first-child {
+      border-radius: 4px 0 0 4px;
+    }
+    &:last-child {
+      border-radius: 0 4px 4px 0;
+    }
   }
 }

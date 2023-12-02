@@ -1,5 +1,5 @@
 import * as React from "react";
-import { alpha, withStyles, makeStyles } from "@material-ui/core/styles";
+import { alpha, withStyles } from "@material-ui/core/styles";
 import Box from "@material-ui/core/Box";
 import { useStripe } from "@stripe/react-stripe-js";
 import clsx from "clsx";
@@ -25,6 +25,7 @@ import { Typography, Theme, Collapse } from "@material-ui/core";
 import dollars from "src/dollars";
 import styles from "./DonateCard.module.scss";
 import Checkbox from "./Checkbox";
+import { RadioGroup } from "@headlessui/react";
 
 const matchEnd = Date.parse("2021-08-01T00:00:00-07:00");
 
@@ -66,12 +67,6 @@ function mkFontSize(
     },
   };
 }
-
-const FrequencyToggleButtonGroup = withStyles((theme) => ({
-  groupedHorizontal: {
-    ...mkFontSize(theme, "input"),
-  },
-}))(BaseToggleButtonGroup);
 
 const AmountToggleButtonGroup = withStyles((theme) => ({
   root: {
@@ -142,35 +137,6 @@ const ToggleButton = withStyles((theme) => ({
   selected: {},
 }))(BaseToggleButton);
 
-const useStyles = makeStyles((theme) => ({
-  inputText: mkFontSize(theme, "input"),
-  button: {
-    ...mkFontSize(theme, "heading"),
-    margin: 0,
-  },
-  stockButton: {
-    ...mkFontSize(theme, "heading"),
-    margin: theme.spacing(1, 0, 2, 0),
-  },
-  frequency: {
-    margin: theme.spacing(2, 0),
-  },
-  arrowIcon: mkFontSize(theme, "arrow"),
-  match: {
-    ...mkFontSize(theme, "input"),
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  matchCopy: {
-    flexGrow: 1,
-    padding: theme.spacing(0, 1),
-    textAlign: "center",
-    fontStyle: "oblique",
-  },
-}));
-
 async function checkoutDonation(
   stripe: Stripe,
   amount: number,
@@ -236,7 +202,6 @@ export const DonateCard: React.FC<{
   className?: string;
   prefill?: DonatePrefill | undefined;
 }> = ({ className, prefill = DEFAULT_PREFILL }) => {
-  const classes = useStyles();
   const stripe = useStripe();
   const [frequency, setFrequency] = useState<Frequency>(prefill.frequency);
   const [amountString, setAmountString] = useState<string>(
@@ -249,7 +214,7 @@ export const DonateCard: React.FC<{
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const amountCents = parseCents(amountString);
   const disabled = stripe === null || loading || (amountCents ?? 0) <= 0;
-  const handleFrequency = useCallback((_event, newFrequency) => {
+  const handleFrequency = useCallback((newFrequency) => {
     if (FREQUENCIES.indexOf(newFrequency) >= 0) {
       setFrequency(newFrequency);
     }
@@ -291,11 +256,11 @@ export const DonateCard: React.FC<{
       <div className={styles.heading}>Donate Online</div>
       <div className={styles.content}>
         <Collapse in={matchAvailable}>
-          <Box className={classes.match}>
+          <Box className={clsx(styles.inputTextSize, styles.match)}>
             <span role="img" aria-label="Party popper">
               🎉
             </span>
-            <span className={classes.matchCopy}>
+            <span className={styles.matchCopy}>
               Online donations today will be matched up to $10k!
             </span>
             <span role="img" aria-label="Party popper">
@@ -304,16 +269,15 @@ export const DonateCard: React.FC<{
           </Box>
         </Collapse>
         <form className={styles.form} onSubmit={handleOnSubmit}>
-          <FrequencyToggleButtonGroup
+          <RadioGroup
             value={frequency}
-            exclusive
             onChange={handleFrequency}
             aria-label="Donation frequency"
-            className={classes.frequency}
+            className={styles.frequency}
           >
-            <ToggleButton value="one-time">One-time</ToggleButton>
-            <ToggleButton value="monthly">Monthly</ToggleButton>
-          </FrequencyToggleButtonGroup>
+            <RadioGroup.Option value="one-time">One-time</RadioGroup.Option>
+            <RadioGroup.Option value="monthly">Monthly</RadioGroup.Option>
+          </RadioGroup>
           <AmountToggleButtonGroup
             value={amountCents}
             exclusive
@@ -332,12 +296,12 @@ export const DonateCard: React.FC<{
               id="outlined-adornment-amount"
               value={amountString}
               onChange={handleChangeAmount}
-              className={classes.inputText}
+              className={styles.inputTextSize}
               startAdornment={
                 <InputAdornment position="start">
                   <Typography
                     color="textSecondary"
-                    className={classes.inputText}
+                    className={styles.inputTextSize}
                   >
                     $
                   </Typography>
