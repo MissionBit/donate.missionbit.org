@@ -10,8 +10,6 @@ export const runtime = "edge";
 const MONTHLY_PLAN_ID = "mb-monthly-001";
 const MONTHLY_COVER_FEES_PLAN_ID = "mb-monthly-fees-001";
 
-const stripe = getStripe();
-
 const MIN_AMOUNT = 1 * 100;
 const MAX_AMOUNT = 1000000 * 100;
 
@@ -111,6 +109,8 @@ function session_args(
 }
 
 export async function POST(req: Request) {
+  const stripe = getStripe();
+
   try {
     const body = parseBody(await req.json());
     if (body === undefined) {

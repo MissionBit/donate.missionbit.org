@@ -3,8 +3,6 @@ import getStripe from "src/getStripe";
 export const dynamic = "force-dynamic";
 export const runtime = "edge";
 
-const stripe = getStripe();
-
 interface PostBody {
   id: string;
 }
@@ -18,6 +16,7 @@ function parseBody(body: unknown): PostBody | undefined {
 }
 
 export async function POST(req: Request) {
+  const stripe = getStripe();
   const body = parseBody(await req.json());
   if (body === undefined) {
     return Response.json({ error: "Invalid input" }, { status: 400 });

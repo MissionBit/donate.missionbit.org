@@ -9,8 +9,6 @@ import {
 export const dynamic = "force-dynamic";
 export const runtime = "edge";
 
-const stripe = getStripe();
-
 const STRIPE_WEBHOOK_SIGNING_SECRET = getStripeKey(
   "STRIPE_WEBHOOK_SIGNING_SECRET",
 );
@@ -59,6 +57,8 @@ const HANDLERS: { [k: string]: (event: Stripe.Event) => Promise<void> } = {
 
 export async function POST(req: Request) {
   let event: Stripe.Event;
+  const stripe = getStripe();
+
   try {
     const sig = req.headers.get("stripe-signature") ?? undefined;
     if (sig === undefined) {

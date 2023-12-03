@@ -6,8 +6,6 @@ import requireEnv from "src/requireEnv";
 export const dynamic = "force-dynamic";
 export const runtime = "edge";
 
-const stripe = getStripe();
-
 const STRIPE_WEBHOOK_SIGNING_SECRET = requireEnv(
   "STRIPE_WEBHOOK_SIGNING_SECRET_SALESFORCE",
 );
@@ -43,7 +41,7 @@ export async function POST(req: Request) {
     if (sig === undefined) {
       throw new Error(`Missing signature`);
     }
-    event = await stripe.webhooks.constructEventAsync(
+    event = await getStripe().webhooks.constructEventAsync(
       Buffer.from(await req.arrayBuffer()),
       sig,
       STRIPE_WEBHOOK_SIGNING_SECRET,

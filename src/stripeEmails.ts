@@ -12,9 +12,6 @@ import { ShortDateFormat, LongDateFormat } from "src/dates";
 import { getOrigin } from "src/absoluteUrl";
 import { APP } from "./stripeMetadata";
 
-const sg = getSendGrid();
-export const stripe = getStripe();
-
 const EMAIL_TEMPLATES = {
   receipt: "d-7e5e6a89f9284d2ab01d6c1e27a180f8",
   failure: "d-570b4b8b20e74ec5a9c55be7e07e2665",
@@ -51,7 +48,7 @@ async function sendEmail(templateData: EmailTemplateData) {
   console.log(
     `Sending ${templateData.frequency} ${templateData.template} for ${templateData.charge.id} to ${email}`,
   );
-  const result = await sg.send(mailData);
+  const result = await getSendGrid().send(mailData);
   console.log(`Mail statusCode: ${result[0].status} for ${email}`);
   return result;
 }
@@ -95,7 +92,7 @@ function emailTemplateData({
 export async function fetchSessionPaymentIntent(
   sessionId: string,
 ): Promise<Stripe.PaymentIntent> {
-  const session = await stripe.checkout.sessions.retrieve(sessionId, {
+  const session = await getStripe().checkout.sessions.retrieve(sessionId, {
     expand: ["payment_intent", "payment_intent.latest_charge"],
   });
   if (session.mode !== "payment") {
@@ -169,7 +166,7 @@ export type ExpandedInvoice = Stripe.Response<Stripe.Invoice> & {
 export async function fetchInvoiceWithPaymentIntent(
   invoiceId: string,
 ): Promise<ExpandedInvoice> {
-  const invoice = await stripe.invoices.retrieve(invoiceId, {
+  const invoice = await getStripe().invoices.retrieve(invoiceId, {
     expand: ["subscription", "payment_intent", "payment_intent.latest_charge"],
   });
   if (
