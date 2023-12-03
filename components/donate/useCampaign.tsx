@@ -1,5 +1,5 @@
+import type { BalanceProps } from "./LiveDashboard";
 import { DEFAULT_PREFILL, DonatePrefill } from "./parseDonatePrefill";
-import { BalanceProps } from "pages/live";
 import { useBuildTime } from "components/BuildTimeContext";
 
 export function useCampaign({

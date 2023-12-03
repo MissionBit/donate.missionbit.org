@@ -1,4 +1,4 @@
-import { NextPage, GetServerSideProps } from "next";
+"use client";
 import React, {
   useCallback,
   useEffect,
@@ -6,28 +6,17 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  Layout,
-  getLayoutStaticProps,
-  LayoutStaticProps,
-} from "components/Layout";
-import Head from "next/head";
-import Error404 from "pages/404";
+import { LayoutStaticProps } from "components/Layout";
 import { BalanceTransactionBatch } from "src/stripeBalanceTransactions";
-import getBalanceModifications, {
-  BalanceModifications,
-} from "src/googleBalanceModifications";
+import { BalanceModifications } from "src/googleBalanceModifications";
 import { useElapsedTime } from "use-elapsed-time";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { getOrigin } from "src/absoluteUrl";
 import { DonatePrefill } from "components/donate/parseDonatePrefill";
-import { parseDonatePrefill } from "components/donate/parseDonatePrefill";
 import Logo from "components/MissionBitLogo";
 import dollars from "src/dollars";
 import Embellishment from "public/images/Embellishment_2_Teal_RGB.png";
-import getBatch from "src/getBatch";
-import styles from "./live.module.scss";
+import styles from "./LiveDashboard.module.scss";
 import clsx from "clsx";
 
 dayjs.extend(relativeTime);
@@ -197,6 +186,11 @@ export function useLiveDashboard(
 }
 
 const LiveDashboard: React.FC<DashboardProps> = (initial) => {
+  useEffect(() => {
+    updateDocumentSize();
+    window.addEventListener("resize", updateDocumentSize);
+    return () => window.removeEventListener("resize", updateDocumentSize);
+  }, []);
   const [simulate, setSimulate] = useState(false);
   const { goalName, goalCents, donors, donorCount, totalCents } =
     useLiveDashboard(initial, simulate);
@@ -411,51 +405,4 @@ function updateDocumentSize() {
   el.style.setProperty("--document-height", `${el.clientHeight}px`);
 }
 
-const Page: NextPage<PageProps> = ({ batch, modifications, ...props }) => {
-  useEffect(() => {
-    updateDocumentSize();
-    window.addEventListener("resize", updateDocumentSize);
-    return () => window.removeEventListener("resize", updateDocumentSize);
-  }, []);
-
-  if (batch === undefined || modifications === undefined) {
-    return <Error404 {...props} />;
-  } else {
-    return (
-      <Layout {...props} title={modifications.goalName}>
-        <Head>
-          <meta name="robots" content="noindex" />
-        </Head>
-        <LiveDashboard
-          batch={batch}
-          modifications={modifications}
-          simulate={process.env.NODE_ENV === "development"}
-        />
-      </Layout>
-    );
-  }
-};
-
-export const getServerSideProps: GetServerSideProps<PageProps> = async (
-  ctx,
-) => {
-  if (typeof window !== "undefined") {
-    throw new Error("Must be called server-side");
-  }
-  const [layoutProps, { startTimestamp }] = await Promise.all([
-    getLayoutStaticProps(),
-    getBalanceModifications(),
-  ]);
-  const { batch, modifications } = await getBatch(startTimestamp);
-  return {
-    props: {
-      origin: getOrigin(ctx.req.headers.origin),
-      ...layoutProps,
-      batch,
-      modifications,
-      prefill: parseDonatePrefill({ ...ctx.query, ...(ctx.params ?? {}) }),
-    },
-  };
-};
-
-export default Page;
+export default LiveDashboard;
