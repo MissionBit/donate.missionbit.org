@@ -1,0 +1,52 @@
+@import "src/scss/variables";
+@import "src/scss/mixins";
+
+.root,
+.info {
+}
+
+.receiptHeading {
+  margin-bottom: 0;
+}
+
+.receipts {
+  margin-top: 8px;
+  padding-left: 0;
+  margin-bottom: 2rem;
+  margin-left: 0;
+
+}
+
+.cancelLink {
+  padding: 0;
+  text-decoration: underline;
+  vertical-align: bottom;
+}
+
+.dialog {
+  position: relative;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.dialogContainer {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  width: 100vw;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.panel {
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 4px;
+  background-color: $white;
+  padding: 16px;
+}

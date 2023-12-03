@@ -1,40 +1,14 @@
 import * as React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import Container from "@material-ui/core/Container";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import Button from "@material-ui/core/Button";
-import Dialog from "@material-ui/core/Dialog";
-import DialogActions from "@material-ui/core/DialogActions";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogContentText from "@material-ui/core/DialogContentText";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import Typography from "@material-ui/core/Typography";
-import Link from "@material-ui/core/Link";
+import CircularProgress from "./CircularProgress";
+import { Dialog } from "@headlessui/react";
 import Landing from "./Landing";
 import { Frequency } from "src/stripeHelpers";
 import { useState, useCallback } from "react";
 import usdFormatter from "src/usdFormatter";
 import { DONATE_EMAIL } from "src/emails";
 import { ShortDateFormat } from "src/dates";
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    padding: theme.spacing(2),
-  },
-  info: {
-    marginTop: theme.spacing(2),
-  },
-  receiptHeading: {
-    marginTop: theme.spacing(2),
-  },
-  receipts: {
-    marginTop: theme.spacing(1),
-  },
-  cancelLink: {
-    ...theme.typography.body1,
-    verticalAlign: "bottom",
-  },
-}));
+import styles from "./DonateSubscription.module.scss";
+import clsx from "clsx";
 
 export interface DonateSubscriptionProps {
   id: string;
@@ -63,7 +37,6 @@ const DonateSubscription: React.FC<DonateSubscriptionProps> = ({
   email,
   paidInvoices,
 }) => {
-  const classes = useStyles();
   const [nextCycle, setNextCycle] = useState<string | null>(initialNextCycle);
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -71,10 +44,11 @@ const DonateSubscription: React.FC<DonateSubscriptionProps> = ({
     event.preventDefault();
     setOpen(true);
   }, []);
-  const handleClose = useCallback((event) => {
-    event.preventDefault();
-    setOpen(false);
-  }, []);
+  const handleClose = useCallback(() => {
+    if (!loading) {
+      setOpen(false);
+    }
+  }, [loading]);
   const handleConfirm = useCallback(
     async (event) => {
       event.preventDefault();
@@ -102,9 +76,9 @@ const DonateSubscription: React.FC<DonateSubscriptionProps> = ({
   return (
     <main id="main">
       <Landing />
-      <Container className={classes.root}>
-        <Typography variant="h2">Manage Your Donation</Typography>
-        <Typography className={classes.info}>
+      <div className={clsx(styles.root, "px-container")}>
+        <h1>Manage Your Donation</h1>
+        <p className={clsx(styles.info, "large")}>
           Your <strong>{usdFormatter.format(amount / 100)}</strong> {frequency}{" "}
           donation by {paymentMethod} is{" "}
           {nextCycle ? <>active and will renew on {nextCycle}.</> : "canceled."}{" "}
@@ -132,67 +106,65 @@ const DonateSubscription: React.FC<DonateSubscriptionProps> = ({
             {DONATE_EMAIL}
           </a>
           .
-        </Typography>
-        <Typography
-          variant="h6"
-          color="textSecondary"
-          className={classes.receiptHeading}
-        >
-          Receipts:
-        </Typography>
-        <ul className={classes.receipts}>
+        </p>
+        <h2 className={styles.receiptHeading}>Receipts:</h2>
+        <ul className={clsx(styles.receipts, "large")}>
           {paidInvoices.map(({ id, amount, created }) => (
-            <Typography component="li" key={id}>
+            <li key={id}>
               <a href={`/receipts/${id}`}>
                 {ShortDateFormat.format(created * 1000)}
               </a>{" "}
               {usdFormatter.format(amount / 100)}
-            </Typography>
+            </li>
           ))}
         </ul>
         {nextCycle ? (
           <form onSubmit={handleSubmit}>
-            <Typography>
+            <p>
               To change your payment method or contribution level, cancel your
               donation and create a new one. If you would like to cancel your
               monthly donation,{" "}
-              <Link
-                component="button"
+              <button
                 type="submit"
-                color="textPrimary"
-                underline="always"
-                className={classes.cancelLink}
+                className={styles.cancelLink}
                 disabled={loading}
               >
                 click here
-              </Link>
+              </button>
               .
-            </Typography>
+            </p>
             {loading && <CircularProgress />}
           </form>
         ) : null}
-      </Container>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">Confirm Cancellation</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            If you confirm and end your recurring donation now, you will not be
-            charged again.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="secondary" disabled={loading}>
-            Not Now
-          </Button>
-          <Button onClick={handleConfirm} color="secondary" disabled={loading}>
-            Confirm {loading && <CircularProgress color="secondary" />}
-          </Button>
-        </DialogActions>
+      </div>
+      <Dialog open={open} onClose={handleClose} className={styles.dialog}>
+        <div className={styles.backdrop} />
+        <div className={styles.dialogContainer}>
+          <Dialog.Panel className={styles.panel}>
+            <Dialog.Title>Confirm Cancellation</Dialog.Title>
+            <Dialog.Description>
+              This will cancel your recurring donation.
+            </Dialog.Description>
+            <p>
+              If you confirm and end your recurring donation now, you will not
+              be charged again.
+            </p>
+            <button
+              className="btn btn--orange-outline"
+              onClick={handleClose}
+              disabled={loading}
+            >
+              Not Now
+            </button>
+            <button
+              className="btn btn--purple"
+              onClick={handleConfirm}
+              disabled={loading}
+            >
+              Confirm {loading && <CircularProgress />}
+            </button>
+          </Dialog.Panel>
+        </div>
       </Dialog>
     </main>
   );
