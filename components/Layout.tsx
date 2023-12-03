@@ -32,7 +32,7 @@ function updateDocumentSize() {
   el.style.setProperty("--document-height", `${el.clientHeight}px`);
 }
 
-export const Layout: React.FC<LayoutProps> = ({
+export const Layout = ({
   title,
   children,
   pageImage,
@@ -41,7 +41,7 @@ export const Layout: React.FC<LayoutProps> = ({
   canonicalPath,
   origin,
   requireDocumentSize = false,
-}) => {
+}: React.PropsWithChildren<LayoutProps>) => {
   useEffect(() => {
     updateDocumentSize();
     if (requireDocumentSize) {

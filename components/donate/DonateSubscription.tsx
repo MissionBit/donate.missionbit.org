@@ -40,16 +40,19 @@ const DonateSubscription: React.FC<DonateSubscriptionProps> = ({
   const [nextCycle, setNextCycle] = useState<string | null>(initialNextCycle);
   const [open, setOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-  const handleSubmit = useCallback((event) => {
-    event.preventDefault();
-    setOpen(true);
-  }, []);
+  const handleSubmit: React.FormEventHandler<HTMLFormElement> = useCallback(
+    (event) => {
+      event.preventDefault();
+      setOpen(true);
+    },
+    [],
+  );
   const handleClose = useCallback(() => {
     if (!loading) {
       setOpen(false);
     }
   }, [loading]);
-  const handleConfirm = useCallback(
+  const handleConfirm: React.MouseEventHandler<HTMLButtonElement> = useCallback(
     async (event) => {
       event.preventDefault();
       setOpen(true);
