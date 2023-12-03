@@ -1,6 +1,6 @@
 import * as React from "react";
+import localFont from "next/font/local";
 import { Metadata, Viewport } from "next";
-import Head from "next/head";
 import ClientLayout from "./ClientLayout";
 import GoogleAnalytics from "components/GoogleAnalytics";
 import "src/app.scss";
@@ -36,22 +36,41 @@ export const metadata: Metadata = {
   ],
 };
 
+const montserrat = localFont({
+  src: [
+    {
+      path: "../public/fonts/montserrat-v25-latin-regular.woff2",
+      style: "normal",
+      weight: "400",
+    },
+    {
+      path: "../public/fonts/montserrat-v25-latin-italic.woff2",
+      style: "italic",
+      weight: "400",
+    },
+    {
+      path: "../public/fonts/montserrat-v25-latin-600.woff2",
+      style: "normal",
+      weight: "600",
+    },
+    {
+      path: "../public/fonts/montserrat-v25-latin-700.woff2",
+      style: "normal",
+      weight: "700",
+    },
+    {
+      path: "../public/fonts/montserrat-v25-latin-600italic.woff2",
+      style: "italic",
+      weight: "600",
+    },
+  ],
+  variable: "--font-Montserrat",
+});
+
 export default function RootLayout({ children }: React.PropsWithChildren<{}>) {
   const buildTime = Date.now();
   return (
-    <html lang="en">
-      <Head>
-        {["regular", "italic", "600", "700"].map((variant, i) => (
-          <link
-            key={i}
-            rel="preload"
-            as="font"
-            href={`/fonts/montserrat-v25-latin-${variant}.woff2`}
-            type="font/woff2"
-            crossOrigin=""
-          />
-        ))}
-      </Head>
+    <html lang="en" className={montserrat.className}>
       <body>
         <GoogleAnalytics />
         <ClientLayout buildTime={buildTime}>{children}</ClientLayout>

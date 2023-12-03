@@ -6,13 +6,11 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { LayoutStaticProps } from "components/Layout";
 import { BalanceTransactionBatch } from "src/stripeBalanceTransactions";
 import { BalanceModifications } from "src/googleBalanceModifications";
 import { useElapsedTime } from "use-elapsed-time";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { DonatePrefill } from "components/donate/parseDonatePrefill";
 import Logo from "components/MissionBitLogo";
 import dollars from "src/dollars";
 import Embellishment from "public/images/Embellishment_2_Teal_RGB.png";
@@ -24,23 +22,6 @@ dayjs.extend(relativeTime);
 function easeOutCubic(t: number, b: number, c: number, d: number): number {
   const x = t / d - 1;
   return c * (x * x * x + 1) + b;
-}
-
-export const DateTimeFormat = new Intl.DateTimeFormat("en-US", {
-  timeZone: "America/Los_Angeles",
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-  hour: "numeric",
-  minute: "numeric",
-  second: "numeric",
-  hour12: false,
-});
-
-export interface PageProps extends LayoutStaticProps {
-  readonly batch?: BalanceTransactionBatch;
-  readonly modifications?: BalanceModifications;
-  readonly prefill?: DonatePrefill;
 }
 
 function mergeBatch(

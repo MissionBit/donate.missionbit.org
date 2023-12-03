@@ -1,3 +1,4 @@
+"use client";
 import * as React from "react";
 import { StripeSessionInfo } from "src/stripeSessionInfo";
 import usdFormatter from "src/usdFormatter";

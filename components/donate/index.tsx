@@ -5,7 +5,6 @@ import MakeAnOnlineGift from "./MakeAnOnlineGift";
 import AnnualReports from "./AnnualReports";
 import OtherWaysToGive from "./OtherWaysToGive";
 import { DonatePrefill } from "./parseDonatePrefill";
-import { BalanceProps } from "pages/live";
 import clsx from "clsx";
 import styles from "./index.module.scss";
 import Testimonial from "./Testimonial";
@@ -13,6 +12,7 @@ import { useCampaign } from "./useCampaign";
 import { CampaignCard } from "./CampaignCard";
 import { Agenda } from "./Agenda";
 import { useSearchParams } from "next/navigation";
+import type { BalanceProps } from "./LiveDashboard";
 
 export interface DonateProps {
   prefill?: DonatePrefill | undefined;

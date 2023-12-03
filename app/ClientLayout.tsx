@@ -21,21 +21,8 @@ export default function ClientLayout({
   buildTime,
 }: React.PropsWithChildren<{ buildTime: number }>) {
   return (
-    <>
-      {/* <Head> */}
-      {/* <title>{title}</title> */}
-      {/* <meta property="og:title" content={title} /> */}
-      {/* <meta property="og:url" content={canonicalUrl} /> */}
-      {/* <link rel="canonical" href={canonicalUrl} /> */}
-      {/* <meta
-          property="og:description"
-          content={description ?? DEFAULT_DESCRIPTION}
-        /> */}
-      {/* <meta name="description" content={description ?? DEFAULT_DESCRIPTION} />  */}
-      {/* </Head> */}
-      <BuildTimeContext.Provider value={buildTime}>
-        {children}
-      </BuildTimeContext.Provider>
-    </>
+    <BuildTimeContext.Provider value={buildTime}>
+      {children}
+    </BuildTimeContext.Provider>
   );
 }
