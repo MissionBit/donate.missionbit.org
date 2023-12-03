@@ -3,7 +3,7 @@ import styles from "./Testimonial.module.scss";
 import clsx from "clsx";
 import StudentImage from "public/images/Testimonial-Rigoberto-Morales-473x479@2x.jpg";
 import Embellishment from "public/images/Embellishment_22_Teal_RGB.png";
-import Image from "next/image";
+import Image from "next/legacy/image";
 
 export default function Testimonial({
   className,

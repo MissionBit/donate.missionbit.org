@@ -15,7 +15,7 @@ export default async function ResultPage({
 }: {
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
-  const session_id = searchParams ?? {};
+  const { session_id } = searchParams ?? {};
   if (typeof session_id !== "string") {
     return notFound();
   }
