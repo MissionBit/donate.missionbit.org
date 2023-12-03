@@ -1,6 +1,6 @@
 import * as React from "react";
 import clsx from "clsx";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import Photo from "public/images/Donate-AnnualReports@2x.jpeg";
 import Sticker from "public/images/sticker-students.png";
 import styles from "./AnnualReports.module.scss";

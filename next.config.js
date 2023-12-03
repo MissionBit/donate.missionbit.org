@@ -22,9 +22,6 @@ const STRIPE_KEY_POSTFIX =
     : "_TEST");
 
 const nextConfig = {
-  experimental: {
-    optimizeCss: true,
-  },
   redirects() {
     return netlifyRedirects;
   },
