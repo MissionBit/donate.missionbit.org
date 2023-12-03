@@ -1,6 +1,3 @@
-import dotenv from "dotenv";
-dotenv.config();
-
 import * as salesforce from "src/salesforce";
 import { getStripe } from "src/getStripe";
 import dollars from "src/dollars";

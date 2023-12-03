@@ -1,6 +1,3 @@
-import * as dotenv from "dotenv";
-dotenv.config();
-
 import { fetch } from "cross-fetch";
 import {
   fetchInvoiceWithPaymentIntent,

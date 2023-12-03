@@ -36,12 +36,6 @@ const HANDLERS: { [k: string]: (event: Stripe.Event) => Promise<void> } = {
   "charge.succeeded": stripeChargeSucceeded,
 };
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 export async function POST(req: Request) {
   let event: Stripe.Event;
   try {
