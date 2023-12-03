@@ -8,6 +8,8 @@ import "src/app.scss";
 const DEFAULT_DESCRIPTION =
   "Mission Bit is a 501(c)3 non-profit offering coding education and industry experiences to equip, empower and inspire public school youth to build products they dream up and broaden the opportunity horizon they envision for themselves.";
 
+export const runtime = "edge";
+
 export const viewport: Viewport = {
   minimumScale: 1,
   initialScale: 1,

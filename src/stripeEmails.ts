@@ -4,11 +4,10 @@ import {
   formatPaymentMethodDetailsSource,
   billingDetailsTo,
 } from "src/stripeSessionInfo";
-import getSendGrid from "src/getSendgrid";
+import { getSendGrid, MailDataRequired } from "src/getSendgrid";
 import { DONATE_EMAIL } from "src/emails";
 import usdFormatter from "src/usdFormatter";
 import { Frequency } from "src/stripeHelpers";
-import { MailDataRequired } from "@sendgrid/mail";
 import { ShortDateFormat, LongDateFormat } from "src/dates";
 import { getOrigin } from "src/absoluteUrl";
 import { APP } from "./stripeMetadata";
@@ -53,7 +52,7 @@ async function sendEmail(templateData: EmailTemplateData) {
     `Sending ${templateData.frequency} ${templateData.template} for ${templateData.charge.id} to ${email}`,
   );
   const result = await sg.send(mailData);
-  console.log(`Mail statusCode: ${result[0].statusCode} for ${email}`);
+  console.log(`Mail statusCode: ${result[0].status} for ${email}`);
   return result;
 }
 
@@ -74,12 +73,12 @@ function emailTemplateData({
     charge.payment_method_details,
   );
   return {
-    templateId: EMAIL_TEMPLATES[template],
+    template_id: EMAIL_TEMPLATES[template],
     from: { name: "Mission Bit", email: DONATE_EMAIL },
     personalizations: [
       {
         to: [billingDetailsTo(charge.billing_details)],
-        dynamicTemplateData: {
+        dynamic_template_data: {
           transaction_id: charge.id,
           frequency,
           total: usdFormatter.format(charge.amount / 100),
