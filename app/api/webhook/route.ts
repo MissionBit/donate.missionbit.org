@@ -9,10 +9,6 @@ import {
 export const dynamic = "force-dynamic";
 export const runtime = "edge";
 
-const STRIPE_WEBHOOK_SIGNING_SECRET = getStripeKey(
-  "STRIPE_WEBHOOK_SIGNING_SECRET",
-);
-
 function eventObject<T extends Stripe.Event.Data.Object & { id: string }>(
   event: Stripe.Event,
 ) {
@@ -67,7 +63,7 @@ export async function POST(req: Request) {
     event = await stripe.webhooks.constructEventAsync(
       Buffer.from(await req.arrayBuffer()),
       sig,
-      STRIPE_WEBHOOK_SIGNING_SECRET,
+      getStripeKey("STRIPE_WEBHOOK_SIGNING_SECRET"),
     );
   } catch (err) {
     console.error(err);
