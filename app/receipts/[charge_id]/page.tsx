@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: "Mission Bit – Thank You For Your Donation!",
 };
 export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 export default async function ResultPage({
   params: { charge_id },

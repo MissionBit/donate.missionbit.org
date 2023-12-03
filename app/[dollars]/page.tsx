@@ -3,6 +3,8 @@ import Donate from "components/donate";
 import { getLiveProps } from "app/getLiveProps";
 export { metadata } from "../page";
 
+export const runtime = "edge";
+
 export default async function Page({
   params: { dollars },
   searchParams,

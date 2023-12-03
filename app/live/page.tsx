@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 export default async function Page({
   searchParams,

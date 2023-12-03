@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   title: "Mission Bit – Manage Your Subscription",
 };
 export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 function ensureString(x: unknown, context: string): string {
   if (typeof x !== "string") {
