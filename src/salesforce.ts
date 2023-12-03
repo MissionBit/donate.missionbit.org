@@ -3,7 +3,6 @@ import {
   fetchInvoiceWithPaymentIntent,
   fetchSessionPaymentIntent,
   invoiceTemplate,
-  stripe,
 } from "./stripeEmails";
 import Stripe from "stripe";
 import { stripeCustomerIdFromCharge } from "./stripeSessionInfo";
@@ -11,6 +10,7 @@ import nameParser from "another-name-parser";
 import dollars from "./dollars";
 import requireEnv from "./requireEnv";
 import us from "us";
+import getStripe from "./getStripe";
 
 export interface OAuthToken {
   readonly access_token: string;
@@ -471,7 +471,7 @@ export async function createOrFetchOpportunityFromCharge(
 ): Promise<void> {
   const opportunityApi = sObject(client, "opportunity");
   const extraNameInfo = charge.metadata?.anonymous ? " (Anonymous)" : "";
-  const balanceTransaction = await stripe.balanceTransactions.retrieve(
+  const balanceTransaction = await getStripe().balanceTransactions.retrieve(
     getBalanceTransactionId(charge),
   );
   const closeDate = unixToISODate(balanceTransaction.created);
@@ -571,7 +571,7 @@ export async function stripeChargeSync(
   client: SalesforceClient,
   chargeId: string,
 ): Promise<void> {
-  const charge = await stripe.charges.retrieve(chargeId);
+  const charge = await getStripe().charges.retrieve(chargeId);
   await createOrFetchOpportunityFromCharge(client, charge);
 }
 
