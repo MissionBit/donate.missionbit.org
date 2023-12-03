@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
   title: "Mission Bit – Thank You For Your Donation!",
 };
+export const dynamic = "force-dynamic";
 
 export default async function ResultPage({
   params: { charge_id },

@@ -1,6 +1,7 @@
 import dayjs from "dayjs";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { getSupabaseClient } from "./getSupabaseClient";
+import getStripe from "./getStripe";
 
 export interface BalanceTransaction {
   readonly id: string;
@@ -81,7 +82,7 @@ async function insertStripeTransactions(
 export async function getBalanceTransactions(
   created: number,
 ): Promise<BalanceTransactionBatch> {
-  const stripe = (await import("src/getStripe")).getStripe();
+  const stripe = getStripe();
   const pollTime = dayjs().unix();
   const supabase = getSupabaseClient();
   const res = await getDbTransactions(supabase, created);

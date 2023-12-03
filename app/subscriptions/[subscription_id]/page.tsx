@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
   title: "Mission Bit – Manage Your Subscription",
 };
+export const dynamic = "force-dynamic";
 
 function ensureString(x: unknown, context: string): string {
   if (typeof x !== "string") {

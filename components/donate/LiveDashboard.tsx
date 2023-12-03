@@ -6,8 +6,8 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { BalanceTransactionBatch } from "src/stripeBalanceTransactions";
-import { BalanceModifications } from "src/googleBalanceModifications";
+import type { BalanceTransactionBatch } from "src/stripeBalanceTransactions";
+import type { BalanceModifications } from "src/googleBalanceModifications";
 import { useElapsedTime } from "use-elapsed-time";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
