@@ -17,6 +17,7 @@ import type { BalanceProps } from "./LiveDashboard";
 export interface DonateProps {
   prefill?: DonatePrefill | undefined;
   campaign?: BalanceProps | undefined;
+  buildTime: number;
 }
 
 const Donate: React.FC<DonateProps> = (props) => {

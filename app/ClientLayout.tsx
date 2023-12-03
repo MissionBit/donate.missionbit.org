@@ -4,7 +4,6 @@ import Router from "next/router";
 import smoothscroll from "smoothscroll-polyfill";
 import { pageview } from "components/GoogleAnalytics";
 import * as Sentry from "@sentry/browser";
-import { BuildTimeContext } from "components/BuildTimeContext";
 
 if (typeof window !== "undefined") {
   smoothscroll.polyfill();
@@ -18,11 +17,6 @@ if (typeof window !== "undefined") {
 
 export default function ClientLayout({
   children,
-  buildTime,
-}: React.PropsWithChildren<{ buildTime: number }>) {
-  return (
-    <BuildTimeContext.Provider value={buildTime}>
-      {children}
-    </BuildTimeContext.Provider>
-  );
+}: React.PropsWithChildren<{}>) {
+  return <>{children}</>;
 }

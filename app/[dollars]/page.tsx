@@ -10,12 +10,13 @@ export default async function Page({
   params: { dollars: string };
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
-  const { batch, modifications, prefill } = await getLiveProps({
+  const { batch, modifications, prefill, buildTime } = await getLiveProps({
     dollars,
     ...searchParams,
   });
   return (
     <Donate
+      buildTime={buildTime}
       campaign={batch && modifications ? { batch, modifications } : undefined}
       prefill={prefill}
     />

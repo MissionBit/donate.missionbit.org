@@ -68,12 +68,11 @@ const montserrat = localFont({
 });
 
 export default function RootLayout({ children }: React.PropsWithChildren<{}>) {
-  const buildTime = Date.now();
   return (
     <html lang="en" className={montserrat.className}>
       <body>
         <GoogleAnalytics />
-        <ClientLayout buildTime={buildTime}>{children}</ClientLayout>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
