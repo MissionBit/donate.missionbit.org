@@ -1,4 +1,4 @@
-import { DEFAULT_PREFILL, DonatePrefill } from "./DonateCard";
+import { DEFAULT_PREFILL, DonatePrefill } from "./parseDonatePrefill";
 import { BalanceProps } from "pages/live";
 import { useBuildTime } from "components/BuildTimeContext";
 

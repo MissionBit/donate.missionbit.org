@@ -21,10 +21,8 @@ import { useElapsedTime } from "use-elapsed-time";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { getOrigin } from "src/absoluteUrl";
-import {
-  DonatePrefill,
-  parseDonatePrefill,
-} from "components/donate/DonateCard";
+import { DonatePrefill } from "components/donate/parseDonatePrefill";
+import { parseDonatePrefill } from "components/donate/parseDonatePrefill";
 import Logo from "components/MissionBitLogo";
 import dollars from "src/dollars";
 import Embellishment from "public/images/Embellishment_2_Teal_RGB.png";
@@ -404,16 +402,27 @@ const DonateBanner: React.FC<{}> = () => {
   );
 };
 
+function updateDocumentSize() {
+  if (typeof document === "undefined") {
+    return;
+  }
+  const el = document.documentElement;
+  el.style.setProperty("--document-width", `${el.clientWidth}px`);
+  el.style.setProperty("--document-height", `${el.clientHeight}px`);
+}
+
 const Page: NextPage<PageProps> = ({ batch, modifications, ...props }) => {
+  useEffect(() => {
+    updateDocumentSize();
+    window.addEventListener("resize", updateDocumentSize);
+    return () => window.removeEventListener("resize", updateDocumentSize);
+  }, []);
+
   if (batch === undefined || modifications === undefined) {
     return <Error404 {...props} />;
   } else {
     return (
-      <Layout
-        {...props}
-        requireDocumentSize={true}
-        title={modifications.goalName}
-      >
+      <Layout {...props} title={modifications.goalName}>
         <Head>
           <meta name="robots" content="noindex" />
         </Head>

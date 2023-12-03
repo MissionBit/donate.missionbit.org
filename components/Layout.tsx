@@ -1,7 +1,6 @@
 import * as React from "react";
 import { GetStaticProps } from "next";
 import { useRouter } from "next/router";
-import { useEffect } from "react";
 import Head from "next/head";
 import GoogleAnalytics from "./GoogleAnalytics";
 import absoluteUrl from "src/absoluteUrl";
@@ -15,22 +14,12 @@ export interface LayoutProps extends LayoutStaticProps {
   title: string;
   pageImage?: string;
   description?: string;
-  requireDocumentSize?: boolean;
   canonicalPath?: string;
   origin?: string;
 }
 
 const DEFAULT_DESCRIPTION =
   "Mission Bit is a 501(c)3 non-profit offering coding education and industry experiences to equip, empower and inspire public school youth to build products they dream up and broaden the opportunity horizon they envision for themselves.";
-
-function updateDocumentSize() {
-  if (typeof document === "undefined") {
-    return;
-  }
-  const el = document.documentElement;
-  el.style.setProperty("--document-width", `${el.clientWidth}px`);
-  el.style.setProperty("--document-height", `${el.clientHeight}px`);
-}
 
 export const Layout = ({
   title,
@@ -40,15 +29,7 @@ export const Layout = ({
   buildTime,
   canonicalPath,
   origin,
-  requireDocumentSize = false,
 }: React.PropsWithChildren<LayoutProps>) => {
-  useEffect(() => {
-    updateDocumentSize();
-    if (requireDocumentSize) {
-      window.addEventListener("resize", updateDocumentSize);
-      return () => window.removeEventListener("resize", updateDocumentSize);
-    }
-  }, [requireDocumentSize]);
   const router = useRouter();
   const canonicalUrl = absoluteUrl(canonicalPath ?? router.asPath, origin);
   return (
