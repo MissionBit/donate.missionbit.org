@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import * as React from "react";
 import styles from "./Landing.module.scss";
-import Image from "next/image";
+import Image from "next/legacy/image";
 import Embellishment from "public/images/Embellishment_20_Orange_RGB.png";
 import Sticker from "public/images/sticker-cs4a.png";
 

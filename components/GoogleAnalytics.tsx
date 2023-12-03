@@ -1,6 +1,7 @@
 import Head from "next/head";
 import * as React from "react";
 import oneLine from "src/oneLine";
+import Script from "next/script";
 
 const GA_MEASUREMENT_ID = "UA-47473369-4";
 const ADWORDS_CONVERSION_ID = "AW-319322078";
@@ -36,15 +37,14 @@ export const event = ({
 };
 
 export const GoogleAnalytics: React.FC<{}> = () => (
-  <Head>
-    <link rel="dns-prefetch" href="https://www.google.com" />
-    <link rel="dns-prefetch" href="https://www.google-analytics.com" />
-    <link rel="dns-prefetch" href="https://stats.g.doubleclick.net" />
-    <script
-      async
-      src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-    />
-    <script
+  <>
+    <Head>
+      <link rel="dns-prefetch" href="https://www.google.com" />
+      <link rel="dns-prefetch" href="https://www.google-analytics.com" />
+      <link rel="dns-prefetch" href="https://stats.g.doubleclick.net" />
+    </Head>
+    <Script
+      id="google-analytics-script"
       dangerouslySetInnerHTML={{
         __html: oneLine`
     window.dataLayer = window.dataLayer || [];
@@ -57,7 +57,12 @@ export const GoogleAnalytics: React.FC<{}> = () => (
   `,
       }}
     />
-  </Head>
+    <Script
+      async
+      strategy="afterInteractive"
+      src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+    />
+  </>
 );
 
 export default GoogleAnalytics;

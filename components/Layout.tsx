@@ -3,9 +3,6 @@ import { GetStaticProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
 import Head from "next/head";
-import { Theme, ThemeProvider } from "@material-ui/core/styles";
-import CssBaseline from "@material-ui/core/CssBaseline";
-import defaultTheme from "src/theme";
 import GoogleAnalytics from "./GoogleAnalytics";
 import absoluteUrl from "src/absoluteUrl";
 import { BuildTimeContext } from "./BuildTimeContext";
@@ -21,7 +18,6 @@ export interface LayoutProps extends LayoutStaticProps {
   requireDocumentSize?: boolean;
   canonicalPath?: string;
   origin?: string;
-  theme?: Theme;
 }
 
 const DEFAULT_DESCRIPTION =
@@ -36,7 +32,7 @@ function updateDocumentSize() {
   el.style.setProperty("--document-height", `${el.clientHeight}px`);
 }
 
-export const Layout: React.FC<LayoutProps> = ({
+export const Layout = ({
   title,
   children,
   pageImage,
@@ -44,16 +40,8 @@ export const Layout: React.FC<LayoutProps> = ({
   buildTime,
   canonicalPath,
   origin,
-  theme = defaultTheme,
   requireDocumentSize = false,
-}) => {
-  useEffect(() => {
-    // Remove the server-side injected CSS.
-    const jssStyles = document.querySelector("#jss-server-side");
-    if (jssStyles) {
-      jssStyles.parentElement?.removeChild(jssStyles);
-    }
-  }, []);
+}: React.PropsWithChildren<LayoutProps>) => {
   useEffect(() => {
     updateDocumentSize();
     if (requireDocumentSize) {
@@ -122,10 +110,7 @@ export const Layout: React.FC<LayoutProps> = ({
         ))}
       </Head>
       <GoogleAnalytics />
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {children}
-      </ThemeProvider>
+      {children}
     </BuildTimeContext.Provider>
   );
 };

@@ -97,20 +97,23 @@ export const DonateCard: React.FC<{
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const amountCents = parseCents(amountString);
   const disabled = stripe === null || loading || (amountCents ?? 0) <= 0;
-  const handleFrequency = useCallback((newFrequency) => {
-    if (FREQUENCIES.indexOf(newFrequency) >= 0) {
-      setFrequency(newFrequency);
+  const handleFrequency = useCallback((newFrequency: unknown) => {
+    if (FREQUENCIES.indexOf(newFrequency as Frequency) >= 0) {
+      setFrequency(newFrequency as Frequency);
     }
   }, []);
-  const handleAmountCents = useCallback((newAmountCents) => {
+  const handleAmountCents = useCallback((newAmountCents: number) => {
     if (newAmountCents) {
       setAmountString(formatCents(newAmountCents));
     }
   }, []);
-  const handleChangeAmount = useCallback((event) => {
-    setAmountString(event.currentTarget.value);
-  }, []);
-  const handleOnSubmit = useCallback(
+  const handleChangeAmount = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      setAmountString(event.currentTarget.value);
+    },
+    [],
+  );
+  const handleOnSubmit: React.FormEventHandler<HTMLFormElement> = useCallback(
     async (event) => {
       event.preventDefault();
       if (disabled || stripe === null || amountCents === null) {

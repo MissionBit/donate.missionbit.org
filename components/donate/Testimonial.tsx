@@ -20,6 +20,7 @@ export default function Testimonial({
       <div className={styles.wrapper}>
         <div className={styles.images}>
           <Image
+            priority
             src={StudentImage}
             width={361.7}
             height={(361.7 / 473) * 479}

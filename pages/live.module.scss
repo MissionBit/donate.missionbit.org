@@ -1,0 +1,222 @@
+@import "src/scss/variables";
+@import "src/scss/mixins";
+
+$HIGH_BREAK: 1900px;
+
+.root {
+  color: $white;
+  line-height: 1.5;
+  background-color: $purple;
+  display: grid;
+  height: 100vh;
+  max-height: var(--document-height, 100vh);
+  grid-template-columns: 2fr 1fr;
+  grid-template-rows: 1fr min-content;
+  grid-template-areas:
+    "goal donors"
+    "banner banner";
+  @include bpmax(960px) {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "goal"
+      "donors";
+  }
+}
+
+.goal {
+  grid-area: goal;
+  padding: 16px;
+  position: relative;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  &:where(& > *) {
+    position: relative;
+  }
+}
+
+.logo {
+  width: 50%;
+  object-fit: contain;
+  margin-bottom: 16px;
+  color: $white;
+}
+
+.progressContainer {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+
+  @include bpmax(960px) {
+    flex-direction: column;
+  }
+}
+
+.donorContainer {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+
+  @include bpmax(960px) {
+    flex-direction: column;
+  }
+}
+.embellishment {
+  @include bpmax(960px) {
+    display: none;
+  }
+}
+
+.progressText {
+  font-size: 7rem;
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 0.1fr 1fr;
+  margin-bottom: 0;
+  @include bpmax($HIGH_BREAK) {
+    font-size: 4rem;
+  }
+}
+
+.progressTotal {
+  text-align: left;
+}
+.progressOf {
+  text-align: center;
+  font-size: 5rem;
+  padding: 0 16px;
+  align-self: center;
+  @include bpmax($HIGH_BREAK) {
+    font-size: 3rem;
+  }
+}
+.progressGoal {
+  text-align: right;
+}
+
+.donorCount {
+  text-align: right;
+  align-self: center;
+  font-size: 3.75rem;
+  margin-bottom: 0;
+  @include bpmax($HIGH_BREAK) {
+    font-size: 3rem;
+  }
+}
+
+.progressBar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  border: 2px solid $white;
+  border-radius: 0.5rem;
+  height: 64px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  background-color: $orange;
+}
+
+.donors {
+  grid-area: donors;
+  overflow: hidden;
+}
+
+.donateBanner {
+  grid-area: banner;
+  background-color: $black;
+  padding: 16px;
+  text-align: center;
+  text-decoration: underline;
+  color: $black;
+  transition: color .2s ease-in-out;
+  @media (hover: hover) {
+    &:hover {
+      color: $orange;
+    }
+  }
+  @include bpmax(960px) {
+    display: none;
+  }
+}
+.donateBannerText {
+  animation: 10s cubic-bezier(0.4, 0, 0.2, 1) infinite pulse;
+  color: $white;
+  font-size: 6rem;
+  font-weight: 700;
+  line-height: 1.167;
+  @include bpmax($HIGH_BREAK) {
+    font-size: 3rem;
+  }
+}
+
+.donorEnter {
+  display: grid;
+  transition: grid-template-rows 0.5s ease-out;
+}
+
+.donorEnterFrom {
+  grid-template-rows: 0fr;
+}
+
+.donorEnterTo {
+  grid-template-rows: 1fr;
+}
+
+.donorBubble {
+  overflow: hidden;
+  display: grid;
+  padding: 16px;
+  margin: 16px;
+  grid-auto-columns: auto;
+  grid-template-areas:
+    "name amount";
+  box-shadow: 0px 3px 1px -2px rgba(0,0,0,0.2), 0px 2px 2px 0px rgba(0,0,0,0.14), 0px 1px 5px 0px rgba(0,0,0,0.12);
+  border-radius: 4px;
+  transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  background-color: $white;
+}
+
+.donorAmount {
+  grid-area: amount;
+  text-align: right;
+  align-self: center;
+  color: $black;
+  font-weight: 700;
+  line-height: 1.167;
+  font-size: 3rem;
+  @include bpmax($HIGH_BREAK) {
+    font-size: 2rem;
+  }
+}
+
+.donorName {
+  grid-area: name;
+  align-self: center;
+  font-size: 2.125rem;
+  color: $black;
+  font-weight: 500;
+  line-height: 1.235;
+  @include bpmax($HIGH_BREAK) {
+    font-size: 1.5rem;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  60% {
+    transform: scale(1);
+  }
+  80% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

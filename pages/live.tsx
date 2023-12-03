@@ -13,214 +13,31 @@ import {
 } from "components/Layout";
 import Head from "next/head";
 import Error404 from "pages/404";
-
 import { BalanceTransactionBatch } from "src/stripeBalanceTransactions";
-import { makeStyles } from "@material-ui/core/styles";
-
 import getBalanceModifications, {
   BalanceModifications,
 } from "src/googleBalanceModifications";
-
-import Box from "@material-ui/core/Box";
-
-import Typography from "@material-ui/core/Typography";
 import { useElapsedTime } from "use-elapsed-time";
-import LinearProgress from "@material-ui/core/LinearProgress";
-import Paper from "@material-ui/core/Paper";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import Collapse from "@material-ui/core/Collapse";
-import Link from "@material-ui/core/Link";
 import { getOrigin } from "src/absoluteUrl";
 import {
   DonatePrefill,
   parseDonatePrefill,
 } from "components/donate/DonateCard";
-import { ssBrand } from "src/colors";
 import Logo from "components/MissionBitLogo";
 import dollars from "src/dollars";
-import liveTheme from "src/liveTheme";
 import Embellishment from "public/images/Embellishment_2_Teal_RGB.png";
 import getBatch from "src/getBatch";
+import styles from "./live.module.scss";
+import clsx from "clsx";
 
 dayjs.extend(relativeTime);
-
-const backgroundColor = ssBrand.purple;
-const BAR_COLOR = ssBrand.orange;
-const BAR_BACKGROUND = ssBrand.purple;
-const PROGRESS_BORDER = ssBrand.white;
-const PROGRESS_WRAPPER_BORDER = ssBrand.mediumGrey;
 
 function easeOutCubic(t: number, b: number, c: number, d: number): number {
   const x = t / d - 1;
   return c * (x * x * x + 1) + b;
 }
-
-const VERTICAL_BREAK = "sm";
-const HIGH_BREAK = 1900;
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    backgroundColor,
-    display: "grid",
-    height: "100vh",
-    maxHeight: "var(--document-height, 100vh)",
-    gridTemplateColumns: "2fr 1fr",
-    gridTemplateRows: "1fr min-content",
-    gridTemplateAreas: `
-      "goal donors"
-      "banner banner"
-    `,
-    [theme.breakpoints.down(VERTICAL_BREAK)]: {
-      gridTemplateColumns: "1fr",
-      gridTemplateAreas: `
-        "goal"
-        "donors"
-      `,
-    },
-  },
-  donateBanner: {
-    gridArea: "banner",
-    backgroundColor: ssBrand.black,
-    padding: theme.spacing(2, 2),
-    [theme.breakpoints.down(VERTICAL_BREAK)]: {
-      display: "none",
-    },
-  },
-  donateBannerText: {
-    animation: `10s ${theme.transitions.easing.easeInOut} infinite $pulse`,
-    color: ssBrand.white,
-    [theme.breakpoints.down(HIGH_BREAK)]: {
-      fontSize: "3rem",
-    },
-  },
-  donorBubble: {
-    display: "grid",
-    padding: theme.spacing(2),
-    margin: theme.spacing(2),
-    gridAutoColumns: "auto",
-    gridTemplateAreas: `
-      "name amount"
-    `,
-  },
-  donorAmount: {
-    ...theme.typography.h3,
-    gridArea: "amount",
-    textAlign: "right",
-    alignSelf: "center",
-    [theme.breakpoints.down(HIGH_BREAK)]: {
-      fontSize: "2rem",
-    },
-  },
-  donorName: {
-    gridArea: "name",
-    ...theme.typography.h4,
-    alignSelf: "center",
-    [theme.breakpoints.down(HIGH_BREAK)]: {
-      fontSize: "1.5rem",
-    },
-  },
-  progressWrapper: {
-    border: `1px solid ${PROGRESS_WRAPPER_BORDER}`,
-    borderRadius: "0.5rem",
-  },
-  progressContainer: {
-    [theme.breakpoints.down(VERTICAL_BREAK)]: {
-      flexDirection: "column",
-    },
-  },
-  progressText: {
-    fontSize: "7rem",
-    flex: 1,
-    display: "grid",
-    gridTemplateColumns: "1fr 0.1fr 1fr",
-    [theme.breakpoints.down(HIGH_BREAK)]: {
-      fontSize: "4rem",
-    },
-  },
-  progressTotal: {
-    textAlign: "left",
-  },
-  progressOf: {
-    textAlign: "center",
-    fontSize: "5rem",
-    padding: theme.spacing(0, 2),
-    alignSelf: "center",
-    [theme.breakpoints.down(HIGH_BREAK)]: {
-      fontSize: "3rem",
-    },
-  },
-  progressGoal: {
-    textAlign: "right",
-  },
-  donorCount: {
-    textAlign: "right",
-    alignSelf: "center",
-    fontSize: theme.typography.h2.fontSize,
-    [theme.breakpoints.down(HIGH_BREAK)]: {
-      fontSize: "3rem",
-    },
-  },
-  progress: {
-    width: "100%",
-    borderRadius: "0.5rem",
-    border: `2px solid ${PROGRESS_BORDER}`,
-    height: theme.spacing(8),
-  },
-  "@keyframes pulse": {
-    "0%": {
-      transform: "scale(1)",
-    },
-    "60%": {
-      transform: "scale(1)",
-    },
-    "80%": {
-      transform: "scale(1.05)",
-    },
-    "100%": {
-      transform: "scale(1)",
-    },
-  },
-  donors: {
-    gridArea: "donors",
-    overflow: "hidden",
-  },
-  embellishment: {
-    position: "absolute",
-    left: Embellishment.width * 0,
-    bottom: Embellishment.width * -0.15,
-    width: Embellishment.width * 0.6,
-    height: Embellishment.height * 0.6,
-  },
-  goal: {
-    gridArea: "goal",
-    padding: theme.spacing(2),
-    position: "relative",
-    justifyContent: "center",
-    [":where(& > *)"]: {
-      position: "relative",
-    },
-  },
-  goalName: {
-    display: "none",
-    paddingTop: theme.spacing(1),
-    fontSize: theme.typography.h2.fontSize,
-    fontWeight: 700,
-    textAlign: "center",
-  },
-  logo: {
-    width: "50%",
-    objectFit: "contain",
-    marginBottom: theme.spacing(2),
-    color: ssBrand.white,
-  },
-  barColorPrimary: {
-    backgroundColor: BAR_COLOR,
-  },
-  colorPrimary: {
-    backgroundColor: BAR_BACKGROUND,
-  },
-}));
 
 export const DateTimeFormat = new Intl.DateTimeFormat("en-US", {
   timeZone: "America/Los_Angeles",
@@ -383,7 +200,6 @@ export function useLiveDashboard(
 
 const LiveDashboard: React.FC<DashboardProps> = (initial) => {
   const [simulate, setSimulate] = useState(false);
-  const classes = useStyles();
   const { goalName, goalCents, donors, donorCount, totalCents } =
     useLiveDashboard(initial, simulate);
 
@@ -392,7 +208,8 @@ const LiveDashboard: React.FC<DashboardProps> = (initial) => {
   }, [initial.simulate, setSimulate]);
 
   return (
-    <Box className={classes.root} onClick={toggleSimulate}>
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
+    <div className={styles.root} onClick={toggleSimulate}>
       <Goal
         goalName={goalName}
         goalCents={goalCents}
@@ -401,7 +218,7 @@ const LiveDashboard: React.FC<DashboardProps> = (initial) => {
       />
       <Donors transactions={donors} />
       <DonateBanner />
-    </Box>
+    </div>
   );
 };
 
@@ -480,106 +297,110 @@ const Goal: React.FC<{
   readonly goalCents: number;
   readonly totalCents: number;
   readonly donorCount: number;
-}> = ({ donorCount, goalName, ...goalValues }) => {
-  const classes = useStyles();
+}> = ({ donorCount, goalName: _goalName, ...goalValues }) => {
   const { goalCents, totalCents } = useAnimatedGoal(goalValues);
   return (
-    <Box
-      display="flex"
-      alignItems="center"
-      flexDirection="column"
-      className={classes.goal}
-    >
+    <div className={styles.goal}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={Embellishment.src} alt="" className={classes.embellishment} />
-      <Logo className={classes.logo} />
-      <Box
-        display="flex"
-        width="100%"
-        justifyContent="center"
-        className={classes.progressContainer}
-      >
-        <Typography className={classes.progressText}>
-          <strong className={classes.progressTotal}>
+      <img
+        src={Embellishment.src}
+        alt=""
+        className={styles.embellishment}
+        style={{
+          position: "absolute",
+          left: Embellishment.width * 0,
+          bottom: Embellishment.width * -0.15,
+          width: Embellishment.width * 0.6,
+          height: Embellishment.height * 0.6,
+        }}
+      />
+      <Logo className={styles.logo} />
+      <div className={styles.progressContainer}>
+        <p className={styles.progressText}>
+          <strong className={styles.progressTotal}>
             {dollars(totalCents)}
           </strong>
-          <span className={classes.progressOf}>of</span>
-          <span className={classes.progressGoal}>{dollars(goalCents)}</span>
-        </Typography>
-      </Box>
-      <Box
-        display="flex"
-        alignItems="center"
-        width="100%"
-        className={classes.progressWrapper}
-      >
-        <LinearProgress
-          className={classes.progress}
-          classes={{
-            colorPrimary: classes.colorPrimary,
-            barColorPrimary: classes.barColorPrimary,
+          <span className={styles.progressOf}>of</span>
+          <span className={styles.progressGoal}>{dollars(goalCents)}</span>
+        </p>
+      </div>
+      <div className={styles.progressBar}>
+        <div
+          className={styles.progress}
+          style={{
+            width: `${Math.min(100, 100 * (totalCents / goalCents))}%`,
           }}
-          color="primary"
-          variant="determinate"
-          value={Math.min(100, 100 * (totalCents / goalCents))}
         />
-      </Box>
-      <Box
-        display="flex"
-        width="100%"
-        justifyContent="flex-end"
-        className={classes.progressContainer}
-      >
-        <Typography className={classes.donorCount}>
+      </div>
+      <div className={styles.donorContainer}>
+        <p className={styles.donorCount}>
           {donorCount} {donorCount === 1 ? "Donor" : "Donors"}
-        </Typography>
-      </Box>
-      <Typography className={classes.goalName}>{goalName}</Typography>
-    </Box>
+        </p>
+      </div>
+    </div>
   );
 };
+
+interface TransitionAppearProps {
+  appear: boolean;
+  enter: string;
+  enterFrom: string;
+  enterTo: string;
+}
+function TransitionAppear({
+  appear,
+  enter,
+  enterFrom,
+  enterTo,
+  children,
+}: React.PropsWithChildren<TransitionAppearProps>) {
+  const [mounted, setMounted] = useState(!appear);
+  useEffect(() => {
+    if (!mounted) {
+      const handle = requestAnimationFrame(() => setMounted(true));
+      return () => cancelAnimationFrame(handle);
+    }
+  }, [mounted]);
+  return (
+    <div className={clsx(enter, mounted ? enterTo : enterFrom)}>{children}</div>
+  );
+}
 
 const Donors: React.FC<{
   readonly transactions: readonly CommonTransaction[];
 }> = ({ transactions }) => {
-  const classes = useStyles();
   const [appear, setAppear] = useState(false);
   useEffect(() => {
     setAppear(true);
   }, []);
   return (
-    <Box className={classes.donors}>
+    <div className={styles.donors}>
       {transactions.slice(0, 15).map(({ name, amount, created }) => (
-        <Collapse
+        <TransitionAppear
           key={`${name}-${amount}-${created}`}
-          timeout={300}
           appear={appear}
-          in={true}
+          enter={styles.donorEnter}
+          enterFrom={styles.donorEnterFrom}
+          enterTo={styles.donorEnterTo}
         >
-          <Paper elevation={2} square={false} className={classes.donorBubble}>
-            <Typography className={classes.donorName}>{name}</Typography>
-            <Typography className={classes.donorAmount}>
-              {dollars(amount)}
-            </Typography>
-          </Paper>
-        </Collapse>
+          <div style={{ overflow: "hidden" }}>
+            <div className={styles.donorBubble}>
+              <div className={styles.donorName}>{name}</div>
+              <div className={styles.donorAmount}>{dollars(amount)}</div>
+            </div>
+          </div>
+        </TransitionAppear>
       ))}
-    </Box>
+    </div>
   );
 };
 
 const DonateBanner: React.FC<{}> = () => {
-  const classes = useStyles();
   return (
-    <Link href="/donate" className={classes.donateBanner}>
-      <Typography
-        align="center"
-        variant="h1"
-        className={classes.donateBannerText}
-      >
-        donate.missionbit.org
-      </Typography>
-    </Link>
+    // eslint-disable-next-line @next/next/no-html-link-for-pages
+    <a href="/donate" className={styles.donateBanner}>
+      <div className={styles.donateBannerText}>donate.missionbit.org</div>
+    </a>
   );
 };
 
@@ -590,7 +411,6 @@ const Page: NextPage<PageProps> = ({ batch, modifications, ...props }) => {
     return (
       <Layout
         {...props}
-        theme={liveTheme}
         requireDocumentSize={true}
         title={modifications.goalName}
       >
