@@ -3,6 +3,14 @@ import { getLiveProps } from "app/getLiveProps";
 import { notFound } from "next/navigation";
 import LiveDashboard from "components/donate/LiveDashboard";
 
+import { metadata as pageMetadata } from "../page";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  ...pageMetadata,
+  robots: { index: false, follow: false },
+};
+
 export default async function Page({
   searchParams,
 }: {
