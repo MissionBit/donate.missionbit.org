@@ -43,6 +43,14 @@
   padding: 16px;
 }
 
+.buttons {
+  text-align: right;
+  margin: 0 -8px;
+  & > * {
+    margin: 0 8px;
+  }
+}
+
 .panel {
   margin-left: auto;
   margin-right: auto;

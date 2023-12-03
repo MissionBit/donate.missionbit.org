@@ -149,20 +149,22 @@ const DonateSubscription: React.FC<DonateSubscriptionProps> = ({
               If you confirm and end your recurring donation now, you will not
               be charged again.
             </p>
-            <button
-              className="btn btn--orange-outline"
-              onClick={handleClose}
-              disabled={loading}
-            >
-              Not Now
-            </button>
-            <button
-              className="btn btn--purple"
-              onClick={handleConfirm}
-              disabled={loading}
-            >
-              Confirm {loading && <CircularProgress />}
-            </button>
+            <div className={styles.buttons}>
+              <button
+                className="btn btn--orange-outline"
+                onClick={handleClose}
+                disabled={loading}
+              >
+                Not Now
+              </button>
+              <button
+                className="btn btn--purple"
+                onClick={handleConfirm}
+                disabled={loading}
+              >
+                Confirm {loading && <CircularProgress />}
+              </button>
+            </div>
           </Dialog.Panel>
         </div>
       </Dialog>

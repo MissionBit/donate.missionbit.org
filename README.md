@@ -178,8 +178,8 @@ Errors are collected with sentry.io at
 Donations are processed with [Stripe](https://dashboard.stripe.com/dashboard).
 
 In order to test the Stripe integration locally, you must set the environment
-variables below. You can find their values from the netlify dashboard and from
-Stripe's Developer settings while viewing test data.
+variables below. You can find their values from Stripe's Developer settings
+while viewing test data.
 
 With local and PR deployments the Stripe integration is in test mode,
 so [test cards](https://stripe.com/docs/testing#cards) should be used
