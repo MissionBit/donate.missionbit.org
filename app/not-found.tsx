@@ -7,6 +7,7 @@ export const metadata: Metadata = {
   title: "Mission Bit – 404 Not Found",
   robots: { index: false, follow: false },
 };
+export const runtime = "edge";
 
 export default function NotFound() {
   return (
