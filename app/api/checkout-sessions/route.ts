@@ -1,14 +1,14 @@
-import { NextApiHandler } from "next";
 import Stripe from "stripe";
 import getStripe from "src/getStripe";
 import { Frequency, FREQUENCIES } from "src/stripeHelpers";
 import { getOrigin } from "src/absoluteUrl";
 import { APP } from "src/stripeMetadata";
 
+export const dynamic = "force-dynamic";
+export const runtime = "edge";
+
 const MONTHLY_PLAN_ID = "mb-monthly-001";
 const MONTHLY_COVER_FEES_PLAN_ID = "mb-monthly-fees-001";
-
-const stripe = getStripe();
 
 const MIN_AMOUNT = 1 * 100;
 const MAX_AMOUNT = 1000000 * 100;
@@ -108,37 +108,31 @@ function session_args(
   }
 }
 
-const handler: NextApiHandler = async (req, res) => {
-  if (req.method === "POST") {
-    try {
-      const body = parseBody(req.body);
-      if (body === undefined) {
-        res.status(400).json({ error: "Invalid input" });
-        return;
-      }
-      const { amount, frequency, metadata } = body;
-      const origin = getOrigin(req.headers.origin);
-      // Create Checkout Sessions from body params.
-      const checkoutSession: Stripe.Checkout.Session =
-        await stripe.checkout.sessions.create(
-          session_args(origin, amount, frequency, {
-            ...metadata,
-            origin,
-            app: APP,
-          }),
-        );
+export async function POST(req: Request) {
+  const stripe = getStripe();
 
-      res.status(200).json({ sessionId: checkoutSession.id });
-    } catch (err) {
-      console.error(err);
-      res
-        .status(500)
-        .json({ statusCode: 500, message: (err as Error).message });
+  try {
+    const body = parseBody(await req.json());
+    if (body === undefined) {
+      return Response.json({ error: "Invalid input" }, { status: 400 });
     }
-  } else {
-    res.setHeader("Allow", "POST");
-    res.status(405).end("Method Not Allowed");
+    const { amount, frequency, metadata } = body;
+    const origin = getOrigin(req.headers.get("origin") ?? undefined);
+    // Create Checkout Sessions from body params.
+    const checkoutSession: Stripe.Checkout.Session =
+      await stripe.checkout.sessions.create(
+        session_args(origin, amount, frequency, {
+          ...metadata,
+          origin,
+          app: APP,
+        }),
+      );
+    return Response.json({ sessionId: checkoutSession.id });
+  } catch (err) {
+    console.error(err);
+    return Response.json(
+      { statusCode: 500, message: (err as Error).message },
+      { status: 500 },
+    );
   }
-};
-
-export default handler;
+}

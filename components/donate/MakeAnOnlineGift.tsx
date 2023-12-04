@@ -1,5 +1,6 @@
 import * as React from "react";
-import DonateCard, { DonatePrefill } from "./DonateCard";
+import DonateCard from "./DonateCard";
+import { DonatePrefill } from "./parseDonatePrefill";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 

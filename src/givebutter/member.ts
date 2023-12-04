@@ -3,10 +3,10 @@ import { PaginatedResponse } from "./pagination";
 
 export const Member = S.struct({
   id: S.number,
-  first_name: S.string,
-  last_name: S.string,
-  email: S.string,
-  phone: S.string,
+  first_name: S.nullable(S.string),
+  last_name: S.nullable(S.string),
+  email: S.nullable(S.string),
+  phone: S.nullable(S.string),
   display_name: S.string,
   picture: S.string,
   raised: S.number,

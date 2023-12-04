@@ -1,11 +1,16 @@
 import * as React from "react";
-import { Layout, getStaticProps, LayoutStaticProps } from "components/Layout";
-import { NextPage } from "next";
-import styles from "./404.module.scss";
+import styles from "./not-found.module.scss";
 import clsx from "clsx";
+import { Metadata } from "next";
 
-const Page: NextPage<LayoutStaticProps> = (props) => (
-  <Layout {...props} title="Mission Bit – 404 Not Found">
+export const metadata: Metadata = {
+  title: "Mission Bit – 404 Not Found",
+  robots: { index: false, follow: false },
+};
+export const runtime = "edge";
+
+export default function NotFound() {
+  return (
     <main className={clsx("px-container", styles.root)}>
       <h1>HTTP 404 Not Found</h1>
       <p>
@@ -15,8 +20,5 @@ const Page: NextPage<LayoutStaticProps> = (props) => (
         <a href="https://missionbit.org/">Check out our homepage</a>
       </h3>
     </main>
-  </Layout>
-);
-
-export { getStaticProps };
-export default Page;
+  );
+}

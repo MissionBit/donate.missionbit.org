@@ -1,10 +1,14 @@
 import * as React from "react";
-import { BalanceProps, useAnimatedGoal, useLiveDashboard } from "pages/live";
 import Image from "next/legacy/image";
 import Embellishment from "public/images/Embellishment_20_Orange_RGB.png";
 import dollars from "src/dollars";
 import styles from "./CampaignCard.module.scss";
 import clsx from "clsx";
+import {
+  BalanceProps,
+  useAnimatedGoal,
+  useLiveDashboard,
+} from "./LiveDashboard";
 
 export function CampaignCard(props: {
   campaign: BalanceProps;

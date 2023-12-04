@@ -1,26 +1,28 @@
+"use client";
 import * as React from "react";
 import Landing from "./Landing";
 import MakeAnOnlineGift from "./MakeAnOnlineGift";
 import AnnualReports from "./AnnualReports";
 import OtherWaysToGive from "./OtherWaysToGive";
-import { DonatePrefill } from "./DonateCard";
-import { BalanceProps } from "pages/live";
+import { DonatePrefill } from "./parseDonatePrefill";
 import clsx from "clsx";
 import styles from "./index.module.scss";
 import Testimonial from "./Testimonial";
 import { useCampaign } from "./useCampaign";
 import { CampaignCard } from "./CampaignCard";
 import { Agenda } from "./Agenda";
-import { useRouter } from "next/router";
+import { useSearchParams } from "next/navigation";
+import type { BalanceProps } from "./LiveDashboard";
 
 export interface DonateProps {
   prefill?: DonatePrefill | undefined;
   campaign?: BalanceProps | undefined;
+  buildTime: number;
 }
 
 const Donate: React.FC<DonateProps> = (props) => {
   const { campaign, prefill, gala } = useCampaign(props);
-  const debugGala = typeof useRouter().query.gala === "string";
+  const debugGala = useSearchParams()?.get("gala") === "string";
   const agenda = gala || debugGala ? campaign?.modifications.galaAgenda : null;
   return (
     <main id="main">

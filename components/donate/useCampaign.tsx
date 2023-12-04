@@ -1,19 +1,19 @@
-import { DEFAULT_PREFILL, DonatePrefill } from "./DonateCard";
-import { BalanceProps } from "pages/live";
-import { useBuildTime } from "components/BuildTimeContext";
+import type { BalanceProps } from "./LiveDashboard";
+import { DEFAULT_PREFILL, DonatePrefill } from "./parseDonatePrefill";
 
 export function useCampaign({
+  buildTime,
   campaign,
   prefill = DEFAULT_PREFILL,
 }: {
   campaign?: BalanceProps | undefined;
   prefill?: DonatePrefill | undefined;
+  buildTime: number;
 }): {
   campaign: BalanceProps | undefined;
   prefill: DonatePrefill;
   gala: boolean;
 } {
-  const buildTime = useBuildTime();
   const endTimestamp = campaign?.modifications.endTimestamp;
   const presetAmounts = campaign?.modifications.presetAmounts;
   const galaDate = campaign?.modifications.galaDate;

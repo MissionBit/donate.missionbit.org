@@ -1,5 +1,7 @@
-import { NextApiRequest, NextApiResponse } from "next";
 import slack from "src/slack";
+
+export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 const eventbriteToken = process.env.EVENTBRITE_TOKEN;
 
@@ -34,17 +36,7 @@ async function handleOrderPlaced(api_url: string): Promise<void> {
   });
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse,
-): Promise<void> {
-  if (
-    req.method !== "POST" ||
-    req.headers["content-type"] !== "application/json"
-  ) {
-    res.status(400).end();
-    return;
-  }
+export async function POST(req: Request) {
   /*
   {
     "api_url": "https://www.eventbriteapi.com/v3/orders/1546689753/",
@@ -56,15 +48,14 @@ export default async function handler(
     }
   }
   */
-  const { api_url, config } = req.body;
+  const { api_url, config } = await req.json();
   if (
     typeof api_url !== "string" ||
     typeof config !== "object" ||
     config.action !== "order.placed"
   ) {
-    res.status(400).end();
-    return;
+    return Response.json({ error: "Invalid input" }, { status: 400 });
   }
   await handleOrderPlaced(api_url);
-  res.status(200).json({ status: "success" });
+  return Response.json({ status: "success" });
 }

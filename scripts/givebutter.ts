@@ -68,6 +68,7 @@ function upsert<T extends GivebutterObj>(
           .from("givebutter_object")
           .upsert(rows, { count: "exact" });
         if (error) {
+          console.error(`Error with ${prefix}`);
           throw error;
         }
         console.log(`Upserted ${count} rows from ${prefix}`);

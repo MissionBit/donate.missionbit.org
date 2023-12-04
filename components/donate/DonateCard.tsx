@@ -9,7 +9,6 @@ import {
   Frequency,
   FREQUENCIES,
   trackCheckoutEvent,
-  isFrequency,
 } from "src/stripeHelpers";
 import { Stripe } from "@stripe/stripe-js";
 import dollars from "src/dollars";
@@ -17,6 +16,8 @@ import styles from "./DonateCard.module.scss";
 import Checkbox from "./Checkbox";
 import { RadioGroup } from "@headlessui/react";
 import InputAmount from "./InputAmount";
+import { formatCents } from "./formatCents";
+import { DonatePrefill, DEFAULT_PREFILL } from "./parseDonatePrefill";
 
 const matchEnd = Date.parse("2021-08-01T00:00:00-07:00");
 
@@ -45,40 +46,6 @@ async function checkoutDonation(
   const json = await response.json();
   const result = await stripe.redirectToCheckout(json);
   throw new Error(result.error.message);
-}
-
-function formatCents(cents: number): string {
-  return Math.floor(cents / 100).toFixed(0);
-}
-
-export interface DonatePrefill {
-  frequency: Frequency;
-  amount: string;
-  presetAmounts: readonly number[];
-}
-
-export const DEFAULT_PREFILL: DonatePrefill = {
-  frequency: "one-time",
-  amount: "",
-  presetAmounts: [25000, 10000, 5000],
-};
-
-export function parseDonatePrefill(obj: {
-  frequency?: unknown;
-  dollars?: unknown;
-}): DonatePrefill {
-  const { frequency, dollars } = obj;
-  const rval = { ...DEFAULT_PREFILL };
-  if (typeof frequency === "string" && isFrequency(frequency)) {
-    rval.frequency = frequency;
-  }
-  if (typeof dollars === "string") {
-    const cents = parseCents(dollars);
-    if (cents) {
-      rval.amount = formatCents(cents);
-    }
-  }
-  return rval;
 }
 
 export const DonateCard: React.FC<{

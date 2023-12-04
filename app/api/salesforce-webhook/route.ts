@@ -1,16 +1,10 @@
-import { NextApiHandler } from "next";
 import Stripe from "stripe";
 import getStripe from "src/getStripe";
-import { buffer, RequestHandler } from "micro";
-import Cors from "micro-cors";
 import { login, stripeChargeSync } from "src/salesforce";
 import requireEnv from "src/requireEnv";
 
-const stripe = getStripe();
-
-const STRIPE_WEBHOOK_SIGNING_SECRET = requireEnv(
-  "STRIPE_WEBHOOK_SIGNING_SECRET_SALESFORCE",
-);
+export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 function eventObject<T extends Stripe.Event.Data.Object & { id: string }>(
   event: Stripe.Event,
@@ -36,34 +30,25 @@ const HANDLERS: { [k: string]: (event: Stripe.Event) => Promise<void> } = {
   "charge.succeeded": stripeChargeSucceeded,
 };
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
-const handler: NextApiHandler = async (req, res) => {
+export async function POST(req: Request) {
   let event: Stripe.Event;
   try {
-    const sig = req.headers["stripe-signature"];
+    const sig = req.headers.get("stripe-signature") ?? undefined;
     if (sig === undefined) {
       throw new Error(`Missing signature`);
     }
-    event = stripe.webhooks.constructEvent(
-      await buffer(req),
+    event = await getStripe().webhooks.constructEventAsync(
+      Buffer.from(await req.arrayBuffer()),
       sig,
-      STRIPE_WEBHOOK_SIGNING_SECRET,
+      requireEnv("STRIPE_WEBHOOK_SIGNING_SECRET_SALESFORCE"),
     );
   } catch (err) {
     console.error(err);
-    res.status(400).send(`Webhook Error: ${(err as Error).message}`);
-    return;
+    return Response.json(`Webhook Error: ${(err as Error).message}`, {
+      status: 400,
+    });
   }
   const handleEvent = HANDLERS[event.type] ?? defaultHandler;
   await handleEvent(event);
-  res.status(200).json({ received: true });
-};
-
-export default Cors({
-  allowMethods: ["POST", "HEAD"],
-})(handler as RequestHandler);
+  return Response.json({ received: true });
+}

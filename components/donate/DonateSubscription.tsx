@@ -1,3 +1,4 @@
+"use client";
 import * as React from "react";
 import CircularProgress from "./CircularProgress";
 import { Dialog } from "@headlessui/react";
