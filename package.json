@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "cross-env NODE_OPTIONS='--inspect' next",
     "build": "next build",
+    "build:cloudflare": "npx vercel build && ([ -d .vercel/output/functions/_error.func ] && rm -rf .vercel/output/functions/_error.func) || true && npx @cloudflare/next-on-pages@1 --skip-build",
     "export": "npm run build && next export",
     "start": "next start",
     "fix": "eslint --fix --ext js,jsx,ts,tsx .",

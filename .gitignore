@@ -17,4 +17,4 @@ out
 .env
 .sfdx
 .sf
-.vercel
+/.vercel/output
