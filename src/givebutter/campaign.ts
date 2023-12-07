@@ -38,7 +38,7 @@ export const Campaign = S.struct({
   status: S.literal("active", "inactive", "unpublished"),
   title: S.string,
   subtitle: S.nullable(S.string),
-  description: S.string,
+  description: S.nullable(S.string),
   slug: S.nullable(S.string),
   raised: S.number,
   goal: S.nullable(S.number),

@@ -12,7 +12,7 @@ export const GivingSpace = S.struct({
 export const LineItemDonation = S.struct({
   type: S.literal("donation"),
   subtype: S.literal("donation", "fee"),
-  description: S.string,
+  description: S.nullable(S.string),
   quantity: S.number,
   price: S.number,
   discount: S.number,
@@ -22,7 +22,7 @@ export const LineItemDonation = S.struct({
 export const LineItemTicket = S.struct({
   type: S.literal("item"),
   subtype: S.literal("ticket"),
-  description: S.string,
+  description: S.nullable(S.string),
   quantity: S.number,
   price: S.number,
   discount: S.number,
