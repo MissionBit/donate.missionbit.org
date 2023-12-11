@@ -52,6 +52,9 @@ function streamMemberPages(campaignId: string | number) {
   });
   return streamPages(firstUrl, schema).pipe(
     Stream.map((page) => ({ prefix, rows: page.data.map(toRow) })),
+    Stream.catchTag("ResponseError", (err) =>
+      err.response.status === 404 ? Stream.empty : Stream.fail(err),
+    ),
   );
 }
 
