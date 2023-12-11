@@ -61,10 +61,62 @@ function streamMemberPages(campaignId: string | number) {
 
 const supabase = getSupabaseClient();
 
+function markDeleted(prefix: string) {
+  return (ids: Set<string>) =>
+    Effect.tryPromise({
+      try: async () => {
+        console.log(`TOTAL: ${ids.size} from ${prefix}`);
+        const rv = await supabase
+          .from("givebutter_object")
+          .select("*", { count: "exact", head: true })
+          .like("id", `${prefix}/%`)
+          .filter("id", "not.like", `${prefix}/%/%`)
+          .is("deleted_at", null);
+        if (rv.error || rv.count === null) {
+          const { data: _data, ...rest } = rv;
+          console.error(rest);
+          throw new Error(`Count not get count for ${prefix}`);
+        }
+        if (rv.count <= ids.size) {
+          return;
+        }
+        const rv1 = await supabase
+          .from("givebutter_object")
+          .select("*")
+          .like("id", `${prefix}/%`)
+          .filter("id", "not.like", `${prefix}/%/%`)
+          .is("deleted_at", null);
+        if (rv1.error) {
+          const { data: _data, ...rest } = rv1;
+          console.log(rest);
+          throw new Error(`Count not get existing ids for ${prefix}`);
+        }
+        const deletedIds = rv1.data.flatMap((row) =>
+          ids.has(row.id) ? [] : [row.id],
+        );
+        console.log(`Marking ${deletedIds.length} rows as deleted`);
+        console.log(deletedIds.map((v) => "- " + v).join("\n"));
+        const rv2 = await supabase
+          .from("givebutter_object")
+          .update({ deleted_at: "now()" }, { count: "exact" })
+          .like("id", `${prefix}/%`)
+          .filter("id", "not.like", `${prefix}/%/%`)
+          .is("deleted_at", null)
+          .in("id", deletedIds);
+        if (rv2.error || rv2.count === null) {
+          console.log(rv2);
+          throw new Error(`Error marking rows as deleted ${rv.error}`);
+        }
+        console.log(`Marked ${rv2.count} rows as deleted`);
+      },
+      catch: (err) => new Error(`something went wrong ${err}`),
+    });
+}
+
 function upsert<T extends GivebutterObj>(
   pair: readonly [firstUrl: string, schema: S.Schema<T>],
 ): Effect.Effect<never, HttpClientError | ParseError | Error, void> {
-  const rval = streamGivebutterPages(...pair).pipe(
+  return streamGivebutterPages(...pair).pipe(
     Stream.runFoldEffect(new Set<string>(), (acc, { prefix, rows }) =>
       Effect.tryPromise({
         try: async () => {
@@ -84,79 +136,33 @@ function upsert<T extends GivebutterObj>(
         catch: (unknown) => new Error(`something went wrong ${unknown}`),
       }),
     ),
-    Effect.andThen((ids) =>
-      Effect.tryPromise({
-        try: async () => {
-          const prefix = urlPrefix(pair[0]);
-          console.log(`TOTAL: ${ids.size} from ${prefix}`);
-          const rv = await supabase
-            .from("givebutter_object")
-            .select("*", { count: "exact", head: true })
-            .like("id", `${prefix}/%`)
-            .filter("id", "not.like", `${prefix}/%/%`)
-            .is("deleted_at", null);
-          if (rv.error || rv.count === null) {
-            const { data: _data, ...rest } = rv;
-            console.error(rest);
-            throw new Error(`Count not get count for ${prefix}`);
-          }
-          if (rv.count <= ids.size) {
-            return;
-          }
-          const rv1 = await supabase
-            .from("givebutter_object")
-            .select("*")
-            .like("id", `${prefix}/%`)
-            .filter("id", "not.like", `${prefix}/%/%`)
-            .is("deleted_at", null);
-          if (rv1.error) {
-            const { data: _data, ...rest } = rv1;
-            console.log(rest);
-            throw new Error(`Count not get existing ids for ${prefix}`);
-          }
-          const deletedIds = rv1.data.flatMap((row) =>
-            ids.has(row.id) ? [] : [row.id],
-          );
-          console.log(`Marking ${deletedIds.length} rows as deleted`);
-          console.log(deletedIds.map((v) => "- " + v).join("\n"));
-          const rv2 = await supabase
-            .from("givebutter_object")
-            .update({ deleted_at: "now()" }, { count: "exact" })
-            .like("id", `${prefix}/%`)
-            .filter("id", "not.like", `${prefix}/%/%`)
-            .is("deleted_at", null)
-            .in("id", deletedIds);
-          if (rv2.error || rv2.count === null) {
-            console.log(rv2);
-            throw new Error(`Error marking rows as deleted ${rv.error}`);
-          }
-          console.log(`Marked ${rv2.count} rows as deleted`);
-        },
-        catch: (err) => new Error(`something went wrong ${err}`),
-      }),
-    ),
+    Effect.andThen(markDeleted(urlPrefix(pair[0]))),
   );
-  return rval;
 }
 
 function upsertMembers(
   campaignId: string | number,
 ): Effect.Effect<never, HttpClientError | ParseError | Error, void> {
-  const stream = streamMemberPages(campaignId);
-  return Stream.runForEach(stream, ({ prefix, rows }) =>
-    Effect.tryPromise({
-      try: async () => {
-        const { error, count } = await supabase
-          .from("givebutter_object")
-          .upsert(rows, { count: "exact" });
-        if (error) {
-          throw error;
-        }
-        console.log(`Upserted ${count} rows from ${prefix}`);
-        return count;
-      },
-      catch: (unknown) => new Error(`something went wrong ${unknown}`),
-    }),
+  return streamMemberPages(campaignId).pipe(
+    Stream.runFoldEffect(new Set<string>(), (acc, { prefix, rows }) =>
+      Effect.tryPromise({
+        try: async () => {
+          const { error, count } = await supabase
+            .from("givebutter_object")
+            .upsert(rows, { count: "exact" });
+          if (error) {
+            throw error;
+          }
+          console.log(`Upserted ${count} rows from ${prefix}`);
+          for (const row of rows) {
+            acc.add(row.id);
+          }
+          return acc;
+        },
+        catch: (unknown) => new Error(`something went wrong ${unknown}`),
+      }),
+    ),
+    Effect.andThen(markDeleted(urlPrefix(getMembersUrl(campaignId)[0]))),
   );
 }
 
@@ -169,7 +175,8 @@ function upsertCampaignMembers() {
         .from("givebutter_object")
         .select("id")
         .filter("id", "like", `${campaignPrefix}%`)
-        .filter("id", "not.like", `${campaignPrefix}%/%`);
+        .filter("id", "not.like", `${campaignPrefix}%/%`)
+        .is("deleted_at", null);
       if (error) {
         throw error;
       }
