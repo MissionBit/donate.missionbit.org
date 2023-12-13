@@ -6,7 +6,7 @@ export const Plan = S.struct({
   first_name: S.string,
   last_name: S.string,
   email: S.string,
-  phone: S.string,
+  phone: S.nullable(S.string),
   frequency: S.literal("monthly", "quarterly", "yearly"),
   status: S.literal("active", "cancelled", "ended", "past_due", "paused"),
   method: S.string,
