@@ -199,7 +199,7 @@ async function main() {
         (row.tickets_data as unknown[]).map((data) => S.parse(Ticket)(data)),
       ),
     }).pipe(Effect.runPromise);
-    slack.chat.postMessage({
+    await slack.chat.postMessage({
       channel: "#givebutter",
       ...formatBlocks(info),
       unfurl_links: false,
