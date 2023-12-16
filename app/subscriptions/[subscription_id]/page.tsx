@@ -75,7 +75,7 @@ export default async function Page({
   });
 
   const subscriptionInfo = {
-    ...billingDetailsTo(pm.billing_details),
+    ...billingDetailsTo(pm.billing_details, subscription.metadata.email),
     paidInvoices: invoices.map((invoice) => ({
       created: invoice.created,
       amount: invoice.amount_paid,

@@ -17,8 +17,11 @@ const EMAIL_TEMPLATES = {
   failure: "d-570b4b8b20e74ec5a9c55be7e07e2665",
 };
 
-function donorName(billing_details: Stripe.Charge.BillingDetails): string {
-  if (billing_details.email === null) {
+function donorName(billing_details: {
+  readonly name: string;
+  readonly email: string;
+}): string {
+  if (!billing_details.email) {
     throw new Error(
       `Expecting non-null email ${JSON.stringify(billing_details)}`,
     );
@@ -40,11 +43,13 @@ interface EmailTemplateData {
   renew_url?: string;
   subscription_id?: string;
   subscription_url?: string;
+  name: string;
+  email: string;
 }
 
 async function sendEmail(templateData: EmailTemplateData) {
   const mailData = emailTemplateData(templateData);
-  const email = billingDetailsTo(templateData.charge.billing_details).email;
+  const { email } = templateData;
   console.log(
     `Sending ${templateData.frequency} ${templateData.template} for ${templateData.charge.id} to ${email}`,
   );
@@ -53,7 +58,7 @@ async function sendEmail(templateData: EmailTemplateData) {
   return result;
 }
 
-function emailTemplateData({
+export function emailTemplateData({
   template,
   charge,
   frequency,
@@ -69,19 +74,21 @@ function emailTemplateData({
   const payment_method = formatPaymentMethodDetailsSource(
     charge.payment_method_details,
   );
+  const { name, email } = extra;
+  const toAddress = { name, email };
   return {
     template_id: EMAIL_TEMPLATES[template],
     from: { name: "Mission Bit", email: DONATE_EMAIL },
     personalizations: [
       {
-        to: [billingDetailsTo(charge.billing_details)],
+        to: [toAddress],
         dynamic_template_data: {
           transaction_id: charge.id,
           frequency,
           total: usdFormatter.format(charge.amount / 100),
           date: ShortDateFormat.format(charge.created * 1000),
           payment_method: payment_method,
-          donor: donorName(charge.billing_details),
+          donor: donorName(toAddress),
           ...extra,
         },
       },
@@ -131,6 +138,7 @@ export async function stripeCheckoutSessionCompletedPaymentEmail(
     template: "receipt",
     charge,
     frequency: "one-time",
+    ...billingDetailsTo(charge.billing_details, charge.metadata.email),
   });
 }
 
@@ -188,7 +196,17 @@ export async function fetchInvoiceWithPaymentIntent(
   return invoice as ExpandedInvoice;
 }
 
-export async function stripeInvoicePaymentEmail(id: string): Promise<void> {
+function getSubscriptionOrigin({
+  metadata,
+}: Stripe.Subscription): string | undefined {
+  if (metadata.origin || metadata["Donation Post ID"]) {
+    return "https://donate.missionbit.org";
+  }
+}
+
+export async function stripeInvoicePaymentEmailData(
+  id: string,
+): Promise<EmailTemplateData | undefined> {
   const invoice = await fetchInvoiceWithPaymentIntent(id);
   const template = invoiceTemplate(invoice);
   if (template === null) {
@@ -198,7 +216,7 @@ export async function stripeInvoicePaymentEmail(id: string): Promise<void> {
     return;
   }
   const { subscription } = invoice;
-  const subscriptionOrigin = subscription.metadata.origin;
+  const subscriptionOrigin = getSubscriptionOrigin(subscription);
   if (!subscriptionOrigin) {
     console.log(
       `Skipping invoice ${invoice.id} with missing subscription origin`,
@@ -212,8 +230,12 @@ export async function stripeInvoicePaymentEmail(id: string): Promise<void> {
     );
   }
   const origin = legacyGetOrigin(subscriptionOrigin);
+  const { name, email } = billingDetailsTo(
+    charge.billing_details,
+    invoice.customer_email,
+  );
   if (template === "failure") {
-    await sendEmail({
+    return {
       template,
       charge,
       frequency: "monthly",
@@ -223,10 +245,12 @@ export async function stripeInvoicePaymentEmail(id: string): Promise<void> {
       )}?frequency=monthly`,
       subscription_id: subscription.id,
       subscription_url: `${origin}/subscriptions/${subscription.id}`,
-    });
+      name,
+      email,
+    };
   } else {
     const next = LongDateFormat.format(subscription.current_period_end * 1000);
-    await sendEmail({
+    return {
       template,
       charge,
       frequency: "monthly",
@@ -234,6 +258,15 @@ export async function stripeInvoicePaymentEmail(id: string): Promise<void> {
         next,
         url: `${origin}/subscriptions/${subscription.id}`,
       },
-    });
+      name,
+      email,
+    };
+  }
+}
+
+export async function stripeInvoicePaymentEmail(id: string): Promise<void> {
+  const body = await stripeInvoicePaymentEmailData(id);
+  if (body) {
+    await sendEmail(body);
   }
 }

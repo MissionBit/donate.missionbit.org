@@ -8,10 +8,11 @@ function sendgridSafeName(name: string): string {
 
 export function billingDetailsTo(
   billing_details: Stripe.PaymentMethod.BillingDetails,
+  email?: string | null | undefined,
 ): { name: string; email: string } {
   return {
     name: sendgridSafeName(billing_details.name ?? ""),
-    email: billing_details.email ?? "",
+    email: billing_details.email || email || "",
   };
 }
 
@@ -84,10 +85,11 @@ function metadataFromChargeOrSession(
 
 export function stripeSessionInfoFromCharge(
   charge: Stripe.Charge,
-  frequency: Frequency = "one-time",
+  frequency: Frequency | null = null,
   subscriptionId: string | null = null,
 ): StripeSessionInfo {
-  const { payment_method_details, id, amount, created } = charge;
+  const { payment_method_details, id, amount, created, customer, invoice } =
+    charge;
   if (typeof payment_method_details !== "object" || !payment_method_details) {
     throw new Error(
       `Expected payment_method_details to be expanded ${JSON.stringify(
@@ -95,10 +97,23 @@ export function stripeSessionInfoFromCharge(
       )}`,
     );
   }
+  if (
+    typeof invoice === "object" &&
+    invoice &&
+    typeof invoice.subscription === "string"
+  ) {
+    subscriptionId = invoice.subscription;
+    frequency = "monthly";
+  }
   return {
-    ...billingDetailsTo(charge.billing_details),
+    ...billingDetailsTo(
+      charge.billing_details,
+      (typeof customer === "object" && customer && "email" in customer
+        ? customer.email
+        : null) || charge.metadata.email,
+    ),
     id,
-    frequency,
+    frequency: frequency ?? "one-time",
     amount,
     payment_method: formatPaymentMethodDetailsSource(payment_method_details),
     created,

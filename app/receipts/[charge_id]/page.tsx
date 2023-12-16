@@ -19,7 +19,7 @@ export default async function ResultPage({
 }) {
   const stripe = getStripe();
   const charge = await stripe.charges.retrieve(charge_id, {
-    expand: ["customer", "payment_intent"],
+    expand: ["customer", "payment_intent", "invoice"],
   });
   if (charge.status === "failed") {
     return notFound();
