@@ -119,13 +119,14 @@ function formatBlocks({
   plan,
   tickets,
 }: FormatBlocksOptions) {
-  const isAnonymous = txn.giving_space.name === "Anonymous";
-  const givingSpaceName = txn.giving_space.name;
+  const isAnonymous = txn.giving_space?.name === "Anonymous";
+  const givingSpaceName = txn.giving_space?.name;
   const contactName = [txn.first_name, txn.last_name].filter(Boolean).join(" ");
-  const txnName = contactName || txn.email || txn.phone || givingSpaceName;
+  const txnName =
+    contactName || txn.email || txn.phone || givingSpaceName || "";
   const shortName = txn.first_name || txnName.split(" ")[0];
   const name =
-    !isAnonymous && givingSpaceName !== txnName
+    !isAnonymous && givingSpaceName && givingSpaceName !== txnName
       ? `${txnName} (${givingSpaceName})`
       : txnName;
   const contactInfo = [contactName, txn.email, txn.phone].filter(Boolean);

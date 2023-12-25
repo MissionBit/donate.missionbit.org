@@ -66,8 +66,9 @@ export async function createOrFetchOpportunityFromGivebutterTransaction(
   const opportunityName = [
     transaction.first_name,
     transaction.last_name,
+    transaction.giving_space &&
     transaction.giving_space.name !==
-    `${transaction.first_name} ${transaction.last_name}`
+      `${transaction.first_name} ${transaction.last_name}`
       ? `(${transaction.giving_space.name})`
       : null,
     dollarFormatter.format(transaction.amount),
@@ -158,7 +159,7 @@ export async function createOrFetchContactFromGivebutterTransaction(
   }
   const parsedName =
     transactionName(transaction) ??
-    nameParser(transaction.giving_space.name ?? email.split("@")[0]);
+    nameParser(transaction.giving_space?.name ?? email.split("@")[0]);
   const customerInfo = `${parsedName.original} <${transaction.email}>`;
   const phone = transaction.phone;
   const clauses = [
@@ -249,7 +250,8 @@ export async function createOrFetchContactFromGivebutterTransaction(
           ["Phone", phone],
           [
             "Preferred_Name_Nickname__c",
-            (transaction.giving_space.name === "Anonymous"
+            (!transaction.giving_space ||
+            transaction.giving_space.name === "Anonymous"
               ? null
               : transaction.giving_space.name) || parsedName.original,
           ],

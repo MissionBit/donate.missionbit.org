@@ -33,11 +33,22 @@ async function getDbTransactions(
     const rowCreated = isoTimestampToUnix(row.created_at);
     created = Math.max(created, rowCreated);
     const data = Effect.runSync(S.parse(Transaction)(row.data));
-    if (data.giving_space.amount > 0) {
+    if (data.giving_space && data.giving_space.amount > 0) {
       transactions.push({
         id: row.id,
         amount: data.giving_space.amount * 100,
         name: data.giving_space.name,
+        type: "direct",
+        subscription: data.plan_id !== null,
+        created: rowCreated,
+      });
+    } else if (data.amount > 0) {
+      transactions.push({
+        id: row.id,
+        amount: data.amount * 100,
+        name:
+          [data.first_name, data.last_name].filter(Boolean).join(" ") ||
+          "Anonymous",
         type: "direct",
         subscription: data.plan_id !== null,
         created: rowCreated,
