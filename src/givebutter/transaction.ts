@@ -51,7 +51,7 @@ export const Transaction = S.struct({
   campaign_code: S.string,
   plan_id: S.nullable(S.string),
   team_id: S.nullable(S.string),
-  member_id: S.nullable(S.string),
+  member_id: S.nullable(S.union(S.string, S.number)),
   fund_id: S.nullable(S.string),
   fund_code: S.nullable(S.string),
   first_name: S.string,
