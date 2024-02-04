@@ -6,13 +6,13 @@ module.exports = {
   },
   extends: [
     "eslint:recommended",
-    "plugin:jest/recommended",
     "plugin:react/recommended",
     "plugin:prettier/recommended",
     "plugin:react-hooks/recommended",
     "plugin:jsx-a11y/recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:@next/next/recommended",
+    "plugin:vitest/recommended",
   ],
   globals: {
     Atomics: "readonly",
@@ -30,8 +30,8 @@ module.exports = {
     "react",
     "react-hooks",
     "@typescript-eslint",
-    "jest",
     "unused-imports",
+    "vitest",
   ],
   settings: {
     react: {
