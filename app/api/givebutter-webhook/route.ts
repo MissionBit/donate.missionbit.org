@@ -7,7 +7,7 @@ import { Webhook } from "src/givebutter/webhook";
 export const dynamic = "force-dynamic";
 export const runtime = "edge";
 
-export async function POST(req: Request) {
+export async function POST(req: Request): Promise<Response> {
   try {
     const sig = req.headers.get("signature") ?? undefined;
     if (sig === undefined) {
@@ -24,9 +24,11 @@ export async function POST(req: Request) {
   }
   const supabase = getSupabaseClient();
   const body = await req.json();
+  const table = supabase.from("givebutter_webhook");
   try {
     const webhook = await Effect.runPromise(S.parse(Webhook)(body));
-    await supabase.from("givebutter_webhook").insert(webhook);
+    const db = await table.insert(webhook);
+    return Response.json({ received: true, state: "inserted", db });
   } catch (err) {
     if (
       body &&
@@ -34,11 +36,12 @@ export async function POST(req: Request) {
       typeof body.event === "string" &&
       typeof body.data === "object"
     ) {
-      await supabase.from("givebutter_webhook").insert({
+      const db = await table.insert({
         event: body.event,
         data: body.data,
         status: { error: "parse_error", err },
       });
+      return Response.json({ received: true, state: "parse_error", db });
     } else {
       console.error(err);
       return Response.json(`Webhook Error: ${(err as Error).message}`, {
@@ -46,5 +49,4 @@ export async function POST(req: Request) {
       });
     }
   }
-  return Response.json({ received: true });
 }
