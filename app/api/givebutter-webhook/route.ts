@@ -26,8 +26,12 @@ export async function POST(req: Request): Promise<Response> {
   const body = await req.json();
   const table = supabase.from("givebutter_webhook");
   try {
-    const webhook = await Effect.runPromise(S.parse(Webhook)(body));
-    const db = await table.insert(webhook);
+    const {
+      id: givebutter_id,
+      event,
+      data,
+    } = await Effect.runPromise(S.parse(Webhook)(body));
+    const db = await table.insert({ givebutter_id, event, data });
     return Response.json({ received: true, state: "inserted", db });
   } catch (err) {
     if (
@@ -37,6 +41,7 @@ export async function POST(req: Request): Promise<Response> {
       typeof body.data === "object"
     ) {
       const db = await table.insert({
+        givebutter_id: body.id ?? null,
         event: body.event,
         data: body.data,
         status: { error: "parse_error", err },
