@@ -4,7 +4,7 @@ import { PaginatedResponse } from "./pagination";
 export const CampaignEvent = S.struct({
   title: S.string,
   type: S.union(S.literal("physical"), S.string),
-  location_name: S.string,
+  location_name: S.nullable(S.string),
   address_formatted: S.string,
   google_place_id: S.string,
   start_at: S.string,
