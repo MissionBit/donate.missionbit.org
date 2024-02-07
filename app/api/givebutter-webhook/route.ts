@@ -3,9 +3,38 @@ import { Effect } from "effect";
 import requireEnv from "src/requireEnv";
 import { getSupabaseClient } from "src/getSupabaseClient";
 import { Webhook } from "src/givebutter/webhook";
+import { getCampaignsUrl } from "src/givebutter/campaign";
+import { getContactsUrl } from "src/givebutter/contact";
+import { getTicketsUrl } from "src/givebutter/ticket";
+import { getTransactionsUrl } from "src/givebutter/transaction";
 
 export const dynamic = "force-dynamic";
 export const runtime = "edge";
+
+function getObjectUrl(hook: S.Schema.To<typeof Webhook>): string {
+  switch (hook.event) {
+    case "campaign.created":
+    case "campaign.updated":
+      return getCampaignsUrl()[0];
+    case "contact.created":
+      return getContactsUrl()[0];
+    case "ticket.created":
+      return getTicketsUrl()[0];
+    case "transaction.succeeded":
+      return getTransactionsUrl()[0];
+  }
+}
+
+function toRow(hook: S.Schema.To<typeof Webhook>) {
+  const url = new URL(getObjectUrl(hook));
+  url.search = "";
+  return {
+    id: `${url}/${hook.data.id}`,
+    created_at: hook.data.created_at,
+    data: hook.data,
+    ...("updated_at" in hook.data ? { updated_at: hook.data.updated_at } : {}),
+  };
+}
 
 export async function POST(req: Request): Promise<Response> {
   try {
@@ -26,13 +55,16 @@ export async function POST(req: Request): Promise<Response> {
   const body = await req.json();
   const table = supabase.from("givebutter_webhook");
   try {
-    const {
-      id: givebutter_id,
-      event,
-      data,
-    } = await Effect.runPromise(S.parse(Webhook)(body));
-    const db = await table.insert({ givebutter_id, event, data });
-    return Response.json({ received: true, state: "inserted", db });
+    const hook = await Effect.runPromise(S.parse(Webhook)(body));
+    const db = await table.insert({
+      givebutter_id: hook.id,
+      event: hook.event,
+      data: hook.data,
+    });
+    const upsert = await supabase
+      .from("givebutter_object")
+      .upsert(toRow(hook), { count: "exact" });
+    return Response.json({ received: true, state: "inserted", db, upsert });
   } catch (err) {
     if (
       body &&

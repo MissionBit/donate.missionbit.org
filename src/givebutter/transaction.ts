@@ -116,7 +116,7 @@ export const Transaction = S.struct({
 export const GetTransactionsResponse = PaginatedResponse(Transaction);
 
 export function getTransactionsUrl(
-  scope: "all" | "benefiting" | "chapters" | null,
+  scope: "all" | "benefiting" | "chapters" | null = "all",
 ) {
   const prefix = "https://api.givebutter.com/v1/transactions";
   return [scope ? `${prefix}?scope=${scope}` : prefix, Transaction] as const;
