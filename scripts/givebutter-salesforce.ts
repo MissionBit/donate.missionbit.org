@@ -35,7 +35,7 @@ function twoLetterCountryCode(country: string | null | undefined) {
 }
 
 function stageForGivebutterStatus(
-  chargeStatus: S.Schema.To<typeof Transaction>["status"],
+  chargeStatus: S.Schema.Type<typeof Transaction>["status"],
 ): string {
   switch (chargeStatus) {
     case "authorized":
@@ -132,7 +132,7 @@ export async function createOrFetchOpportunityFromGivebutterTransaction(
 const transactionName = ({
   first_name: first,
   last_name: last,
-}: S.Schema.To<typeof Transaction>): ReturnType<typeof nameParser> | null =>
+}: S.Schema.Type<typeof Transaction>): ReturnType<typeof nameParser> | null =>
   first && last
     ? {
         first,
@@ -292,13 +292,17 @@ async function main() {
   const client = await login();
   for (const row of data) {
     const info = await Effect.all({
-      transaction: S.parse(Transaction)(row.data),
+      transaction: S.decodeUnknown(Transaction)(row.data),
       campaign: row.campaign_data
-        ? S.parse(Campaign)(row.campaign_data)
+        ? S.decodeUnknown(Campaign)(row.campaign_data)
         : Effect.succeed(null),
-      plan: row.plan_data ? S.parse(Plan)(row.plan_data) : Effect.succeed(null),
+      plan: row.plan_data
+        ? S.decodeUnknown(Plan)(row.plan_data)
+        : Effect.succeed(null),
       tickets: Effect.all(
-        (row.tickets_data as unknown[]).map((data) => S.parse(Ticket)(data)),
+        (row.tickets_data as unknown[]).map((data) =>
+          S.decodeUnknown(Ticket)(data),
+        ),
       ),
     }).pipe(Effect.runPromise);
     const metadata = await createOrFetchOpportunityFromGivebutterTransaction(

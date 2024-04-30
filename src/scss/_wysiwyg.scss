@@ -1,65 +1,64 @@
 $font-scale: 12px;
 .wysiwyg,
 .mce-content-body {
-	
-	// $custom_colors = '
-	// "160f46", "Dark Blue",
-	// "0e0fed", "Royal Blue",
-	// "00a9e0", "Cyan",
-	// "c529bb", "Magenta",
-	// ';
+  // $custom_colors = '
+  // "160f46", "Dark Blue",
+  // "0e0fed", "Royal Blue",
+  // "00a9e0", "Cyan",
+  // "c529bb", "Magenta",
+  // ';
 
-	.color-dark-blue {
-		color: #160f46;
-	}
+  .color-dark-blue {
+    color: #160f46;
+  }
 
-	.color-royal-blue {
-		color: #0e0fed;
-	}
+  .color-royal-blue {
+    color: #0e0fed;
+  }
 
-	.color-cyan {
-		color: #00a9e0;
-	}
+  .color-cyan {
+    color: #00a9e0;
+  }
 
-	.color-magenta {
-		color: #c529bb;
-	}
+  .color-magenta {
+    color: #c529bb;
+  }
 
-	>*:last-child {
-		margin-bottom: 0;
+  > *:last-child {
+    margin-bottom: 0;
 
-		.btn {
-			margin-bottom: 0;
-			margin-top: 0;
+    .btn {
+      margin-bottom: 0;
+      margin-top: 0;
 
-			@include bp($s) {
-				margin-top: 16px;
-			}
-		}
-	}
+      @include bp($s) {
+        margin-top: 16px;
+      }
+    }
+  }
 
-	>*:first-child {
-		margin-top: 0;
-	}
-	*:last-child {
-		margin-bottom: 0;
-	}
+  > *:first-child {
+    margin-top: 0;
+  }
+  *:last-child {
+    margin-bottom: 0;
+  }
 
-	ul {
-		list-style: disc;
-		padding-left: 1em;
-		margin-bottom: 24px;
-		margin-left: 1em;
-	}
+  ul {
+    list-style: disc;
+    padding-left: 1em;
+    margin-bottom: 24px;
+    margin-left: 1em;
+  }
 
-	ol {
-		list-style: num;
-		padding-left: 1.2em;
-	}
+  ol {
+    list-style: num;
+    padding-left: 1.2em;
+  }
 
-	@include bpmax($s) {
-		* {
-			text-align: left !important;
-		}
-	}
+  @include bpmax($s) {
+    * {
+      text-align: left !important;
+    }
+  }
 }

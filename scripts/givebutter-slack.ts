@@ -22,10 +22,10 @@ function mrkdwn(text: string): MrkdwnElement {
 }
 
 export interface FormatBlocksOptions {
-  readonly transaction: S.Schema.To<typeof Transaction>;
-  readonly campaign: S.Schema.To<typeof Campaign> | null;
-  readonly plan: S.Schema.To<typeof Plan> | null;
-  readonly tickets: readonly S.Schema.To<typeof Ticket>[];
+  readonly transaction: S.Schema.Type<typeof Transaction>;
+  readonly campaign: S.Schema.Type<typeof Campaign> | null;
+  readonly plan: S.Schema.Type<typeof Plan> | null;
+  readonly tickets: readonly S.Schema.Type<typeof Ticket>[];
 }
 
 const dateTimeFormat = new Intl.DateTimeFormat("en-US", {
@@ -42,8 +42,8 @@ function titleCase(s: string): string {
 }
 
 function formatLineItem(
-  item: S.Schema.To<typeof LineItem>,
-  tickets: readonly S.Schema.To<typeof Ticket>[],
+  item: S.Schema.Type<typeof LineItem>,
+  tickets: readonly S.Schema.Type<typeof Ticket>[],
 ): RichTextList["elements"] {
   if (item.type === "donation" && item.subtype === "donation") {
     return [
@@ -90,14 +90,14 @@ function formatLineItem(
 }
 
 function formatSubTransaction(
-  sub: S.Schema.To<typeof SubTransaction>,
-  tickets: readonly S.Schema.To<typeof Ticket>[],
+  sub: S.Schema.Type<typeof SubTransaction>,
+  tickets: readonly S.Schema.Type<typeof Ticket>[],
 ): RichTextList["elements"] {
   return sub.line_items.flatMap((item) => formatLineItem(item, tickets));
 }
 
 function formatTicket(
-  ticket: S.Schema.To<typeof Ticket>,
+  ticket: S.Schema.Type<typeof Ticket>,
 ): RichTextSection["elements"] {
   return [
     { type: "text", text: "\n" },
@@ -191,13 +191,17 @@ async function main() {
   }
   for (const row of data) {
     const info = await Effect.all({
-      transaction: S.parse(Transaction)(row.data),
+      transaction: S.decodeUnknown(Transaction)(row.data),
       campaign: row.campaign_data
-        ? S.parse(Campaign)(row.campaign_data)
+        ? S.decodeUnknown(Campaign)(row.campaign_data)
         : Effect.succeed(null),
-      plan: row.plan_data ? S.parse(Plan)(row.plan_data) : Effect.succeed(null),
+      plan: row.plan_data
+        ? S.decodeUnknown(Plan)(row.plan_data)
+        : Effect.succeed(null),
       tickets: Effect.all(
-        (row.tickets_data as unknown[]).map((data) => S.parse(Ticket)(data)),
+        (row.tickets_data as unknown[]).map((data) =>
+          S.decodeUnknown(Ticket)(data),
+        ),
       ),
     }).pipe(Effect.runPromise);
     await slack.chat.postMessage({

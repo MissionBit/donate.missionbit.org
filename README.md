@@ -2,10 +2,10 @@
 
 ## Setup
 
-* Recommended: Set up [Visual Studio Code](#visual-studio-code-setup)
-* Install [Node.js](https://nodejs.org/en/download/)
-* Check out a local copy of this repository (e.g. with [Github Desktop](https://desktop.github.com/))
-* Run `npm install` from the Terminal (or [Integrated Terminal](https://code.visualstudio.com/docs/editor/integrated-terminal))
+- Recommended: Set up [Visual Studio Code](#visual-studio-code-setup)
+- Install [Node.js](https://nodejs.org/en/download/)
+- Check out a local copy of this repository (e.g. with [Github Desktop](https://desktop.github.com/))
+- Run `npm install` from the Terminal (or [Integrated Terminal](https://code.visualstudio.com/docs/editor/integrated-terminal))
 
 ## Usage
 
@@ -144,33 +144,33 @@ The deployment configuration is at
 [vercel.com/missionbit/donate-missionbit-org/settings/environment-variables](https://vercel.com/missionbit/donate-missionbit-org/settings/environment-variables).
 These environment variables are used by APIs on the site:
 
-* `SENTRY_AUTH_TOKEN` - Sentry authorization token (for marking releases)
-* `SENTRY_ORG` - Set to mission-bit
-* `SENTRY_PROJECT` - Set to mission-bit
-* `SENDGRID_API_KEY` - API key for sending email
-* `STRIPE_PK_LIVE` - Publishable key for missionbit.org
-* `STRIPE_SK_LIVE` - Secret key for missionbit.org
-* `STRIPE_WEBHOOK_SIGNING_SECRET_LIVE` - Webhook signing key for missionbit.org
-* `STRIPE_WEBHOOK_SIGNING_SECRET_SALESFORCE` - Webhook signing secret for the Salesforce hooks
-* `STRIPE_PK_TEST` - Publishable key for testing (PR builds)
-* `STRIPE_SK_TEST` - Secret key for testing (PR builds)
-* `STRIPE_WEBHOOK_SIGNING_SECRET_TEST` - Webhook signing key for testing (PR builds)
-* `EVENTBRITE_TOKEN` - An Eventbrite API key "Private token" for processing webhooks
-* `SLACK_TOKEN` - A Slack token for processing Eventbrite webhooks
-* `SALESFORCE_INSTANCE_URL` - Salesforce instance for syncing opportunities
-* `SALESFORCE_CLIENT_ID` - Salesforce credentials for syncing opportunities
-* `SALESFORCE_CLIENT_SECRET` - Salesforce credentials for syncing opportunities
-* `GIVEBUTTER_API_KEY` - Givebutter API key for syncing
+- `SENTRY_AUTH_TOKEN` - Sentry authorization token (for marking releases)
+- `SENTRY_ORG` - Set to mission-bit
+- `SENTRY_PROJECT` - Set to mission-bit
+- `SENDGRID_API_KEY` - API key for sending email
+- `STRIPE_PK_LIVE` - Publishable key for missionbit.org
+- `STRIPE_SK_LIVE` - Secret key for missionbit.org
+- `STRIPE_WEBHOOK_SIGNING_SECRET_LIVE` - Webhook signing key for missionbit.org
+- `STRIPE_WEBHOOK_SIGNING_SECRET_SALESFORCE` - Webhook signing secret for the Salesforce hooks
+- `STRIPE_PK_TEST` - Publishable key for testing (PR builds)
+- `STRIPE_SK_TEST` - Secret key for testing (PR builds)
+- `STRIPE_WEBHOOK_SIGNING_SECRET_TEST` - Webhook signing key for testing (PR builds)
+- `EVENTBRITE_TOKEN` - An Eventbrite API key "Private token" for processing webhooks
+- `SLACK_TOKEN` - A Slack token for processing Eventbrite webhooks
+- `SALESFORCE_INSTANCE_URL` - Salesforce instance for syncing opportunities
+- `SALESFORCE_CLIENT_ID` - Salesforce credentials for syncing opportunities
+- `SALESFORCE_CLIENT_SECRET` - Salesforce credentials for syncing opportunities
+- `GIVEBUTTER_API_KEY` - Givebutter API key for syncing
 
 The webhook for Stripe should be at `https://donate.missionbit.org/api/webhook` for the following event types:
 
-* `checkout.session.completed`
-* `invoice.payment_succeeded`
-* `invoice.payment_failed`
+- `checkout.session.completed`
+- `invoice.payment_succeeded`
+- `invoice.payment_failed`
 
 DNS is currently hosted by:
 
-* Cloudflare (missionbit.com, missionbit.org)
+- Cloudflare (missionbit.com, missionbit.org)
 
 Errors are collected with sentry.io at
 [https://sentry.io/organizations/mission-bit/projects/donatemissionbitorg/](https://sentry.io/organizations/mission-bit/projects/donatemissionbitorg/)
@@ -206,17 +206,16 @@ SENDGRID_API_KEY=REDACTED
 
 ## Salesforce Notes
 
-* Create a Sandbox
-* Create API Only User profile
-* Create API Only user https://help.salesforce.com/s/articleView?id=000386144&type=1
-* Create the App in the sandbox
-* Client Credentials flow https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_client_credentials_flow.htm&type=5&language=en_US
-* Create Stripe_Customer_ID custom field on Contact
-* Create Stripe_Charge_ID custom field on Opportunity
-* Create Stripe_Subscription_ID custom field on Recurring Donation
-* Update Page Layouts for Contact, Opportunity, Recurring Donation
+- Create a Sandbox
+- Create API Only User profile
+- Create API Only user https://help.salesforce.com/s/articleView?id=000386144&type=1
+- Create the App in the sandbox
+- Client Credentials flow https://help.salesforce.com/s/articleView?id=sf.remoteaccess_oauth_client_credentials_flow.htm&type=5&language=en_US
+- Create Stripe_Customer_ID custom field on Contact
+- Create Stripe_Charge_ID custom field on Opportunity
+- Create Stripe_Subscription_ID custom field on Recurring Donation
+- Update Page Layouts for Contact, Opportunity, Recurring Donation
 
 ```bash
 npx @salesforce/cli login org --instance-url=https://missionbit--stripedev.sandbox.my.salesforce.com --set-default
 ```
-

@@ -11,7 +11,7 @@ import { getTransactionsUrl } from "src/givebutter/transaction";
 export const dynamic = "force-dynamic";
 export const runtime = "edge";
 
-function getObjectUrl(hook: S.Schema.To<typeof Webhook>): string {
+function getObjectUrl(hook: S.Schema.Type<typeof Webhook>): string {
   switch (hook.event) {
     case "campaign.created":
     case "campaign.updated":
@@ -25,7 +25,7 @@ function getObjectUrl(hook: S.Schema.To<typeof Webhook>): string {
   }
 }
 
-function toRow(hook: S.Schema.To<typeof Webhook>) {
+function toRow(hook: S.Schema.Type<typeof Webhook>) {
   const url = new URL(getObjectUrl(hook));
   url.search = "";
   return {
@@ -55,7 +55,7 @@ export async function POST(req: Request): Promise<Response> {
   const body = await req.json();
   const table = supabase.from("givebutter_webhook");
   try {
-    const hook = await Effect.runPromise(S.parse(Webhook)(body));
+    const hook = await Effect.runPromise(S.decodeUnknown(Webhook)(body));
     const db = await table.insert({
       givebutter_id: hook.id,
       event: hook.event,

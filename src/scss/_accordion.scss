@@ -1,166 +1,155 @@
 .pxblock--accordion {
+  .accordion {
+    // accordion header content area
+    &__content {
+      max-width: 800px;
+    }
 
-    .accordion {
+    // drawer holder
+    &__drawers {
+      // code for individual drawers
+      .drawer {
+        max-width: 800px;
+        margin: 0;
+        border-bottom: 2px solid $grey-50;
+        // drawer title is also the trigger to show the drawer content
+        .drawer__title {
+          position: relative;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
 
+          @extend .large;
+          font-weight: 600;
+          margin-bottom: 0;
+          padding: 16px 0;
+        }
+
+        .drawer-trigger {
+          cursor: pointer;
+
+          &::after {
+            background-color: $black;
+            display: inline-block;
+            min-width: 24px;
+            min-height: 24px;
+            vertical-align: middle;
+            content: "";
+            mask: url("../assets/images/icons/chevron--down.svg");
+            mask-size: cover;
+            margin-left: auto;
+
+            @include bp($s) {
+              min-width: 32px;
+              min-height: 32px;
+            }
+          }
+
+          &.show {
+            &::after {
+              transform: rotate(180deg);
+            }
+          }
+        }
+
+        .icon-frame {
+          margin-right: 14px;
+
+          .icon {
+            background-color: transparent;
+
+            svg {
+              path {
+                fill: $teal;
+              }
+            }
+          }
+        }
+
+        .drawer__content {
+          padding-bottom: 16px;
+          display: none;
+        }
+      }
+    }
+
+    &__cta {
+      max-width: 800px;
+      margin-top: 36px;
+
+      a.btn {
+        margin: 0;
+      }
+    }
+  }
+
+  &.align {
+    &--left {
+      .accordion {
         // accordion header content area
         &__content {
-            max-width: 800px;
         }
 
-        // drawer holder
         &__drawers {
-
-            // code for individual drawers
-            .drawer {
-                max-width: 800px;
-                margin: 0;
-                border-bottom: 2px solid $grey-50;
-                // drawer title is also the trigger to show the drawer content
-                .drawer__title {
-                    position: relative;
-                    display: flex;
-                    flex-direction: row;
-                    align-items: center;
-
-                    @extend .large;
-                    font-weight: 600;
-                    margin-bottom: 0;
-                    padding: 16px 0;
-                }
-
-                .drawer-trigger {
-                    cursor: pointer;
-
-                    &::after {
-                        background-color: $black;
-                        display: inline-block;
-                        min-width: 24px;
-                        min-height: 24px;
-                        vertical-align: middle;
-                        content: '';
-                        mask: url('../assets/images/icons/chevron--down.svg');
-                        mask-size: cover;
-                        margin-left: auto;
-
-                        @include bp($s) {
-                            min-width: 32px;
-                            min-height: 32px;
-                        }
-                    }
-
-                    &.show {
-                        &::after {
-                            transform: rotate(180deg);
-                        }
-                    }
-                }
-
-                .icon-frame {
-                    margin-right: 14px;
-
-                    .icon {
-                        background-color: transparent;
-
-                        svg {
-                            path {
-                                fill: $teal;
-                            }
-                        }
-                    }
-                }
-
-                .drawer__content {
-                    padding-bottom: 16px;
-                    display: none;
-                }
-
-
-
-            }
+          // code for individual drawers
+          .drawer {
+          }
         }
+      }
+    }
 
+    &--center {
+      .accordion {
+        &__content,
+        &__drawers .drawer,
         &__cta {
-            max-width: 800px;
-            margin-top: 36px;
-
-            a.btn {
-                margin: 0;
-            }
+          margin-left: auto;
+          margin-right: auto;
         }
+      }
+    }
+  }
+
+  &.padding-top {
+    &--none {
+      padding-top: 0;
     }
 
-    &.align {
-        &--left {
-            .accordion {
-
-                // accordion header content area
-                &__content {
-                }
-
-                &__drawers {
-
-                    // code for individual drawers
-                    .drawer {
-
-                    }
-                }
-            }
-
-        }
-
-        &--center {
-            .accordion {
-                &__content,
-                &__drawers .drawer,
-                &__cta {
-                    margin-left: auto;
-                    margin-right: auto;
-                }
-            }
-        }
+    &--small {
+      padding-top: 56px;
     }
+  }
 
-    &.padding-top {
-        &--none {
-            padding-top: 0;
-        }
-
-        &--small {
-            padding-top: 56px;
-        }
+  &.padding-bottom {
+    &--none {
+      padding-bottom: 0;
     }
-
-    &.padding-bottom {
-        &--none {
-            padding-bottom: 0;
-        }
-        &--small {
-            padding-bottom: 56px;
-        }
+    &--small {
+      padding-bottom: 56px;
     }
+  }
 
-    &.style {
-        &--numbers {
-            .drawer__title {
-                &[data-content] {
-                    &::before {
-                        content: attr(data-content);
-                        font-size: 18px;
-                        line-height: 20px;
-                        color: $white;
-                        background-color: $purple;
-                        border-radius: 50%;
-                        display: flex;
-                        align-content: center;
-                        justify-content: center;
-                        flex-wrap: wrap;
-                        min-width: 32px;
-                        min-height: 32px;
-                        margin-right: 16px;
-                    }
-                }
-            }
+  &.style {
+    &--numbers {
+      .drawer__title {
+        &[data-content] {
+          &::before {
+            content: attr(data-content);
+            font-size: 18px;
+            line-height: 20px;
+            color: $white;
+            background-color: $purple;
+            border-radius: 50%;
+            display: flex;
+            align-content: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            min-width: 32px;
+            min-height: 32px;
+            margin-right: 16px;
+          }
         }
-
+      }
     }
+  }
 }

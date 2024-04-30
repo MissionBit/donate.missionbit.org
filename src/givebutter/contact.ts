@@ -2,72 +2,72 @@ import * as S from "@effect/schema/Schema";
 import { PaginatedResponse } from "./pagination";
 import { pipe } from "effect";
 
-export const Phone = S.struct({
-  type: S.literal("work", "home", "cell"),
-  value: S.string,
+export const Phone = S.Struct({
+  type: S.Literal("work", "home", "cell"),
+  value: S.String,
 });
 
-export const Email = S.struct({
-  type: S.literal("personal", "work"),
-  value: S.string,
+export const Email = S.Struct({
+  type: S.Literal("personal", "work"),
+  value: S.String,
 });
 
-export const BaseAddress = S.struct({
-  address_1: S.nullable(S.string),
-  address_2: S.nullable(S.string),
-  city: S.nullable(S.string),
-  state: S.nullable(S.string),
-  zipcode: S.nullable(S.string),
-  country: S.nullable(S.string),
+export const BaseAddress = S.Struct({
+  address_1: S.NullishOr(S.String),
+  address_2: S.NullishOr(S.String),
+  city: S.NullishOr(S.String),
+  state: S.NullishOr(S.String),
+  zipcode: S.NullishOr(S.String),
+  country: S.NullishOr(S.String),
 });
 
 export const Address = pipe(
   BaseAddress,
   S.extend(
-    S.struct({
-      type: S.literal("home", "work"),
-      is_primary: S.boolean,
-      created_at: S.string,
-      updated_at: S.string,
+    S.Struct({
+      type: S.Literal("home", "work"),
+      is_primary: S.Boolean,
+      created_at: S.String,
+      updated_at: S.String,
     }),
   ),
 );
 
-export const Contact = S.struct({
-  id: S.number,
-  prefix: S.nullable(S.unknown),
-  first_name: S.string,
-  middle_name: S.nullable(S.string),
-  last_name: S.string,
-  suffix: S.nullable(S.unknown),
-  gender: S.nullable(S.unknown),
-  dob: S.nullable(S.string),
-  company: S.nullable(S.string),
-  title: S.nullable(S.string),
-  website_url: S.nullable(S.string),
-  twitter_url: S.nullable(S.string),
-  linkedin_url: S.nullable(S.string),
-  facebook_url: S.nullable(S.string),
-  emails: S.array(Email),
-  phones: S.array(Phone),
-  primary_email: S.nullable(S.string),
-  primary_phone: S.nullable(S.string),
-  note: S.nullable(S.string),
-  addresses: S.array(Address),
-  primary_address: S.nullable(Address),
-  stats: S.struct({
-    total_contributions: S.number,
-    recurring_contributions: S.number,
+export const Contact = S.Struct({
+  id: S.Number,
+  prefix: S.NullishOr(S.Unknown),
+  first_name: S.String,
+  middle_name: S.NullishOr(S.String),
+  last_name: S.String,
+  suffix: S.NullishOr(S.Unknown),
+  gender: S.NullishOr(S.Unknown),
+  dob: S.NullishOr(S.String),
+  company: S.NullishOr(S.String),
+  title: S.NullishOr(S.String),
+  website_url: S.NullishOr(S.String),
+  twitter_url: S.NullishOr(S.String),
+  linkedin_url: S.NullishOr(S.String),
+  facebook_url: S.NullishOr(S.String),
+  emails: S.Array(Email),
+  phones: S.Array(Phone),
+  primary_email: S.NullishOr(S.String),
+  primary_phone: S.NullishOr(S.String),
+  note: S.NullishOr(S.String),
+  addresses: S.Array(Address),
+  primary_address: S.NullishOr(Address),
+  stats: S.Struct({
+    total_contributions: S.Number,
+    recurring_contributions: S.Number,
   }),
-  tags: S.array(S.string),
-  custom_fields: S.array(S.unknown),
-  external_ids: S.array(S.unknown),
-  archived_at: S.nullable(S.string),
-  is_email_subscribed: S.boolean,
-  is_phone_subscribed: S.boolean,
-  is_address_subscribed: S.boolean,
-  created_at: S.string,
-  updated_at: S.string,
+  tags: S.Array(S.String),
+  custom_fields: S.Array(S.Unknown),
+  external_ids: S.Array(S.Unknown),
+  archived_at: S.NullishOr(S.String),
+  is_email_subscribed: S.Boolean,
+  is_phone_subscribed: S.Boolean,
+  is_address_subscribed: S.Boolean,
+  created_at: S.String,
+  updated_at: S.String,
 });
 
 export const GetContactsResponse = PaginatedResponse(Contact);

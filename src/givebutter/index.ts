@@ -17,7 +17,7 @@ import { GetCampaignsResponse } from "./campaign";
 import { givebutterAuth } from "./auth";
 
 export async function getCampaigns(): Promise<
-  S.Schema.To<typeof GetCampaignsResponse>
+  S.Schema.Type<typeof GetCampaignsResponse>
 > {
   return fetch("https://api.givebutter.com/v1/campaigns", {
     headers: { ...givebutterAuth(), accept: "application/json" },

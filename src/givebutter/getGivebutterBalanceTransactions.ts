@@ -32,7 +32,7 @@ async function getDbTransactions(
   for (const row of data) {
     const rowCreated = isoTimestampToUnix(row.created_at);
     created = Math.max(created, rowCreated);
-    const data = Effect.runSync(S.parse(Transaction)(row.data));
+    const data = Effect.runSync(S.decodeUnknown(Transaction)(row.data));
     if (data.giving_space && data.giving_space.amount > 0) {
       transactions.push({
         id: row.id,

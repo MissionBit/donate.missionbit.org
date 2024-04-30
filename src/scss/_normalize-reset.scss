@@ -19,7 +19,7 @@
  */
 
 @-ms-viewport {
-	width: device-width;
+  width: device-width;
 }
 
 /**
@@ -108,13 +108,13 @@ mark,
 audio,
 video,
 main {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	font-size: 100%;
-	font: inherit;
-	vertical-align: baseline;
-	color: inherit;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+  color: inherit;
 }
 
 /**
@@ -134,7 +134,7 @@ nav,
 section,
 main,
 summary {
-	display: block;
+  display: block;
 }
 
 /**
@@ -144,7 +144,7 @@ summary {
 *,
 *::before,
 *::after {
-	box-sizing: inherit;
+  box-sizing: inherit;
 }
 
 /**
@@ -160,17 +160,17 @@ summary {
    */
 
 html {
-	/* 1 */
-	box-sizing: border-box;
-	/* 2 */
-	touch-action: manipulation;
-	/* 3 */
-	-webkit-text-size-adjust: 100%;
-	-ms-text-size-adjust: 100%;
-	/* 4 */
-	-ms-overflow-style: scrollbar;
-	/* 5 */
-	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  /* 1 */
+  box-sizing: border-box;
+  /* 2 */
+  touch-action: manipulation;
+  /* 3 */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+  /* 4 */
+  -ms-overflow-style: scrollbar;
+  /* 5 */
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
 /**
@@ -182,12 +182,12 @@ html {
    */
 
 body {
-	/* 1 */
-	line-height: 1;
-	/* 2 */
-	font-family: sans-serif;
-	/* 3 */
-	text-align: left;
+  /* 1 */
+  line-height: 1;
+  /* 2 */
+  font-family: sans-serif;
+  /* 3 */
+  text-align: left;
 }
 
 /**
@@ -196,7 +196,7 @@ body {
 
 ol,
 ul {
-	list-style: none;
+  list-style: none;
 }
 
 /**
@@ -205,15 +205,15 @@ ul {
 
 blockquote,
 q {
-	quotes: none;
+  quotes: none;
 }
 
 blockquote::before,
 blockquote::after,
 q::before,
 q::after {
-	content: '';
-	content: none;
+  content: "";
+  content: none;
 }
 
 /**
@@ -221,12 +221,12 @@ q::after {
    */
 
 table {
-	border-collapse: collapse;
-	border-spacing: 0;
+  border-collapse: collapse;
+  border-spacing: 0;
 }
 
 caption {
-	caption-side: bottom;
+  caption-side: bottom;
 }
 
 /**
@@ -235,8 +235,8 @@ caption {
    *    closest parent with a set `text-align`.
    */
 th {
-	/* 1 */
-	text-align: inherit;
+  /* 1 */
+  text-align: inherit;
 }
 
 /**
@@ -246,11 +246,11 @@ th {
    */
 
 hr {
-	/* 1 */
-	box-sizing: content-box;
-	height: 0;
-	/* 2 */
-	overflow: visible;
+  /* 1 */
+  box-sizing: content-box;
+  height: 0;
+  /* 2 */
+  overflow: visible;
 }
 
 /**
@@ -266,15 +266,15 @@ pre,
 code,
 kbd,
 samp {
-	/* 1 */
-	font-family: monospace, monospace;
+  /* 1 */
+  font-family: monospace, monospace;
 }
 
 pre {
-	/* 2 */
-	overflow: auto;
-	/* 3 */
-	-ms-overflow-style: scrollbar;
+  /* 2 */
+  overflow: auto;
+  /* 3 */
+  -ms-overflow-style: scrollbar;
 }
 
 /**
@@ -284,10 +284,10 @@ pre {
    */
 
 a {
-	/* 1 */
-	background-color: transparent;
-	/* 2 */
-	-webkit-text-decoration-skip: objects;
+  /* 1 */
+  background-color: transparent;
+  /* 2 */
+  -webkit-text-decoration-skip: objects;
 }
 
 /**
@@ -298,15 +298,15 @@ a {
    */
 
 abbr[title] {
-	/* 1 */
-	border-bottom: none;
-	/* 2 */
-	text-decoration: underline;
-	text-decoration: underline dotted;
-	/* 3 */
-	cursor: help;
-	/* 4 */
-	text-decoration-skip-ink: none;
+  /* 1 */
+  border-bottom: none;
+  /* 2 */
+  text-decoration: underline;
+  text-decoration: underline dotted;
+  /* 3 */
+  cursor: help;
+  /* 4 */
+  text-decoration-skip-ink: none;
 }
 
 /**
@@ -315,7 +315,7 @@ abbr[title] {
 
 b,
 strong {
-	font-weight: bolder;
+  font-weight: bolder;
 }
 
 /**
@@ -323,7 +323,7 @@ strong {
    */
 
 small {
-	font-size: 80%;
+  font-size: 80%;
 }
 
 /**
@@ -333,17 +333,17 @@ small {
 
 sub,
 sup {
-	position: relative;
-	font-size: 75%;
-	line-height: 0;
+  position: relative;
+  font-size: 75%;
+  line-height: 0;
 }
 
 sub {
-	bottom: -0.25em;
+  bottom: -0.25em;
 }
 
 sup {
-	top: -0.5em;
+  top: -0.5em;
 }
 
 /**
@@ -351,7 +351,7 @@ sup {
    */
 
 img {
-	border-style: none;
+  border-style: none;
 }
 
 /**
@@ -359,7 +359,7 @@ img {
    */
 
 svg:not(:root) {
-	overflow: hidden;
+  overflow: hidden;
 }
 
 /**
@@ -368,7 +368,7 @@ svg:not(:root) {
    */
 
 button {
-	border-radius: 0;
+  border-radius: 0;
 }
 
 /**
@@ -378,8 +378,8 @@ button {
    */
 
 button:focus {
-	outline: 1px dotted;
-	outline: 5px auto -webkit-focus-ring-color;
+  outline: 1px dotted;
+  outline: 5px auto -webkit-focus-ring-color;
 }
 
 /**
@@ -393,12 +393,12 @@ button,
 select,
 optgroup,
 textarea {
-	/* 1 */
-	margin: 0;
-	/* 2 */
-	font-family: inherit;
-	font-size: inherit;
-	line-height: inherit;
+  /* 1 */
+  margin: 0;
+  /* 2 */
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 /**
@@ -412,8 +412,8 @@ button,
   [type="submit"],
   /* 1 */
   [type="button"] {
-	/* 2 */
-	-webkit-appearance: button;
+  /* 2 */
+  -webkit-appearance: button;
 }
 
 /**
@@ -424,11 +424,11 @@ button,
    * and https://github.com/twbs/bootstrap/issues/11266
    */
 
-input[type='date'],
-input[type='time'],
-input[type='datetime-local'],
-input[type='month'] {
-	-webkit-appearance: listbox;
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"],
+input[type="month"] {
+  -webkit-appearance: listbox;
 }
 
 /**
@@ -438,8 +438,8 @@ input[type='month'] {
    */
 
 textarea {
-	overflow: auto;
-	resize: vertical;
+  overflow: auto;
+  resize: vertical;
 }
 
 /**
@@ -448,7 +448,7 @@ textarea {
 
 button,
 input {
-	overflow: visible;
+  overflow: visible;
 }
 
 /**
@@ -457,7 +457,7 @@ input {
 
 button,
 select {
-	text-transform: none;
+  text-transform: none;
 }
 
 /**
@@ -465,7 +465,7 @@ select {
    * See https://github.com/twbs/bootstrap/issues/24990
    */
 select {
-	word-wrap: normal;
+  word-wrap: normal;
 }
 
 /**
@@ -474,23 +474,23 @@ select {
    */
 
 button::-moz-focus-inner,
-[type='button']::-moz-focus-inner,
-[type='reset']::-moz-focus-inner,
-[type='submit']::-moz-focus-inner {
-	border-style: none;
-	padding: 0;
+[type="button"]::-moz-focus-inner,
+[type="reset"]::-moz-focus-inner,
+[type="submit"]::-moz-focus-inner {
+  border-style: none;
+  padding: 0;
 }
 
 /**
    * 1. Add the correct box sizing in IE 10-
    * 2. Remove the padding in IE 10-
    */
-input[type='radio'],
-input[type='checkbox'] {
-	/* 1 */
-	box-sizing: border-box;
-	/* 2 */
-	padding: 0;
+input[type="radio"],
+input[type="checkbox"] {
+  /* 1 */
+  box-sizing: border-box;
+  /* 2 */
+  padding: 0;
 }
 
 /**
@@ -500,8 +500,8 @@ input[type='checkbox'] {
    * Credit: https://github.com/suitcss/base
    */
 
-[tabindex='-1']:focus {
-	outline: 0 !important;
+[tabindex="-1"]:focus {
+  outline: 0 !important;
 }
 
 /**
@@ -513,7 +513,7 @@ input[type='checkbox'] {
    */
 
 fieldset {
-	min-width: 0;
+  min-width: 0;
 }
 
 /**
@@ -523,13 +523,13 @@ fieldset {
    */
 
 legend {
-	/* 1 */
-	max-width: 100%;
-	white-space: normal;
-	/* 2 */
-	color: inherit;
-	/* 3 */
-	display: block;
+  /* 1 */
+  max-width: 100%;
+  white-space: normal;
+  /* 2 */
+  color: inherit;
+  /* 3 */
+  display: block;
 }
 
 /**
@@ -537,7 +537,7 @@ legend {
    */
 
 progress {
-	vertical-align: baseline;
+  vertical-align: baseline;
 }
 
 /**
@@ -545,7 +545,7 @@ progress {
    */
 
 textarea {
-	overflow: auto;
+  overflow: auto;
 }
 
 /**
@@ -553,21 +553,21 @@ textarea {
    * 2. Remove the padding in IE 10.
    */
 
-[type='checkbox'],
-[type='radio'] {
-	/* 1 */
-	box-sizing: border-box;
-	/* 2 */
-	padding: 0;
+[type="checkbox"],
+[type="radio"] {
+  /* 1 */
+  box-sizing: border-box;
+  /* 2 */
+  padding: 0;
 }
 
 /**
    * Correct the cursor style of increment and decrement buttons in Chrome.
    */
 
-[type='number']::-webkit-inner-spin-button,
-[type='number']::-webkit-outer-spin-button {
-	height: auto;
+[type="number"]::-webkit-inner-spin-button,
+[type="number"]::-webkit-outer-spin-button {
+  height: auto;
 }
 
 /**
@@ -575,20 +575,20 @@ textarea {
    * 2. Correct the outline style in Safari.
    */
 
-[type='search'] {
-	/* 1 */
-	-webkit-appearance: textfield;
-	/* 2 */
-	outline-offset: -2px;
+[type="search"] {
+  /* 1 */
+  -webkit-appearance: textfield;
+  /* 2 */
+  outline-offset: -2px;
 }
 
 /**
    * Remove the inner padding and cancel buttons in Chrome and Safari on macOS.
    */
 
-[type='search']::-webkit-search-cancel-button,
-[type='search']::-webkit-search-decoration {
-	-webkit-appearance: none;
+[type="search"]::-webkit-search-cancel-button,
+[type="search"]::-webkit-search-decoration {
+  -webkit-appearance: none;
 }
 
 /**
@@ -597,17 +597,17 @@ textarea {
    */
 
 ::-webkit-file-upload-button {
-	/* 1 */
-	-webkit-appearance: button;
-	/* 2 */
-	font: inherit;
+  /* 1 */
+  -webkit-appearance: button;
+  /* 2 */
+  font: inherit;
 }
 
 /**
    * Correct element display for output
    */
 output {
-	display: inline-block;
+  display: inline-block;
 }
 
 /**
@@ -615,9 +615,9 @@ output {
    */
 
 template {
-	display: none;
+  display: none;
 }
 
 [hidden] {
-	display: none;
+  display: none;
 }

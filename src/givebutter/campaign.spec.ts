@@ -3,7 +3,7 @@ import * as S from "@effect/schema/Schema";
 import { describe, expect, it } from "vitest";
 import { GetCampaignsResponse } from "./campaign";
 
-const EXAMPLE_CAMPAIGN_RESPONSE: S.Schema.To<typeof GetCampaignsResponse> = {
+const EXAMPLE_CAMPAIGN_RESPONSE: S.Schema.Type<typeof GetCampaignsResponse> = {
   data: [
     {
       id: 178137,
@@ -164,7 +164,7 @@ describe("GetCampaignsResponse", () => {
   it("parses EXAMPLE_CAMPAIGNS_RESPONSE", async () => {
     expect(
       await Effect.runPromise(
-        S.parse(GetCampaignsResponse)(EXAMPLE_CAMPAIGN_RESPONSE),
+        S.decodeUnknown(GetCampaignsResponse)(EXAMPLE_CAMPAIGN_RESPONSE),
       ),
     ).toEqual(EXAMPLE_CAMPAIGN_RESPONSE);
   });

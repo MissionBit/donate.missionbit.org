@@ -9,7 +9,7 @@ function makeWebhook<
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Data extends S.Schema<any, any>,
 >(event: Event, data: Data) {
-  return S.struct({ event: S.literal(event), data, id: S.optional(S.string) });
+  return S.Struct({ event: S.Literal(event), data, id: S.optional(S.String) });
 }
 
 export const CampaignCreated = makeWebhook("campaign.created", Campaign);
@@ -21,7 +21,7 @@ export const TransactionSucceeded = makeWebhook(
 );
 export const ContactCreated = makeWebhook("contact.created", Contact);
 
-export const Webhook = S.union(
+export const Webhook = S.Union(
   CampaignCreated,
   CampaignUpdated,
   TicketCreated,

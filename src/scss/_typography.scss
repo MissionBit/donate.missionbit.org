@@ -5,148 +5,148 @@
   src: local("Arial");
 }
 
-$font: var(--font-Montserrat), 'Montserrat-fallback', sans-serif;
+$font: var(--font-Montserrat), "Montserrat-fallback", sans-serif;
 
 body {
-	font-family: $font;
-	font-size: 16px;
-	line-height: 24px;
-	color: #000;
+  font-family: $font;
+  font-size: 16px;
+  line-height: 24px;
+  color: #000;
 
-	@include bpmax($m){
-		font-size: 14px;
-		line-height: 20px;
-	}
+  @include bpmax($m) {
+    font-size: 14px;
+    line-height: 20px;
+  }
 }
 
 p {
-	font-weight: 400;
-	margin-bottom: 24px;
+  font-weight: 400;
+  margin-bottom: 24px;
 }
 
 .extra-large {
-	font-size: 20px;
-	line-height: 28px;
-	margin-bottom: 24px;
+  font-size: 20px;
+  line-height: 28px;
+  margin-bottom: 24px;
 
-	@include bpmax($m){
-		font-size: 18px;
-	}
+  @include bpmax($m) {
+    font-size: 18px;
+  }
 }
 
 .large {
-	font-size: 18px;
-	line-height: 28px;
+  font-size: 18px;
+  line-height: 28px;
 
-	@include bpmax($m){
-		font-size: 16px;
-		line-height: 24px;
-	}
+  @include bpmax($m) {
+    font-size: 16px;
+    line-height: 24px;
+  }
 }
 
 .small {
-	font-size: 14px;
-	line-height: 20px;
+  font-size: 14px;
+  line-height: 20px;
 
-	@include bpmax($m){
-		font-size: 12px;
-		line-height: 18px;
-	}
+  @include bpmax($m) {
+    font-size: 12px;
+    line-height: 18px;
+  }
 }
 
 .caption {
-	font-size: 12px;
-	line-height: 18px;
+  font-size: 12px;
+  line-height: 18px;
 }
 
 h1 {
-	font-weight: 700;
-	font-size: 48px;
-	line-height: 56px;
-	margin-bottom: 24px;
+  font-weight: 700;
+  font-size: 48px;
+  line-height: 56px;
+  margin-bottom: 24px;
 
-	@include bpmax($m) {
-		font-size: 36px;
-		line-height: 42px;
-	}
+  @include bpmax($m) {
+    font-size: 36px;
+    line-height: 42px;
+  }
 }
 
 h2,
 .h2 {
-	font-weight: 700;
-	font-size: 36px;
-	line-height: 42px;
-	margin-bottom: 24px;
+  font-weight: 700;
+  font-size: 36px;
+  line-height: 42px;
+  margin-bottom: 24px;
 
-	@include bpmax($m) {
-		font-size: 28px;
-		line-height: 36px;
-	}
+  @include bpmax($m) {
+    font-size: 28px;
+    line-height: 36px;
+  }
 }
 
 h3,
 .h3 {
-	font-weight: 600;
-	font-size: 28px;
-	line-height: 36px;
-	margin-bottom: 24px;
+  font-weight: 600;
+  font-size: 28px;
+  line-height: 36px;
+  margin-bottom: 24px;
 
-	@include bpmax($m) {
-		font-size: 24px;
-		line-height: 28px;
-	}
+  @include bpmax($m) {
+    font-size: 24px;
+    line-height: 28px;
+  }
 }
 
 h4,
 .h4 {
-	font-weight: 600;
-	font-size: 24px;
-	line-height: 28px;
-	margin-bottom: 24px;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 28px;
+  margin-bottom: 24px;
 
-	@include bpmax($m) {
-		font-size: 20px;
-		line-height: 24px;
-	}
+  @include bpmax($m) {
+    font-size: 20px;
+    line-height: 24px;
+  }
 }
 
 h5,
 .h5 {
-	font-weight: 600;
-	font-size: 20px;
-	line-height: 24px;
-	margin-bottom: 24px;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 24px;
+  margin-bottom: 24px;
 }
 
 .brow {
-	font-weight: 600;
-	font-size: 12px;
-	line-height: 16px;
-	letter-spacing: 0.03em;
-	text-transform: uppercase;
-	margin-bottom: 8px;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 16px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
 
-	@include bpmax($m) {
-		font-size: 10px;
-		line-height: 14px;
-	}
+  @include bpmax($m) {
+    font-size: 10px;
+    line-height: 14px;
+  }
 
-	&--small {
-		font-size: 10px;
-		line-height: 14px;
-	}
+  &--small {
+    font-size: 10px;
+    line-height: 14px;
+  }
 }
 
 p {
-	strong {
-		font-weight: 600;
-	}
+  strong {
+    font-weight: 600;
+  }
 }
 
 em {
-	font-style: italic;
+  font-style: italic;
 }
 
 .color-white {
-	color: $white;
+  color: $white;
 }

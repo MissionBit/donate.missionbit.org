@@ -1,169 +1,166 @@
 .pxblock--text-and-media {
   &.layout--image-left {
-      .px-container {
-          @include bp($s) {
-              .grid-columns {
-                  .text {
-                      order: 2;
-                  }
-                  .media {
-                      order: 1;
-                  }
-              }
+    .px-container {
+      @include bp($s) {
+        .grid-columns {
+          .text {
+            order: 2;
           }
+          .media {
+            order: 1;
+          }
+        }
       }
+    }
   }
 
   &.sticker-layout--left {
+    .media {
+      .sticker {
+        right: unset;
+        left: 40px;
+
+        @include bp($s) {
+          left: 70px;
+        }
+      }
+    }
+
+    &.bg--white {
       .media {
-          .sticker {
-              right: unset;
-              left: 40px;
-
-              @include bp($s) {
-                  left: 70px;
-              }
-          }
+        .rip {
+          background-image: url("../assets/images/RippedPaper2_Right_White.png");
+        }
       }
+    }
 
-      &.bg--white {
-          .media {
-              .rip {
-                  background-image: url('../assets/images/RippedPaper2_Right_White.png');
-              }
-          }
+    &.bg--black {
+      .media {
+        .rip {
+          background-image: url("../assets/images/RippedPaper2_Right_Black.png");
+        }
       }
+    }
 
-      &.bg--black {
-          .media {
-              .rip {
-                  background-image: url('../assets/images/RippedPaper2_Right_Black.png');
-              }
-          }
+    &.bg--dark-grey {
+      .media {
+        .rip {
+          background-image: url("../assets/images/RippedPaper2_Right_DarkGrey.png");
+        }
       }
-
-      &.bg--dark-grey {
-          .media {
-              .rip {
-                  background-image: url('../assets/images/RippedPaper2_Right_DarkGrey.png');
-              }
-          }
-      }
+    }
   }
 
   &.sticker-layout--right {
-      &.bg--white {
-          .media {
-              .rip {
-                  background-image: url('../assets/images/RippedPaper2_Left_White.png');
-              }
-          }
+    &.bg--white {
+      .media {
+        .rip {
+          background-image: url("../assets/images/RippedPaper2_Left_White.png");
+        }
       }
+    }
 
-      &.bg--black {
-          .media {
-              .rip {
-                  background-image: url('../assets/images/RippedPaper2_Left_Black.png');
-              }
-          }
+    &.bg--black {
+      .media {
+        .rip {
+          background-image: url("../assets/images/RippedPaper2_Left_Black.png");
+        }
       }
+    }
 
-      &.bg--dark-grey {
-          .media {
-              .rip {
-                  background-image: url('../assets/images/RippedPaper2_Left_DarkGrey.png');
-              }
-          }
+    &.bg--dark-grey {
+      .media {
+        .rip {
+          background-image: url("../assets/images/RippedPaper2_Left_DarkGrey.png");
+        }
       }
+    }
   }
 
   .grid-columns {
-      .column {
-          grid-column: auto / span 4;
+    .column {
+      grid-column: auto / span 4;
 
-          @include bp($l) {
-              grid-column: auto / span 6;
-          }
+      @include bp($l) {
+        grid-column: auto / span 6;
       }
+    }
 
-      .text {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
+    .text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
 
-          margin-bottom: 32px;
+      margin-bottom: 32px;
+
+      @include bp($s) {
+        margin-bottom: 0;
+      }
+    }
+
+    .media {
+      .image {
+        width: 100%;
+        height: 100%;
+        position: relative;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center;
+        }
+
+        .sticker {
+          position: absolute;
+          bottom: 0;
+          right: 40px;
+          width: 72px;
+          height: 72px;
+          transform: translateY(50%);
+
+          img,
+          svg {
+            display: inline-block;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            object-position: center;
+          }
 
           @include bp($s) {
-              margin-bottom: 0;
+            width: 120px;
+            height: 120px;
+            right: 70px;
           }
+        }
+
+        .rip {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
+          background-size: cover;
+        }
       }
 
-      .media {
-          .image {
-              width: 100%;
-              height: 100%;
-              position: relative;
-
-              img {
-                  width: 100%;
-                  height: 100%;
-                  object-fit: cover;
-                  object-position: center;
-              }
-
-              .sticker {
-                  position: absolute;
-                  bottom: 0;
-                  right: 40px;
-                  width: 72px;
-                  height: 72px;
-                  transform: translateY(50%);
-
-                  img,
-                  svg {
-                      display: inline-block;
-                      width: 100%;
-                      height: auto;
-                      object-fit: contain;
-                      object-position: center;
-                  }
-
-                  @include bp($s) {
-                      width: 120px;
-                      height: 120px;
-                      right: 70px;
-                  }
-              }
-
-              .rip {
-                  position: absolute;
-                  width: 100%;
-                  height: 100%;
-                  top: 0;
-                  left:0;
-                  background-size: cover;
-              }
-          }
-
-          .video-file {
-              video {
-
-              }
-          }
-
+      .video-file {
+        video {
+        }
       }
+    }
   }
 
   &.padding-top {
-      &--none {
-          padding-top: 0;
-      }
+    &--none {
+      padding-top: 0;
+    }
   }
 
   &.padding-bottom {
-      &--none {
-          padding-bottom: 0;
-      }
+    &--none {
+      padding-bottom: 0;
+    }
   }
-
 }

@@ -1,63 +1,63 @@
 img {
-	max-width: 100%;
-	height: auto;
+  max-width: 100%;
+  height: auto;
 
-	&.alignleft {
-		float: left;
-		margin-right: 20px;
-		margin-bottom: 20px;
-	}
+  &.alignleft {
+    float: left;
+    margin-right: 20px;
+    margin-bottom: 20px;
+  }
 
-	&.alignright {
-		float: right;
-		margin-left: 20px;
-		margin-bottom: 20px;
-	}
+  &.alignright {
+    float: right;
+    margin-left: 20px;
+    margin-bottom: 20px;
+  }
 
-	&.aligncenter {
-		display: block;
-		margin-left: auto;
-		margin-right: auto;
-		margin-bottom: 20px;
-	}
+  &.aligncenter {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 20px;
+  }
 }
 
 .skip_to_main_link {
-	display: block;
-	width: 1px;
-	height: 1px;
-	overflow: hidden;
-	position: fixed;
-	border-bottom: 1px solid #333;
-	top: 0;
-	left: 0;
-	right: 0;
-	background-color: #fff;
-	z-index: 1000;
-	color: #000;
-	font-weight: bold;
-	font-size: 18px;
+  display: block;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  position: fixed;
+  border-bottom: 1px solid #333;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+  z-index: 1000;
+  color: #000;
+  font-weight: bold;
+  font-size: 18px;
 
-	&:focus {
-		padding: 20px 40px;
-		width: 100%;
-		height: auto;
-	}
+  &:focus {
+    padding: 20px 40px;
+    width: 100%;
+    height: auto;
+  }
 }
 
 .cookie-banner {
-	color: #fff;
-	background-color: #333;
+  color: #fff;
+  background-color: #333;
 
-	> .px-container {
-		display: flex;
-		flex-flow: row nowrap;
-		justify-content: center;
-		align-items: center;
-	}
+  > .px-container {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+  }
 
-	p {
-		margin: 0;
-		margin-right: 20px;
-	}
+  p {
+    margin: 0;
+    margin-right: 20px;
+  }
 }

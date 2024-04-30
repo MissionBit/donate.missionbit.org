@@ -1,20 +1,20 @@
 import * as S from "@effect/schema/Schema";
 import { PaginatedResponse } from "./pagination";
 
-export const Plan = S.struct({
-  id: S.string,
-  first_name: S.string,
-  last_name: S.string,
-  email: S.string,
-  phone: S.nullable(S.string),
-  frequency: S.literal("monthly", "quarterly", "yearly"),
-  status: S.literal("active", "cancelled", "ended", "past_due", "paused"),
-  method: S.string,
-  amount: S.number,
-  fee_covered: S.string,
-  created_at: S.string,
-  start_at: S.string,
-  next_bill_date: S.string,
+export const Plan = S.Struct({
+  id: S.String,
+  first_name: S.String,
+  last_name: S.String,
+  email: S.String,
+  phone: S.NullishOr(S.String),
+  frequency: S.Literal("monthly", "quarterly", "yearly"),
+  status: S.Literal("active", "cancelled", "ended", "past_due", "paused"),
+  method: S.String,
+  amount: S.Number,
+  fee_covered: S.String,
+  created_at: S.String,
+  start_at: S.String,
+  next_bill_date: S.String,
 });
 
 export const GetPlansResponse = PaginatedResponse(Plan);

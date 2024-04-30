@@ -1,1 +1,5 @@
-{"projectId":"donate.missionbit.org","orgId":"missionbit","settings":{"framework":"nextjs"}}
+{
+  "projectId": "donate.missionbit.org",
+  "orgId": "missionbit",
+  "settings": { "framework": "nextjs" }
+}

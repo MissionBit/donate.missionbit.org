@@ -1,21 +1,21 @@
 import * as S from "@effect/schema/Schema";
 import { PaginatedResponse } from "./pagination";
 
-export const Ticket = S.struct({
-  id: S.string,
-  id_suffix: S.string,
-  transaction_id: S.string,
-  name: S.string,
-  first_name: S.string,
-  last_name: S.string,
-  email: S.string,
-  phone: S.nullable(S.string),
-  title: S.string,
-  description: S.nullable(S.string),
-  price: S.number,
-  pdf: S.string,
-  checked_in_at: S.nullable(S.string),
-  created_at: S.string,
+export const Ticket = S.Struct({
+  id: S.String,
+  id_suffix: S.String,
+  transaction_id: S.String,
+  name: S.String,
+  first_name: S.String,
+  last_name: S.String,
+  email: S.String,
+  phone: S.NullishOr(S.String),
+  title: S.String,
+  description: S.NullishOr(S.String),
+  price: S.Number,
+  pdf: S.String,
+  checked_in_at: S.NullishOr(S.String),
+  created_at: S.String,
 });
 
 export const TicketsResponse = PaginatedResponse(Ticket);

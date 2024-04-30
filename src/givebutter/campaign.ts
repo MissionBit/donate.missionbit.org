@@ -1,56 +1,56 @@
 import * as S from "@effect/schema/Schema";
 import { PaginatedResponse } from "./pagination";
 
-export const CampaignEvent = S.struct({
-  title: S.string,
-  type: S.union(S.literal("physical"), S.string),
-  location_name: S.nullable(S.string),
-  address_formatted: S.string,
-  google_place_id: S.string,
-  start_at: S.string,
-  end_at: S.string,
-  timezone: S.string,
-  details: S.nullable(S.string),
-  private: S.boolean,
-  tickets_required: S.boolean,
-  livestream: S.nullable(S.string),
-  livestream_start_at: S.nullable(S.string),
-  livestream_end_at: S.nullable(S.string),
+export const CampaignEvent = S.Struct({
+  title: S.String,
+  type: S.Union(S.Literal("physical"), S.String),
+  location_name: S.NullishOr(S.String),
+  address_formatted: S.String,
+  google_place_id: S.String,
+  start_at: S.String,
+  end_at: S.String,
+  timezone: S.String,
+  details: S.NullishOr(S.String),
+  private: S.Boolean,
+  tickets_required: S.Boolean,
+  livestream: S.NullishOr(S.String),
+  livestream_start_at: S.NullishOr(S.String),
+  livestream_end_at: S.NullishOr(S.String),
 });
 
-export const CoverImage = S.struct({
-  url: S.string,
-  type: S.literal("image"),
-  source: S.literal("upload"),
+export const CoverImage = S.Struct({
+  url: S.String,
+  type: S.Literal("image"),
+  source: S.Literal("upload"),
 });
-export const CoverVideo = S.struct({
-  url: S.string,
-  type: S.literal("video"),
-  source: S.literal("youtube"),
-  embed_url: S.string,
+export const CoverVideo = S.Struct({
+  url: S.String,
+  type: S.Literal("video"),
+  source: S.Literal("youtube"),
+  embed_url: S.String,
 });
-export const Cover = S.union(CoverImage, CoverVideo);
+export const Cover = S.Union(CoverImage, CoverVideo);
 
-export const Campaign = S.struct({
-  id: S.number,
-  code: S.string,
-  type: S.literal("general", "collect", "fundraise", "event"),
-  status: S.literal("active", "inactive", "unpublished"),
-  title: S.string,
-  subtitle: S.nullable(S.string),
-  description: S.nullable(S.string),
-  slug: S.nullable(S.string),
-  raised: S.number,
-  goal: S.nullable(S.number),
-  donors: S.number,
-  end_at: S.nullable(S.string),
-  url: S.string,
-  currency: S.literal("USD"),
-  cover: S.optional(S.nullable(Cover)),
-  created_at: S.string,
-  updated_at: S.string,
-  account_id: S.string,
-  event: S.optional(S.nullable(CampaignEvent)),
+export const Campaign = S.Struct({
+  id: S.Number,
+  code: S.String,
+  type: S.Literal("general", "collect", "fundraise", "event"),
+  status: S.Literal("active", "inactive", "unpublished"),
+  title: S.String,
+  subtitle: S.NullishOr(S.String),
+  description: S.NullishOr(S.String),
+  slug: S.NullishOr(S.String),
+  raised: S.Number,
+  goal: S.NullishOr(S.Number),
+  donors: S.Number,
+  end_at: S.NullishOr(S.String),
+  url: S.String,
+  currency: S.Literal("USD"),
+  cover: S.optional(S.NullishOr(Cover)),
+  created_at: S.String,
+  updated_at: S.String,
+  account_id: S.String,
+  event: S.optional(S.NullishOr(CampaignEvent)),
 });
 
 export function getCampaignsUrl(

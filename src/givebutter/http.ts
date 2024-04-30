@@ -14,8 +14,8 @@ export function giveButterGet<T>(url: string, schema: S.Schema<T>) {
     .get(url)
     .pipe(
       Http.request.setHeaders(givebutterAuth()),
-      Http.client.fetchOk().pipe(Http.client.retry(retrySchedule)),
-      Effect.flatMap(Http.response.schemaBodyJson(schema)),
+      Http.client.retry(Http.client.fetchOk, retrySchedule),
+      Effect.andThen(Http.response.schemaBodyJson(schema)),
     );
 }
 

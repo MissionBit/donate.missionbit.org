@@ -1,4 +1,4 @@
-import { Effect, Stream } from "effect";
+import { Effect, Scope, Stream } from "effect";
 import * as S from "@effect/schema/Schema";
 import { getSupabaseClient } from "src/getSupabaseClient";
 import { getCampaignsUrl } from "src/givebutter/campaign";
@@ -46,7 +46,7 @@ function urlPrefix(firstUrl: string) {
 function streamMemberPages(campaignId: string | number) {
   const [firstUrl, schema] = getMembersUrl(campaignId);
   const prefix = urlPrefix(firstUrl);
-  const toRow = (obj: S.Schema.To<typeof Member>) => ({
+  const toRow = (obj: S.Schema.Type<typeof Member>) => ({
     id: `${prefix}/${obj.id}`,
     data: obj,
     deleted_at: null,
@@ -115,7 +115,7 @@ function markDeleted(prefix: string) {
 
 function upsert<T extends GivebutterObj>(
   pair: readonly [firstUrl: string, schema: S.Schema<T>],
-): Effect.Effect<never, HttpClientError | ParseError | Error, void> {
+): Effect.Effect<void, HttpClientError | ParseError | Error, Scope.Scope> {
   return streamGivebutterPages(...pair).pipe(
     Stream.runFoldEffect(new Set<string>(), (acc, { prefix, rows }) =>
       Effect.tryPromise({
@@ -142,7 +142,7 @@ function upsert<T extends GivebutterObj>(
 
 function upsertMembers(
   campaignId: string | number,
-): Effect.Effect<never, HttpClientError | ParseError | Error, void> {
+): Effect.Effect<void, HttpClientError | ParseError | Error, Scope.Scope> {
   return streamMemberPages(campaignId).pipe(
     Stream.runFoldEffect(new Set<string>(), (acc, { prefix, rows }) =>
       Effect.tryPromise({
@@ -187,7 +187,7 @@ function upsertCampaignMembers() {
 }
 
 async function main() {
-  Effect.runPromise(
+  const allEffects = Effect.scoped(
     Effect.all([
       upsert(getCampaignsUrl("all")),
       upsert(getContactsUrl("all")),
@@ -197,6 +197,7 @@ async function main() {
       upsertCampaignMembers(),
     ]),
   );
+  await Effect.runPromise(allEffects);
 }
 
 main();

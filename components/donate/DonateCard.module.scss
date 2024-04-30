@@ -1,4 +1,4 @@
-@use 'sass:color';
+@use "sass:color";
 @import "src/scss/variables";
 @import "src/scss/mixins";
 
@@ -99,12 +99,12 @@
 .amounts {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(3,minmax(0,1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   width: 100%;
   height: auto;
   font-weight: 600;
   cursor: pointer;
-  & > *[role=radio] {
+  & > *[role="radio"] {
     height: 3.5rem;
     display: flex;
     flex: 1;
@@ -114,12 +114,12 @@
     border: 1px solid $purple;
     color: $purple;
     border-radius: 4px;
-    &[aria-checked=true] {
+    &[aria-checked="true"] {
       background-color: $purple;
       color: #fff;
     }
     @media (hover: hover) {
-      &:hover[aria-checked=false] {
+      &:hover[aria-checked="false"] {
         background-color: color.scale($purple, $lightness: 80%);
       }
     }
@@ -133,7 +133,7 @@
   font-weight: 700;
   cursor: pointer;
   height: 3.5rem;
-  & > *[role=radio] {
+  & > *[role="radio"] {
     display: flex;
     flex: 1;
     justify-content: center;
@@ -141,12 +141,12 @@
     box-sizing: border-box;
     border: 1px solid $purple;
     color: $purple;
-    &[aria-checked=true] {
+    &[aria-checked="true"] {
       background-color: $purple;
       color: #fff;
     }
     @media (hover: hover) {
-      &:hover[aria-checked=false] {
+      &:hover[aria-checked="false"] {
         background-color: color.scale($purple, $lightness: 80%);
       }
     }

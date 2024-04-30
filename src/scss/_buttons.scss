@@ -1,392 +1,398 @@
 button {
-	cursor: pointer;
-	border: 0;
-	background-color: transparent;
+  cursor: pointer;
+  border: 0;
+  background-color: transparent;
 }
 
 .btn {
-	z-index: 2;
-	border: none;
-	color: $black;
-	font-weight: 600;
-	font-size: 16px;
-	line-height: 28px;
-	text-align: center;
-	padding: 10px 24px;
-	margin: 20px auto;
-	text-decoration: none;
-	transition: background-color $speed $easing, color $speed $easing;
-	cursor: pointer;
-	position: relative;
-	border-radius: 100px;
+  z-index: 2;
+  border: none;
+  color: $black;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 28px;
+  text-align: center;
+  padding: 10px 24px;
+  margin: 20px auto;
+  text-decoration: none;
+  transition:
+    background-color $speed $easing,
+    color $speed $easing;
+  cursor: pointer;
+  position: relative;
+  border-radius: 100px;
 
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
-	@include bp($s) {
-		display: inline-block;
-	}
+  @include bp($s) {
+    display: inline-block;
+  }
 
-	&::before  {
-		content: '';
-		position: absolute;
-		left: 0;
-		top: 0;
-		height: 100%;
-		width: 100%;
-		display: inline-block;
-		border-radius: 100px;
-		z-index: -1;
-		transition: transform $speed $easing, background-color $speed $easing, color $speed $easing, border $speed $easing;
-	}
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 100%;
+    display: inline-block;
+    border-radius: 100px;
+    z-index: -1;
+    transition:
+      transform $speed $easing,
+      background-color $speed $easing,
+      color $speed $easing,
+      border $speed $easing;
+  }
 
-	@media (hover: hover) {
-		&:hover,
-		&:active {
-			cursor: pointer;
+  @media (hover: hover) {
+    &:hover,
+    &:active {
+      cursor: pointer;
 
-			&::before {
-				transform: scale(1.05);
-			}
-		}
-	}
+      &::before {
+        transform: scale(1.05);
+      }
+    }
+  }
 
-	&--orange {
-		background-color: $orange;
+  &--orange {
+    background-color: $orange;
 
-		&::before {
-			background-color: $orange;
-		}
-	}
+    &::before {
+      background-color: $orange;
+    }
+  }
 
-	@media (hover: hover) {
-		&--orange {
-			&:hover,
-			&:active {
-				background-color: $orange-d;
-				
-				&::before {
-					background-color: $orange-d;
-				}
-			}
-		}
-	}
+  @media (hover: hover) {
+    &--orange {
+      &:hover,
+      &:active {
+        background-color: $orange-d;
 
-	&--orange-outline {
-		&::before {
-			border: 2px solid $orange;
-		}
-	}
+        &::before {
+          background-color: $orange-d;
+        }
+      }
+    }
+  }
 
-	@media (hover: hover) {
-		&--orange-outline {
-			&:hover,
-			&:active {
-				&::before {
-					border: 2px solid $orange-d;
-				}
-			}
-		}
-	}
+  &--orange-outline {
+    &::before {
+      border: 2px solid $orange;
+    }
+  }
 
-	&--white {
-		// background-color: $white;
+  @media (hover: hover) {
+    &--orange-outline {
+      &:hover,
+      &:active {
+        &::before {
+          border: 2px solid $orange-d;
+        }
+      }
+    }
+  }
 
-		&::before {
-			background-color: $white;
-		}
-	}
+  &--white {
+    // background-color: $white;
 
-	@media (hover: hover) {
-		&--white {
-			&:hover,
-			&:active {
-				// background-color: rgba(255,255,255, 0.85);
+    &::before {
+      background-color: $white;
+    }
+  }
 
-				&::before {
-					background-color: rgba(255,255,255, 0.85);
-				}
-			}
-		}
-	}
+  @media (hover: hover) {
+    &--white {
+      &:hover,
+      &:active {
+        // background-color: rgba(255,255,255, 0.85);
 
-	&--white-outline {
-		&::before {
-			border: 2px solid $white;
-		}
-	}
+        &::before {
+          background-color: rgba(255, 255, 255, 0.85);
+        }
+      }
+    }
+  }
 
-	@media (hover: hover) {
-		&--white-outline {
-			&:hover,
-			&:active {
-				&::before {
-					border: 2px solid rgba(255,255,255, 0.85);;
-				}
-			}
-		}
-	}
-	
-	&--purple {
-		color: $white;
-		background-color: $purple;
+  &--white-outline {
+    &::before {
+      border: 2px solid $white;
+    }
+  }
 
-		&.btn--icon-arrow {
-			&::after {
-				background-color: $white;
-			}
-		}
+  @media (hover: hover) {
+    &--white-outline {
+      &:hover,
+      &:active {
+        &::before {
+          border: 2px solid rgba(255, 255, 255, 0.85);
+        }
+      }
+    }
+  }
 
-		&::before {
-			background-color: $purple;
-		}
-	}
+  &--purple {
+    color: $white;
+    background-color: $purple;
 
-	@media (hover: hover) {
-		&--purple {
-			&:hover,
-			&:active {
-				background-color: $purple-d;
+    &.btn--icon-arrow {
+      &::after {
+        background-color: $white;
+      }
+    }
 
-				&::before {
-					background-color: $purple-d;
-				}
-			}
-		}
-	}
+    &::before {
+      background-color: $purple;
+    }
+  }
 
-	// Disabled button styles
-	&--orange,
-	&--white,
-	&--purple {
-		&:disabled,
-		&.disabled {
-			color: $grey-600;
-			pointer-events: none;
-			background-color: $grey-100;
+  @media (hover: hover) {
+    &--purple {
+      &:hover,
+      &:active {
+        background-color: $purple-d;
 
-			&::before {
-				background-color: $grey-100;
-			}
-		}
-	}
+        &::before {
+          background-color: $purple-d;
+        }
+      }
+    }
+  }
 
-	@media (hover: hover) {
-		&--orange,
-		&--white,
-		&--purple {
-			&:disabled,
-			&.disabled {
-				&:hover,
-				&:active {
-					background-color: $grey-100;
-					
-					&::before {
-						background-color: $grey-100;
-					}
-				}
-			}
-		}
-	}
+  // Disabled button styles
+  &--orange,
+  &--white,
+  &--purple {
+    &:disabled,
+    &.disabled {
+      color: $grey-600;
+      pointer-events: none;
+      background-color: $grey-100;
 
-	&--orange-outline,
-	&--white-outline {
-		&:disabled,
-		&.disabled {
-			color: $grey-600;
+      &::before {
+        background-color: $grey-100;
+      }
+    }
+  }
 
-			&::before {
-				border: 2px solid $grey-100;
-			}
-		}
-	}
+  @media (hover: hover) {
+    &--orange,
+    &--white,
+    &--purple {
+      &:disabled,
+      &.disabled {
+        &:hover,
+        &:active {
+          background-color: $grey-100;
 
-	@media (hover: hover) {
-		&--orange-outline,
-		&--white-outline {
-			&:disabled,
-			&.disabled {
-				&:hover,
-				&:active {
-					&::before {
-						border: 2px solid $grey-100;
-					}
-				}
-			}
-		}
-	}
+          &::before {
+            background-color: $grey-100;
+          }
+        }
+      }
+    }
+  }
 
-	&--icon-arrow {
-		&:disabled,
-		&.disabled {
-			&::after {
-				background-color: $grey-600;
-			}
-		}
-	}
+  &--orange-outline,
+  &--white-outline {
+    &:disabled,
+    &.disabled {
+      color: $grey-600;
+
+      &::before {
+        border: 2px solid $grey-100;
+      }
+    }
+  }
+
+  @media (hover: hover) {
+    &--orange-outline,
+    &--white-outline {
+      &:disabled,
+      &.disabled {
+        &:hover,
+        &:active {
+          &::before {
+            border: 2px solid $grey-100;
+          }
+        }
+      }
+    }
+  }
+
+  &--icon-arrow {
+    &:disabled,
+    &.disabled {
+      &::after {
+        background-color: $grey-600;
+      }
+    }
+  }
 }
 
 // Text links
 a:not(.btn) {
-	color: $black;
-	text-decoration: underline;
-	transition: color $speed $easing;
+  color: $black;
+  text-decoration: underline;
+  transition: color $speed $easing;
 
-	@media (hover: hover) {
-		&:hover,
-		&:active {
-			color: $orange;
-		}
-	}
+  @media (hover: hover) {
+    &:hover,
+    &:active {
+      color: $orange;
+    }
+  }
 
-	&:disabled {
-		color: $grey-400;
-	}
+  &:disabled {
+    color: $grey-400;
+  }
 
-	&.link--list {
-		text-decoration: none;
-		border-bottom: 1px solid $orange;
+  &.link--list {
+    text-decoration: none;
+    border-bottom: 1px solid $orange;
 
-		&:disabled {
-			color: $grey-400;
-			border-bottom: 1px solid $grey-400;
-		}
-	}
+    &:disabled {
+      color: $grey-400;
+      border-bottom: 1px solid $grey-400;
+    }
+  }
 }
 
 // Icon buttons and links
 .btn {
-	&--icon-arrow {
-		&::after {
-			position: relative;
-			display: inline-block;
-			width: 24px;
-			height: 24px;
-			margin-left: 16px;
-			vertical-align: middle;
-			background-size: 24px 24px;
-			background-color: $black;
-			content: '';
-			mask: url('../assets/images/icons/arrow--right.svg');
-			mask-size: contain;
-		}
+  &--icon-arrow {
+    &::after {
+      position: relative;
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      margin-left: 16px;
+      vertical-align: middle;
+      background-size: 24px 24px;
+      background-color: $black;
+      content: "";
+      mask: url("../assets/images/icons/arrow--right.svg");
+      mask-size: contain;
+    }
 
-		// Change color of icon for disabled
-	}
+    // Change color of icon for disabled
+  }
 
-	&--icon-next,
-	&--icon-prev {
-		width: 48px;
-		height: 48px;
-		padding: 0;
-		display: inline-block;
-		
-		&::after {
-			margin-left: 0;
-		}
+  &--icon-next,
+  &--icon-prev {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    display: inline-block;
 
-		&:focus {
-            outline: none;
-        }
-	}
+    &::after {
+      margin-left: 0;
+    }
 
-	&--icon-prev {
-		&::after {
-			transform: rotate(180deg);
-		}
-	}
+    &:focus {
+      outline: none;
+    }
+  }
 
-	&--icon-heart {
-		&::after {
-			position: relative;
-			display: inline-block;
-			width: 24px;
-			height: 24px;
-			margin-left: 16px;
-			vertical-align: -25%;
-			background-size: 24px 24px;
-			background-color: $black;
-			content: '';
-			mask: url('../assets/images/icons/donate-heart.svg');
-			mask-size: contain;
-		}
-	}
+  &--icon-prev {
+    &::after {
+      transform: rotate(180deg);
+    }
+  }
+
+  &--icon-heart {
+    &::after {
+      position: relative;
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      margin-left: 16px;
+      vertical-align: -25%;
+      background-size: 24px 24px;
+      background-color: $black;
+      content: "";
+      mask: url("../assets/images/icons/donate-heart.svg");
+      mask-size: contain;
+    }
+  }
 }
 
 a:not(.btn) {
-	&.link--icon-arrow {
-		position: relative;
-		display: inline-block;
-		font-weight: 600;
-		line-height: 12px;
-		text-decoration: none;
-		border-bottom: 1px solid transparent;
-		transition: all $speed $easing;
+  &.link--icon-arrow {
+    position: relative;
+    display: inline-block;
+    font-weight: 600;
+    line-height: 12px;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: all $speed $easing;
 
-		&::after {
-			position: absolute;
-			top: -6px;
-			width: 24px;
-			height: 24px;
-			margin-left: 12px;
-			content: '';
-			mask: url('../assets/images/icons/arrow--right.svg');
-			mask-size: contain;
-			background-color: $black;
-		}
+    &::after {
+      position: absolute;
+      top: -6px;
+      width: 24px;
+      height: 24px;
+      margin-left: 12px;
+      content: "";
+      mask: url("../assets/images/icons/arrow--right.svg");
+      mask-size: contain;
+      background-color: $black;
+    }
 
-		@media (hover: hover) {
-			&:hover,
-			&:active {
-				color: $black;
-				border-bottom: 1px solid $black;
-			}
-		}
+    @media (hover: hover) {
+      &:hover,
+      &:active {
+        color: $black;
+        border-bottom: 1px solid $black;
+      }
+    }
 
-		&:disabled {
-			color: $grey-400;
-			// change color of icon on disabled button
-		}
-	}
+    &:disabled {
+      color: $grey-400;
+      // change color of icon on disabled button
+    }
+  }
 }
 
 // Dark background styles
 .pxblock {
-    &.bg {
-        &--black,
-		&--dark-grey,
-		&--purple {
-			.btn {
-				&--orange-outline {
-					color: $white;
+  &.bg {
+    &--black,
+    &--dark-grey,
+    &--purple {
+      .btn {
+        &--orange-outline {
+          color: $white;
 
-					&.btn--icon-arrow {
-						&::after {
-							background-color: $white;
-						}
-					}
-				}
-			
-				&--white-outline {
-					color: $white;
+          &.btn--icon-arrow {
+            &::after {
+              background-color: $white;
+            }
+          }
+        }
 
-					&::after {
-						background-color: $white;
-					}
-				}
-			}
+        &--white-outline {
+          color: $white;
 
-			a:not(.btn) {
-				color: $white;
+          &::after {
+            background-color: $white;
+          }
+        }
+      }
 
-				@media (hover: hover) {
-					&:hover,
-					&:active {
-						color: $orange;
-					}
-				}
-			}
-		}
-	}
+      a:not(.btn) {
+        color: $white;
+
+        @media (hover: hover) {
+          &:hover,
+          &:active {
+            color: $orange;
+          }
+        }
+      }
+    }
+  }
 }

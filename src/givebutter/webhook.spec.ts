@@ -78,7 +78,9 @@ describe("Webhook parse", () => {
         is_address_subscribed: true,
       },
     };
-    expect(await Effect.runPromise(S.parse(Webhook)(webhook))).toEqual(webhook);
+    expect(await Effect.runPromise(S.decodeUnknown(Webhook)(webhook))).toEqual(
+      webhook,
+    );
   });
   it("should parse transaction.succeeded", async () => {
     const webhook = {
@@ -166,6 +168,8 @@ describe("Webhook parse", () => {
       },
       event: "transaction.succeeded",
     };
-    expect(await Effect.runPromise(S.parse(Webhook)(webhook))).toEqual(webhook);
+    expect(await Effect.runPromise(S.decodeUnknown(Webhook)(webhook))).toEqual(
+      webhook,
+    );
   });
 });
