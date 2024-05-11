@@ -150,20 +150,18 @@ export async function createOrFetchContactFromGivebutterTransaction(
 ): Promise<ExtendedContactResult> {
   const { transaction } = options;
   const email = transaction.email;
-  if (!email) {
-    throw new Error(
-      `Expecting non-null email for transaction ${
-        transaction.id
-      }\n${JSON.stringify(transaction, null, 2)}`,
-    );
-  }
   const parsedName =
     transactionName(transaction) ??
-    nameParser(transaction.giving_space?.name ?? email.split("@")[0]);
-  const customerInfo = `${parsedName.original} <${transaction.email}>`;
+    nameParser(
+      transaction.giving_space?.name ??
+        (email ? email.split("@")[0] : "Anonymous Donor"),
+    );
+  const customerInfo = email
+    ? `${parsedName.original} <${email}>`
+    : parsedName.original;
   const phone = transaction.phone;
   const clauses = [
-    soql`Email = ${email}`,
+    ...(email ? [soql`Email = ${email}`] : []),
     parsedName.last && parsedName.first
       ? soql`(FirstName LIKE ${parsedName.first + "%"} AND LastName = ${
           parsedName.last
@@ -184,7 +182,7 @@ export async function createOrFetchContactFromGivebutterTransaction(
     function rankRecord(record: ContactSearchResult | null): number {
       if (!record) {
         return -1;
-      } else if (record.Email === email) {
+      } else if (email && record.Email === email) {
         return 2;
       } else if (record.Phone === phone) {
         return 1;
@@ -265,7 +263,7 @@ export async function createOrFetchContactFromGivebutterTransaction(
           ],
         ].flatMap(([k, v]) => (v ? [[k, v]] : [])),
       ),
-      Email: email,
+      ...(email ? { Email: email } : {}),
       Donor__c: true,
     });
     const fields = await contactApi.getFields(res.id, ["Id", "AccountId"]);

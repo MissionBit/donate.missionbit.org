@@ -58,7 +58,7 @@ export const Transaction = S.Struct({
   first_name: S.String,
   last_name: S.String,
   company: S.NullishOr(S.String),
-  email: S.String,
+  email: S.NullishOr(S.String),
   phone: S.NullishOr(S.String),
   address: S.NullishOr(BaseAddress),
   status: S.Literal("succeeded", "authorized", "failed", "cancelled"),
