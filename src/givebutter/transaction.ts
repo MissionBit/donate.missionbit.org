@@ -48,6 +48,8 @@ export const SubTransaction = S.Struct({
 
 export const Transaction = S.Struct({
   id: S.String,
+  // Added 2024-06-10
+  number: S.optional(S.NullishOr(S.Union(S.String, S.Number))),
   campaign_id: S.Number,
   campaign_code: S.String,
   plan_id: S.NullishOr(S.String),
@@ -55,6 +57,8 @@ export const Transaction = S.Struct({
   member_id: S.NullishOr(S.Union(S.String, S.Number)),
   fund_id: S.NullishOr(S.String),
   fund_code: S.NullishOr(S.String),
+  // Added 2024-06-10
+  contact_id: S.optional(S.NullishOr(S.Union(S.String, S.Number))),
   first_name: S.String,
   last_name: S.String,
   company: S.NullishOr(S.String),
@@ -109,6 +113,8 @@ export const Transaction = S.Struct({
   session_id: S.NullishOr(S.String),
   check_number: S.optional(S.NullishOr(S.Unknown)),
   check_deposited_at: S.optional(S.NullishOr(S.String)),
+  // Added 2024-06-10
+  attribution_data: S.optional(S.NullishOr(S.Unknown)),
 });
 
 export const GetTransactionsResponse = PaginatedResponse(Transaction);
