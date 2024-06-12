@@ -78,6 +78,7 @@ export async function POST(req: Request): Promise<Response> {
         data: body.data,
         status: { error: "parse_error", err },
       });
+      // TODO slack and salesforce push?
       return Response.json({ received: true, state: "parse_error", db });
     } else {
       console.error(err);

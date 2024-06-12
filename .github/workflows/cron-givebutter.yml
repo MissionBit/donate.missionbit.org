@@ -1,10 +1,10 @@
-name: cron
+name: cron-givebutter
 
 on:
   workflow_dispatch:
   schedule:
-    # Every 10 minutes
-    - cron: "*/10 * * * *"
+    # Every day at 14:00 UTC (6AM PST/7AM PDT)
+    - cron: "14 0 * * *"
 
 jobs:
   cron:
@@ -16,7 +16,7 @@ jobs:
           node-version-file: ".nvmrc"
           cache: "npm"
       - run: npm install
-      - run: npm run cron
+      - run: npm run cron-givebutter
         env:
           EVENTBRITE_TOKEN: ${{ secrets.EVENTBRITE_TOKEN }}
           GIVEBUTTER_API_KEY: ${{ secrets.GIVEBUTTER_API_KEY }}
