@@ -2,7 +2,7 @@ import { Effect, Scope, Stream } from "effect";
 import * as S from "@effect/schema/Schema";
 import { getSupabaseClient } from "src/getSupabaseClient";
 import { getCampaignsUrl } from "src/givebutter/campaign";
-import { streamPages } from "src/givebutter/http";
+import { ApiLimiter, streamPages } from "src/givebutter/http";
 import { getContactsUrl } from "src/givebutter/contact";
 import { getPlansUrl } from "src/givebutter/plan";
 import { getTransactionsUrl } from "src/givebutter/transaction";
@@ -115,7 +115,11 @@ function markDeleted(prefix: string) {
 
 function upsert<T extends GivebutterObj>(
   pair: readonly [firstUrl: string, schema: S.Schema<T>],
-): Effect.Effect<void, HttpClientError | ParseError | Error, Scope.Scope> {
+): Effect.Effect<
+  void,
+  HttpClientError | ParseError | Error,
+  ApiLimiter | Scope.Scope
+> {
   return streamGivebutterPages(...pair).pipe(
     Stream.runFoldEffect(new Set<string>(), (acc, { prefix, rows }) =>
       Effect.tryPromise({
@@ -142,7 +146,11 @@ function upsert<T extends GivebutterObj>(
 
 function upsertMembers(
   campaignId: string | number,
-): Effect.Effect<void, HttpClientError | ParseError | Error, Scope.Scope> {
+): Effect.Effect<
+  void,
+  HttpClientError | ParseError | Error,
+  ApiLimiter | Scope.Scope
+> {
   return streamMemberPages(campaignId).pipe(
     Stream.runFoldEffect(new Set<string>(), (acc, { prefix, rows }) =>
       Effect.tryPromise({
@@ -196,7 +204,7 @@ async function main() {
       upsert(getTicketsUrl()),
       upsertCampaignMembers(),
     ]),
-  );
+  ).pipe(Effect.provide(ApiLimiter.Live));
   await Effect.runPromise(allEffects);
 }
 
