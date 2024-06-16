@@ -115,7 +115,11 @@ function markDeleted(prefix: string) {
 
 function upsert<T extends GivebutterObj>(
   pair: readonly [firstUrl: string, schema: S.Schema<T>],
-): Effect.Effect<void, HttpClientError | ParseError | Error, Scope.Scope> {
+): Effect.Effect<
+  void,
+  HttpClientError | ParseError | Error,
+  ApiLimiter | Scope.Scope
+> {
   return streamGivebutterPages(...pair).pipe(
     Stream.runFoldEffect(new Set<string>(), (acc, { prefix, rows }) =>
       Effect.tryPromise({
@@ -142,7 +146,11 @@ function upsert<T extends GivebutterObj>(
 
 function upsertMembers(
   campaignId: string | number,
-): Effect.Effect<void, HttpClientError | ParseError | Error, Scope.Scope> {
+): Effect.Effect<
+  void,
+  HttpClientError | ParseError | Error,
+  ApiLimiter | Scope.Scope
+> {
   return streamMemberPages(campaignId).pipe(
     Stream.runFoldEffect(new Set<string>(), (acc, { prefix, rows }) =>
       Effect.tryPromise({
