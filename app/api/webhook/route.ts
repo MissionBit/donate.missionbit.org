@@ -5,19 +5,14 @@ import {
   stripeCheckoutSessionCompletedPaymentEmail,
   stripeInvoicePaymentEmail,
 } from "src/stripeEmails";
+import { eventObject, runHandler, stripeEventHandlers } from "src/stripe";
 
 export const dynamic = "force-dynamic";
 export const runtime = "edge";
 
-function eventObject<T extends Stripe.Event.Data.Object & { id: string }>(
-  event: Stripe.Event,
+async function stripeCheckoutSessionCompleted(
+  event: Stripe.CheckoutSessionCompletedEvent,
 ) {
-  const obj = event.data.object as T;
-  console.log(`handling ${event.type} id: ${obj.id}`);
-  return obj;
-}
-
-async function stripeCheckoutSessionCompleted(event: Stripe.Event) {
   const session: Stripe.Checkout.Session = eventObject(event);
   if (session.mode === "payment") {
     await stripeCheckoutSessionCompletedPaymentEmail(session.id);
@@ -27,13 +22,17 @@ async function stripeCheckoutSessionCompleted(event: Stripe.Event) {
   }
 }
 
-async function stripeInvoicePaymentSucceeded(event: Stripe.Event) {
+async function stripeInvoicePaymentSucceeded(
+  event: Stripe.InvoicePaymentSucceededEvent,
+) {
   const obj: Stripe.Invoice = eventObject(event);
   await stripeInvoicePaymentEmail(obj.id);
   // track_donation(metadata=subscription.metadata, frequency="monthly", charge=charge)
 }
 
-async function stripeInvoicePaymentFailed(event: Stripe.Event) {
+async function stripeInvoicePaymentFailed(
+  event: Stripe.InvoicePaymentFailedEvent,
+) {
   const obj: Stripe.Invoice = eventObject(event);
   await stripeInvoicePaymentEmail(obj.id);
   // track_invoice_failure(
@@ -41,15 +40,11 @@ async function stripeInvoicePaymentFailed(event: Stripe.Event) {
   // )
 }
 
-async function defaultHandler(event: Stripe.Event) {
-  console.log(`${event.type} not handled id: ${event.id}`);
-}
-
-const HANDLERS: { [k: string]: (event: Stripe.Event) => Promise<void> } = {
+const HANDLERS = stripeEventHandlers({
   "checkout.session.completed": stripeCheckoutSessionCompleted,
   "invoice.payment_succeeded": stripeInvoicePaymentSucceeded,
   "invoice.payment_failed": stripeInvoicePaymentFailed,
-};
+});
 
 export async function POST(req: Request) {
   let event: Stripe.Event;
@@ -71,7 +66,6 @@ export async function POST(req: Request) {
       status: 400,
     });
   }
-  const handleEvent = HANDLERS[event.type] ?? defaultHandler;
-  await handleEvent(event);
+  await runHandler(HANDLERS, event);
   return Response.json({ received: true });
 }

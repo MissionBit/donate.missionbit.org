@@ -2,7 +2,7 @@ import { Effect, Scope, Stream } from "effect";
 import * as S from "@effect/schema/Schema";
 import { getSupabaseClient } from "src/getSupabaseClient";
 import { getCampaignsUrl } from "src/givebutter/campaign";
-import { streamPages } from "src/givebutter/http";
+import { ApiLimiter, streamPages } from "src/givebutter/http";
 import { getContactsUrl } from "src/givebutter/contact";
 import { getPlansUrl } from "src/givebutter/plan";
 import { getTransactionsUrl } from "src/givebutter/transaction";
@@ -196,7 +196,7 @@ async function main() {
       upsert(getTicketsUrl()),
       upsertCampaignMembers(),
     ]),
-  );
+  ).pipe(Effect.provide(ApiLimiter.Live));
   await Effect.runPromise(allEffects);
 }
 

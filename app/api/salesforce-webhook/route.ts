@@ -2,33 +2,22 @@ import Stripe from "stripe";
 import getStripe from "src/getStripe";
 import { login, stripeChargeSync } from "src/salesforce";
 import requireEnv from "src/requireEnv";
+import { eventObject, runHandler, stripeEventHandlers } from "src/stripe";
 
 export const dynamic = "force-dynamic";
 export const runtime = "edge";
 
-function eventObject<T extends Stripe.Event.Data.Object & { id: string }>(
-  event: Stripe.Event,
-) {
-  const obj = event.data.object as T;
-  console.log(`handling ${event.type} id: ${obj.id}`);
-  return obj;
-}
-
-async function stripeChargeSucceeded(event: Stripe.Event) {
+async function stripeChargeSucceeded(event: Stripe.ChargeSucceededEvent) {
   const obj: Stripe.Charge = eventObject(event);
   await stripeChargeSync(await login(), obj.id);
 }
 
-async function defaultHandler(event: Stripe.Event) {
-  console.log(`${event.type} not handled id: ${event.id}`);
-}
-
-const HANDLERS: { [k: string]: (event: Stripe.Event) => Promise<void> } = {
+const HANDLERS = stripeEventHandlers({
   // "checkout.session.completed": stripeCheckoutSessionCompleted,
   // "invoice.payment_succeeded": stripeInvoicePaymentSucceeded,
   // "invoice.payment_failed": stripeInvoicePaymentFailed,
   "charge.succeeded": stripeChargeSucceeded,
-};
+});
 
 export async function POST(req: Request) {
   let event: Stripe.Event;
@@ -48,7 +37,6 @@ export async function POST(req: Request) {
       status: 400,
     });
   }
-  const handleEvent = HANDLERS[event.type] ?? defaultHandler;
-  await handleEvent(event);
+  await runHandler(HANDLERS, event);
   return Response.json({ received: true });
 }
