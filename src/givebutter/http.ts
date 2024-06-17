@@ -19,8 +19,9 @@ const retrySchedule = Schedule.intersect(
 );
 
 export function giveButterGet<T>(url: string, schema: S.Schema<T>) {
-  return ApiLimiter.pipe(
-    Effect.andThen(
+  return Effect.gen(function* (_) {
+    const limiter = yield* ApiLimiter;
+    return yield* limiter(
       Http.request
         .get(url)
         .pipe(
@@ -28,8 +29,8 @@ export function giveButterGet<T>(url: string, schema: S.Schema<T>) {
           Http.client.retry(Http.client.fetchOk, retrySchedule),
           Effect.andThen(Http.response.schemaBodyJson(schema)),
         ),
-    ),
-  );
+    );
+  });
 }
 
 export function streamPages<T>(firstUrl: string, schema: S.Schema<T>) {
