@@ -1,5 +1,6 @@
 import * as S from "@effect/schema/Schema";
 import * as Http from "@effect/platform/HttpClient";
+import * as Headers from "@effect/platform/Http/Headers";
 import {
   Chunk,
   Effect,
@@ -9,6 +10,7 @@ import {
   Context,
   RateLimiter,
   Layer,
+  Console,
 } from "effect";
 import { givebutterAuth } from "./auth";
 import { PaginatedResponse } from "./pagination";
@@ -22,13 +24,24 @@ export function giveButterGet<T>(url: string, schema: S.Schema<T>) {
   return Effect.gen(function* (_) {
     const limiter = yield* ApiLimiter;
     return yield* limiter(
-      Http.request
-        .get(url)
-        .pipe(
-          Http.request.setHeaders(givebutterAuth()),
-          Http.client.retry(Http.client.fetchOk, retrySchedule),
-          Effect.andThen(Http.response.schemaBodyJson(schema)),
+      Http.request.get(url).pipe(
+        Http.request.setHeaders(givebutterAuth()),
+        Http.client.retry(Http.client.fetchOk, retrySchedule),
+        Effect.tap((response) =>
+          Effect.gen(function* (_) {
+            const limit = yield* Headers.get(
+              response.headers,
+              "x-ratelimit-limit",
+            );
+            const remaining = yield* Headers.get(
+              response.headers,
+              "x-ratelimit-remaining",
+            );
+            yield* Console.log(`LIMIT: ${remaining}/${limit}`);
+          }),
         ),
+        Effect.andThen(Http.response.schemaBodyJson(schema)),
+      ),
     );
   });
 }
