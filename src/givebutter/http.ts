@@ -65,7 +65,7 @@ export class ApiLimiter extends Context.Tag("@services/ApiLimiter")<
   ApiLimiter,
   RateLimiter.RateLimiter
 >() {
-  static Live = RateLimiter.make({ limit: 10, interval: "2 seconds" }).pipe(
+  static Live = RateLimiter.make({ limit: 10, interval: "5 seconds" }).pipe(
     Layer.scoped(ApiLimiter),
   );
 }
