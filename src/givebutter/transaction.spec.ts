@@ -10,6 +10,7 @@ const EXAMPLE_TRANSACTIONS_RESPONSE: S.Schema.Type<
     // Previous Webhook failure
     {
       id: "5sN7rcwoattK0xHR",
+      contact_id: 1234,
       fee: 2.62,
       email: null,
       phone: null,
@@ -181,6 +182,10 @@ const EXAMPLE_TRANSACTIONS_RESPONSE: S.Schema.Type<
     {
       id: "S9bmumbK7cMHKKPz",
       campaign_id: 173909,
+      // added 2024-07-02
+      contact_id: 1234,
+      number: 1234,
+      // end added 2024-07-02
       campaign_code: "JMTJNI",
       plan_id: "VV2WktbU5v9bkzIH",
       team_id: null,
@@ -255,6 +260,10 @@ const EXAMPLE_TRANSACTIONS_RESPONSE: S.Schema.Type<
     },
     {
       id: "3TXgFlbLgr8Xin3f",
+      // added 2024-07-02
+      contact_id: 1234,
+      number: 1234,
+      // end added 2024-07-02
       campaign_id: 173909,
       campaign_code: "JMTJNI",
       plan_id: "VV2WktbU5v9bkzIH",
@@ -335,6 +344,10 @@ const EXAMPLE_TRANSACTIONS_RESPONSE: S.Schema.Type<
     },
     {
       id: "sM6hfCIJujAm7ckC",
+      // added 2024-07-02
+      contact_id: 1234,
+      number: 1234,
+      // end added 2024-07-02
       campaign_id: 172267,
       campaign_code: "ASUIS2",
       plan_id: null,
@@ -409,6 +422,10 @@ const EXAMPLE_TRANSACTIONS_RESPONSE: S.Schema.Type<
     },
     {
       id: "XysRljAdtCOo8OU1",
+      // added 2024-07-02
+      contact_id: 1234,
+      number: 1234,
+      // end added 2024-07-02
       campaign_id: 178137,
       campaign_code: "7EJRGQ",
       plan_id: null,
@@ -495,6 +512,10 @@ const EXAMPLE_TRANSACTIONS_RESPONSE: S.Schema.Type<
     },
     {
       id: "9kx70YxDviRfFmV2",
+      // added 2024-07-02
+      contact_id: 1234,
+      number: 1234,
+      // end added 2024-07-02
       campaign_id: 172267,
       campaign_code: "ASUIS2",
       plan_id: null,
@@ -567,6 +588,10 @@ const EXAMPLE_TRANSACTIONS_RESPONSE: S.Schema.Type<
     },
     {
       id: "hD0G2jBhuVpUVJwg",
+      // added 2024-07-02
+      contact_id: 1234,
+      number: 1234,
+      // end added 2024-07-02
       campaign_id: 172267,
       campaign_code: "ASUIS2",
       plan_id: null,
