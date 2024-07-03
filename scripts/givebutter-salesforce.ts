@@ -7,11 +7,22 @@ import { Ticket } from "src/givebutter/ticket";
 import { Transaction } from "src/givebutter/transaction";
 import { login } from "src/salesforce";
 import * as S from "@effect/schema/Schema";
+import { parseArgs } from "node:util";
+
+const { values } = parseArgs({
+  options: {
+    all: { type: "boolean", default: false, short: "a" },
+  },
+});
 
 async function main() {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
-    .from("givebutter_transactions_pending_salesforce")
+    .from(
+      values.all
+        ? "givebutter_transactions"
+        : "givebutter_transactions_pending_salesforce",
+    )
     .select(
       "id, created_at, updated_at, data, plan_data, campaign_data, tickets_data",
     );
@@ -41,7 +52,7 @@ async function main() {
     );
     await supabase
       .from("givebutter_salesforce")
-      .insert({ id: row.id, metadata });
+      .upsert({ id: row.id, metadata });
     console.log(`Resolved ${row.id} ${JSON.stringify(metadata, null, 2)}`);
   }
 }

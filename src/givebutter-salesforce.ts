@@ -15,6 +15,8 @@ import { Transaction } from "src/givebutter/transaction";
 import { dollarFormatter } from "src/dollars";
 import { ShortDateFormat } from "src/dates";
 
+export type GivebutterTransactionOptions = FormatBlocksOptions;
+
 export interface ExtendedContactResult extends ContactResult {
   type: "create" | "read" | "update";
 }
@@ -47,7 +49,7 @@ function stageForGivebutterStatus(
 
 export async function createOrFetchOpportunityFromGivebutterTransaction(
   client: SalesforceClient,
-  options: FormatBlocksOptions,
+  options: GivebutterTransactionOptions,
 ) {
   if (options.transaction.amount <= 0) {
     // skip zero-dollar transactions
@@ -72,6 +74,10 @@ export async function createOrFetchOpportunityFromGivebutterTransaction(
   ]
     .filter(Boolean)
     .join(" ");
+  const contact = await createOrFetchContactFromGivebutterTransaction(
+    client,
+    options,
+  );
   const existing = await opportunityApi.getFields(
     `Givebutter_Transaction_ID__c/${transaction.id}`,
     ["Id", "Name", "StageName"],
@@ -93,10 +99,6 @@ export async function createOrFetchOpportunityFromGivebutterTransaction(
       return { type: "existing", OpportunityId: existing.Id };
     }
   }
-  const contact = await createOrFetchContactFromGivebutterTransaction(
-    client,
-    options,
-  );
   const getRecurringDetails = async () => {
     // TODO: implement recurring donations based on plan
     if (!plan) {
@@ -140,9 +142,21 @@ const transactionName = ({
 
 export async function createOrFetchContactFromGivebutterTransaction(
   client: SalesforceClient,
-  options: FormatBlocksOptions,
+  options: GivebutterTransactionOptions,
 ): Promise<ExtendedContactResult> {
   const { transaction } = options;
+  const givebutterContactId = String(transaction.contact_id);
+  const contactApi = sObject(client, "contact");
+  const fields = [
+    "Id",
+    "AccountId",
+    "Email",
+    "Phone",
+    "FirstName",
+    "LastName",
+    "Donor__c",
+    "Givebutter_Contact_ID__c",
+  ] as const;
   const email = transaction.email;
   const parsedName =
     transactionName(transaction) ??
@@ -150,54 +164,11 @@ export async function createOrFetchContactFromGivebutterTransaction(
       transaction.giving_space?.name ??
         (email ? email.split("@")[0] : "Anonymous Donor"),
     );
-  const givebutterContactId = String(transaction.contact_id);
   const customerInfo = email
     ? `${parsedName.original} <${email}>`
     : parsedName.original;
+
   const phone = transaction.phone;
-  const clauses = [
-    soql`Givebutter_Contact_ID__c = ${givebutterContactId}`,
-    ...(email ? [soql`Email = ${email}`] : []),
-    parsedName.last && parsedName.first
-      ? soql`(FirstName LIKE ${parsedName.first + "%"} AND LastName = ${
-          parsedName.last
-        })`
-      : soql`Name = ${parsedName.original}`,
-    ...(phone ? [soql`Phone = ${phone}`] : []),
-  ];
-  const { records } = await sQuery<ContactSearchResult>(
-    client,
-    `SELECT Id, AccountId, Email, Phone, FirstName, LastName, Donor__c, Givebutter_Contact_ID__c FROM Contact WHERE ${clauses.join(
-      " OR ",
-    )}`,
-  );
-  const chooseBestContactRecord = (
-    records: ContactSearchResult[],
-  ): ContactSearchResult | null => {
-    let bestRecord = null;
-    function rankRecord(record: ContactSearchResult | null): number {
-      if (!record) {
-        return -1;
-      } else if (
-        givebutterContactId &&
-        record.Givebutter_Contact_ID__c === givebutterContactId
-      ) {
-        return 3;
-      } else if (email && record.Email === email) {
-        return 2;
-      } else if (record.Phone === phone) {
-        return 1;
-      }
-      return 0;
-    }
-    // First record with Email or Phone match.
-    for (const record of records) {
-      if (rankRecord(record) > rankRecord(bestRecord)) {
-        bestRecord = record;
-      }
-    }
-    return bestRecord;
-  };
   const nameFields = () => {
     const NAME_FIELD_MAP: [
       keyof ReturnType<typeof nameParser>,
@@ -219,7 +190,56 @@ export async function createOrFetchContactFromGivebutterTransaction(
       LastName: parsedName.last,
     };
   };
-  const existingContact = chooseBestContactRecord(records);
+  let existingContact = await contactApi.getFields(
+    `Givebutter_Contact_ID__c/${givebutterContactId}`,
+    fields,
+  );
+  if (!existingContact) {
+    const clauses = [
+      soql`Givebutter_Contact_ID__c = ${givebutterContactId}`,
+      ...(email ? [soql`Email = ${email}`] : []),
+      parsedName.last && parsedName.first
+        ? soql`(FirstName LIKE ${parsedName.first + "%"} AND LastName = ${
+            parsedName.last
+          })`
+        : soql`Name = ${parsedName.original}`,
+      ...(phone ? [soql`Phone = ${phone}`] : []),
+    ];
+    const { records } = await sQuery<ContactSearchResult>(
+      client,
+      `SELECT Id, AccountId, Email, Phone, FirstName, LastName, Donor__c, Givebutter_Contact_ID__c FROM Contact WHERE ${clauses.join(
+        " OR ",
+      )}`,
+    );
+    const chooseBestContactRecord = (
+      records: ContactSearchResult[],
+    ): ContactSearchResult | null => {
+      let bestRecord = null;
+      function rankRecord(record: ContactSearchResult | null): number {
+        if (!record) {
+          return -1;
+        } else if (
+          givebutterContactId &&
+          record.Givebutter_Contact_ID__c === givebutterContactId
+        ) {
+          return 3;
+        } else if (email && record.Email === email) {
+          return 2;
+        } else if (record.Phone === phone) {
+          return 1;
+        }
+        return 0;
+      }
+      // First record with Email or Phone match.
+      for (const record of records) {
+        if (rankRecord(record) > rankRecord(bestRecord)) {
+          bestRecord = record;
+        }
+      }
+      return bestRecord;
+    };
+    existingContact = chooseBestContactRecord(records);
+  }
   if (existingContact) {
     const contactId = existingContact.Id;
     if (!existingContact.AccountId) {
@@ -248,7 +268,6 @@ export async function createOrFetchContactFromGivebutterTransaction(
     };
   } else {
     const { address } = transaction;
-    const contactApi = sObject(client, "contact");
     const res = await contactApi.create({
       ...nameFields(),
       ...Object.fromEntries(
