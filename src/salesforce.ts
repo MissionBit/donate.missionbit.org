@@ -217,6 +217,7 @@ export interface Contact {
   Id: string;
   AccountId?: string;
   Stripe_Customer_ID__c?: string;
+  Givebutter_Contact_ID__c?: string;
   Email?: string;
   FirstName?: string;
   MiddleName?: string;
@@ -268,6 +269,7 @@ export type ContactSearchResult = Pick<
   | "Id"
   | "AccountId"
   | "Stripe_Customer_ID__c"
+  | "Givebutter_Contact_ID__c"
   | "Email"
   | "FirstName"
   | "LastName"
@@ -333,7 +335,7 @@ export async function createOrFetchContactFromCharge(
   ];
   const { records } = await sQuery<ContactSearchResult>(
     client,
-    `SELECT Id, AccountId, Stripe_Customer_ID__c, Email, Phone, FirstName, LastName, Donor__c FROM Contact WHERE ${clauses.join(
+    `SELECT Id, AccountId, Stripe_Customer_ID__c, Givebutter_Contact_ID__c, Email, Phone, FirstName, LastName, Donor__c FROM Contact WHERE ${clauses.join(
       " OR ",
     )}`,
   );

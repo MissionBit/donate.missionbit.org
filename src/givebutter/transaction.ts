@@ -49,7 +49,7 @@ export const SubTransaction = S.Struct({
 export const Transaction = S.Struct({
   id: S.String,
   // Added 2024-06-10
-  number: S.optional(S.NullishOr(S.Union(S.String, S.Number))),
+  number: S.Union(S.String, S.Number),
   campaign_id: S.Number,
   campaign_code: S.String,
   plan_id: S.NullishOr(S.String),
@@ -58,7 +58,7 @@ export const Transaction = S.Struct({
   fund_id: S.NullishOr(S.String),
   fund_code: S.NullishOr(S.String),
   // Added 2024-06-10
-  contact_id: S.optional(S.NullishOr(S.Union(S.String, S.Number))),
+  contact_id: S.Union(S.String, S.Number),
   first_name: S.String,
   last_name: S.String,
   company: S.NullishOr(S.String),

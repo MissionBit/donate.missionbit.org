@@ -16,16 +16,14 @@ import { getSupabaseClient } from "src/getSupabaseClient";
 import { Campaign } from "src/givebutter/campaign";
 import { Plan } from "src/givebutter/plan";
 import { Ticket } from "src/givebutter/ticket";
+import { FormatBlocksOptions } from "../src/FormatBlocksOptions";
+
+function getDashboardContactUrl(contactId: string | number): string {
+  return `https://dashboard.givebutter.com/accounts/119606/contacts/${contactId}`;
+}
 
 function mrkdwn(text: string): MrkdwnElement {
   return { type: "mrkdwn", text };
-}
-
-export interface FormatBlocksOptions {
-  readonly transaction: S.Schema.Type<typeof Transaction>;
-  readonly campaign: S.Schema.Type<typeof Campaign> | null;
-  readonly plan: S.Schema.Type<typeof Plan> | null;
-  readonly tickets: readonly S.Schema.Type<typeof Ticket>[];
 }
 
 const dateTimeFormat = new Intl.DateTimeFormat("en-US", {
@@ -133,7 +131,7 @@ function formatBlocks({
   const headingLines = [
     `*$${txn.amount}* ${
       plan?.frequency ? `${titleCase(plan.frequency)} ` : ""
-    }from ${name}`,
+    }from <${getDashboardContactUrl(txn.contact_id)}|${name}>`,
   ];
   if (isAnonymous) {
     headingLines.push(

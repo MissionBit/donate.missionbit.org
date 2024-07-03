@@ -87,6 +87,10 @@ describe("Webhook parse", () => {
       id: "ca5fbf41-31cf-4227-b511-7897c334ae59",
       data: {
         id: "QiN7blzUhiwXBVBr",
+        // added 2024-07-02
+        contact_id: 1234,
+        number: 1234,
+        // end added 2024-07-02
         fee: 0.61,
         email: "bob@example.com",
         phone: "+14155551212",
