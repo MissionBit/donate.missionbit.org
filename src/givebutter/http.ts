@@ -1,6 +1,10 @@
 import * as S from "@effect/schema/Schema";
-import * as Http from "@effect/platform/HttpClient";
-import * as Headers from "@effect/platform/Http/Headers";
+import {
+  HttpClient,
+  HttpClientRequest,
+  HttpClientResponse,
+  Headers,
+} from "@effect/platform";
 import {
   Chunk,
   Effect,
@@ -24,9 +28,9 @@ export function giveButterGet<T>(url: string, schema: S.Schema<T>) {
   return Effect.gen(function* (_) {
     const limiter = yield* ApiLimiter;
     return yield* limiter(
-      Http.request.get(url).pipe(
-        Http.request.setHeaders(givebutterAuth()),
-        Http.client.retry(Http.client.fetchOk, retrySchedule),
+      HttpClientRequest.get(url).pipe(
+        HttpClientRequest.setHeaders(givebutterAuth()),
+        HttpClient.retry(HttpClient.fetchOk, retrySchedule),
         Effect.tap((response) =>
           Effect.gen(function* (_) {
             const limit = yield* Headers.get(
@@ -40,7 +44,7 @@ export function giveButterGet<T>(url: string, schema: S.Schema<T>) {
             yield* Console.log(`LIMIT: ${remaining}/${limit}`);
           }),
         ),
-        Effect.andThen(Http.response.schemaBodyJson(schema)),
+        Effect.andThen(HttpClientResponse.schemaBodyJson(schema)),
       ),
     );
   });

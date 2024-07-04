@@ -7,7 +7,7 @@ import { getContactsUrl } from "src/givebutter/contact";
 import { getPlansUrl } from "src/givebutter/plan";
 import { getTransactionsUrl } from "src/givebutter/transaction";
 import { getTicketsUrl } from "src/givebutter/ticket";
-import { HttpClientError } from "@effect/platform/Http/ClientError";
+import { HttpClientError } from "@effect/platform";
 import { ParseError } from "@effect/schema/ParseResult";
 import { getMembersUrl, Member } from "src/givebutter/member";
 
@@ -117,7 +117,7 @@ function upsert<T extends GivebutterObj>(
   pair: readonly [firstUrl: string, schema: S.Schema<T>],
 ): Effect.Effect<
   void,
-  HttpClientError | ParseError | Error,
+  HttpClientError.ResponseError | ParseError | Error,
   ApiLimiter | Scope.Scope
 > {
   return streamGivebutterPages(...pair).pipe(
@@ -148,7 +148,7 @@ function upsertMembers(
   campaignId: string | number,
 ): Effect.Effect<
   void,
-  HttpClientError | ParseError | Error,
+  HttpClientError.ResponseError | ParseError | Error,
   ApiLimiter | Scope.Scope
 > {
   return streamMemberPages(campaignId).pipe(
