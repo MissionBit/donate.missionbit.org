@@ -1,10 +1,12 @@
 import * as S from "@effect/schema/Schema";
+import * as AST from "@effect/schema/AST";
+import { Option } from "effect";
 
 export const PageLink = S.Struct({
   url: S.optional(S.NullishOr(S.String)),
   label: S.String,
   active: S.Boolean,
-});
+}).annotations({ identifier: "PageLink" });
 
 export const PaginatedResponse = <T>(T: S.Schema<T>) =>
   S.Struct({
@@ -26,4 +28,6 @@ export const PaginatedResponse = <T>(T: S.Schema<T>) =>
       total: S.Number,
       unfiltered_total: S.optional(S.Number),
     }),
+  }).annotations({
+    identifier: `PaginatedResponse<${AST.getIdentifierAnnotation(T.ast).pipe(Option.getOrElse(() => "unknown"))}>`,
   });

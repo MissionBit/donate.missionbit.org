@@ -7,7 +7,7 @@ export const GivingSpace = S.Struct({
   name: S.String,
   amount: S.Number,
   message: S.NullishOr(S.String),
-});
+}).annotations({ identifier: "GivingSpace" });
 
 export const LineItemDonation = S.Struct({
   type: S.Literal("donation"),
@@ -17,7 +17,7 @@ export const LineItemDonation = S.Struct({
   price: S.Number,
   discount: S.Number,
   total: S.Number,
-});
+}).annotations({ identifier: "LineItemDonation" });
 
 export const LineItemTicket = S.Struct({
   type: S.Literal("item"),
@@ -27,9 +27,11 @@ export const LineItemTicket = S.Struct({
   price: S.Number,
   discount: S.Number,
   total: S.Number,
-});
+}).annotations({ identifier: "LineItemTicket" });
 
-export const LineItem = S.Union(LineItemDonation, LineItemTicket);
+export const LineItem = S.Union(LineItemDonation, LineItemTicket).annotations({
+  identifier: "LineItem",
+});
 
 export const SubTransaction = S.Struct({
   id: S.String,
@@ -44,7 +46,7 @@ export const SubTransaction = S.Struct({
   refunded: S.Boolean,
   refunded_at: S.optional(S.NullishOr(S.String)),
   line_items: S.Array(LineItem),
-});
+}).annotations({ identifier: "SubTransaction" });
 
 export const Transaction = S.Struct({
   id: S.String,
@@ -115,7 +117,7 @@ export const Transaction = S.Struct({
   check_deposited_at: S.optional(S.NullishOr(S.String)),
   // Added 2024-06-10
   attribution_data: S.optional(S.NullishOr(S.Unknown)),
-});
+}).annotations({ identifier: "Transaction" });
 
 export const GetTransactionsResponse = PaginatedResponse(Transaction);
 

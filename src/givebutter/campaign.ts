@@ -16,20 +16,22 @@ export const CampaignEvent = S.Struct({
   livestream: S.NullishOr(S.String),
   livestream_start_at: S.NullishOr(S.String),
   livestream_end_at: S.NullishOr(S.String),
-});
+}).annotations({ identifier: "CampaignEvent" });
 
 export const CoverImage = S.Struct({
   url: S.String,
   type: S.Literal("image"),
   source: S.Literal("upload"),
-});
+}).annotations({ identifier: "CoverImage" });
 export const CoverVideo = S.Struct({
   url: S.String,
   type: S.Literal("video"),
   source: S.Literal("youtube"),
   embed_url: S.String,
+}).annotations({ identifier: "CoverVideo" });
+export const Cover = S.Union(CoverImage, CoverVideo).annotations({
+  identifier: "Cover",
 });
-export const Cover = S.Union(CoverImage, CoverVideo);
 
 export const Campaign = S.Struct({
   id: S.Number,
@@ -51,7 +53,7 @@ export const Campaign = S.Struct({
   updated_at: S.String,
   account_id: S.String,
   event: S.optional(S.NullishOr(CampaignEvent)),
-});
+}).annotations({ identifier: "Campaign" });
 
 export function getCampaignsUrl(
   scope: "benefiting" | "chapters" | "all" | null = "all",

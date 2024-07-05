@@ -5,12 +5,12 @@ import { pipe } from "effect";
 export const Phone = S.Struct({
   type: S.Literal("work", "home", "cell"),
   value: S.String,
-});
+}).annotations({ identifier: "Phone" });
 
 export const Email = S.Struct({
   type: S.Literal("personal", "work"),
   value: S.String,
-});
+}).annotations({ identifier: "Email" });
 
 export const BaseAddress = S.Struct({
   address_1: S.NullishOr(S.String),
@@ -19,7 +19,7 @@ export const BaseAddress = S.Struct({
   state: S.NullishOr(S.String),
   zipcode: S.NullishOr(S.String),
   country: S.NullishOr(S.String),
-});
+}).annotations({ identifier: "BaseAddress" });
 
 export const Address = pipe(
   BaseAddress,
@@ -31,7 +31,7 @@ export const Address = pipe(
       updated_at: S.String,
     }),
   ),
-);
+).annotations({ identifier: "Address" });
 
 export const Contact = S.Struct({
   id: S.Number,
@@ -58,7 +58,7 @@ export const Contact = S.Struct({
   stats: S.Struct({
     total_contributions: S.Number,
     recurring_contributions: S.Number,
-  }),
+  }).annotations({ identifier: "Stats" }),
   tags: S.Array(S.String),
   custom_fields: S.Array(S.Unknown),
   external_ids: S.Array(S.Unknown),
@@ -68,7 +68,7 @@ export const Contact = S.Struct({
   is_address_subscribed: S.Boolean,
   created_at: S.String,
   updated_at: S.String,
-});
+}).annotations({ identifier: "Contact" });
 
 export const GetContactsResponse = PaginatedResponse(Contact);
 

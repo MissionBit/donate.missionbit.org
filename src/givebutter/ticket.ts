@@ -16,7 +16,7 @@ export const Ticket = S.Struct({
   pdf: S.String,
   checked_in_at: S.NullishOr(S.String),
   created_at: S.String,
-});
+}).annotations({ identifier: "Ticket" });
 
 export const TicketsResponse = PaginatedResponse(Ticket);
 

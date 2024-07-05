@@ -1,4 +1,4 @@
-import { Effect, Scope, Stream } from "effect";
+import { Effect, Option, Scope, Stream } from "effect";
 import * as S from "@effect/schema/Schema";
 import { getSupabaseClient } from "src/getSupabaseClient";
 import { getCampaignsUrl } from "src/givebutter/campaign";
@@ -10,6 +10,17 @@ import { getTicketsUrl } from "src/givebutter/ticket";
 import { HttpClientError } from "@effect/platform";
 import { ParseError } from "@effect/schema/ParseResult";
 import { getMembersUrl, Member } from "src/givebutter/member";
+import { AST } from "@effect/schema";
+import { NodeSdk } from "@effect/opentelemetry";
+import {
+  ConsoleSpanExporter,
+  BatchSpanProcessor,
+} from "@opentelemetry/sdk-trace-base";
+
+const NodeSdkLive = NodeSdk.layer(() => ({
+  resource: { serviceName: "example" },
+  spanProcessor: new BatchSpanProcessor(new ConsoleSpanExporter()),
+}));
 
 type GivebutterObj = Readonly<{
   id: string | number;
@@ -141,6 +152,9 @@ function upsert<T extends GivebutterObj>(
       }),
     ),
     Effect.andThen(markDeleted(urlPrefix(pair[0]))),
+    Effect.withSpan(
+      `upsert<${AST.getIdentifierAnnotation(pair[1].ast).pipe(Option.getOrElse(() => "unknown"))}>`,
+    ),
   );
 }
 
@@ -171,6 +185,7 @@ function upsertMembers(
       }),
     ),
     Effect.andThen(markDeleted(urlPrefix(getMembersUrl(campaignId)[0]))),
+    Effect.withSpan("upsertMembers"),
   );
 }
 
@@ -191,7 +206,10 @@ function upsertCampaignMembers() {
       return data.map((row) => row.id.slice(prefixLength));
     },
     catch: (unknown) => new Error(`something went wrong ${unknown}`),
-  }).pipe(Effect.flatMap((ids) => Effect.all(ids.map(upsertMembers))));
+  }).pipe(
+    Effect.flatMap((ids) => Effect.all(ids.map(upsertMembers))),
+    Effect.withSpan("upsertCampaignMembers"),
+  );
 }
 
 async function main() {
@@ -204,7 +222,7 @@ async function main() {
       upsert(getTicketsUrl()),
       upsertCampaignMembers(),
     ]),
-  ).pipe(Effect.provide(ApiLimiter.Live));
+  ).pipe(Effect.provide(ApiLimiter.Live), Effect.provide(NodeSdkLive));
   await Effect.runPromise(allEffects);
 }
 

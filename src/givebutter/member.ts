@@ -14,7 +14,7 @@ export const Member = S.Struct({
   donors: S.Number,
   url: S.String,
   items: S.Number,
-});
+}).annotations({ identifier: "Member" });
 
 export const GetMembersResponse = PaginatedResponse(Member);
 

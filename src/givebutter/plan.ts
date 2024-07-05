@@ -15,7 +15,7 @@ export const Plan = S.Struct({
   created_at: S.String,
   start_at: S.String,
   next_bill_date: S.String,
-});
+}).annotations({ identifier: "Plan" });
 
 export const GetPlansResponse = PaginatedResponse(Plan);
 

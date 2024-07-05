@@ -1,15 +1,23 @@
 import * as S from "@effect/schema/Schema";
+import * as AST from "@effect/schema/AST";
 import { Campaign } from "./campaign";
 import { Ticket } from "./ticket";
 import { Transaction } from "./transaction";
 import { Contact } from "./contact";
+import { Option } from "effect";
 
 function makeWebhook<
   Event extends string,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Data extends S.Schema<any, any>,
 >(event: Event, data: Data) {
-  return S.Struct({ event: S.Literal(event), data, id: S.optional(S.String) });
+  return S.Struct({
+    event: S.Literal(event),
+    data,
+    id: S.optional(S.String),
+  }).annotations({
+    identifier: `Webhook<${event}, ${AST.getIdentifierAnnotation(data.ast).pipe(Option.getOrElse(() => "unknown"))}>`,
+  });
 }
 
 export const CampaignCreated = makeWebhook("campaign.created", Campaign);

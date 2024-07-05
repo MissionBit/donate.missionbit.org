@@ -24,48 +24,33 @@ const retrySchedule = Schedule.intersect(
   Schedule.exponential("10 millis"),
 );
 
+const logResponse =
+  (url: string) => (response: HttpClientResponse.HttpClientResponse) =>
+    Effect.gen(function* (_) {
+      const limit = yield* Headers.get(response.headers, "x-ratelimit-limit");
+      const remaining = yield* Headers.get(
+        response.headers,
+        "x-ratelimit-remaining",
+      );
+      yield* Console.log(
+        `STATUS: ${response.status} LIMIT: ${remaining}/${limit} ${url}`,
+      );
+    });
+
 export function giveButterGet<T>(url: string, schema: S.Schema<T>) {
   return Effect.gen(function* (_) {
     const limiter = yield* ApiLimiter;
     return yield* limiter(
       HttpClientRequest.get(url).pipe(
         HttpClientRequest.setHeaders(givebutterAuth()),
-        HttpClient.fetchOk.pipe(
-          HttpClient.tap((response) =>
-            Effect.gen(function* (_) {
-              const limit = yield* Headers.get(
-                response.headers,
-                "x-ratelimit-limit",
-              );
-              const remaining = yield* Headers.get(
-                response.headers,
-                "x-ratelimit-remaining",
-              );
-              yield* Console.log(
-                `STATUS: ${response.status} LIMIT: ${remaining}/${limit} ${url}`,
-              );
-            }),
-          ),
-          HttpClient.transformResponse(
-            Effect.tapErrorTag("ResponseError", ({ response }) =>
-              Effect.gen(function* (_) {
-                const limit = yield* Headers.get(
-                  response.headers,
-                  "x-ratelimit-limit",
-                );
-                const remaining = yield* Headers.get(
-                  response.headers,
-                  "x-ratelimit-remaining",
-                );
-                yield* Console.log(
-                  `STATUS: ${response.status} LIMIT: ${remaining}/${limit} ${url}`,
-                );
-              }),
-            ),
-          ),
-          HttpClient.retry(retrySchedule),
+        HttpClient.fetchOk,
+        Effect.tap(logResponse(url)),
+        Effect.tapErrorTag("ResponseError", ({ response }) =>
+          logResponse(url)(response),
         ),
+        Effect.retry(retrySchedule),
         Effect.andThen(HttpClientResponse.schemaBodyJson(schema)),
+        Effect.withSpan("giveButterGet", { attributes: { url } }),
       ),
     );
   });
