@@ -20,8 +20,8 @@ import { givebutterAuth } from "./auth";
 import { PaginatedResponse } from "./pagination";
 
 const retrySchedule = Schedule.intersect(
-  Schedule.recurs(3),
-  Schedule.exponential("10 millis"),
+  Schedule.recurs(5),
+  Schedule.exponential("500 millis"),
 );
 
 const logResponse =
