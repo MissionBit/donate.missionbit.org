@@ -30,19 +30,24 @@ export function giveButterGet<T>(url: string, schema: S.Schema<T>) {
     return yield* limiter(
       HttpClientRequest.get(url).pipe(
         HttpClientRequest.setHeaders(givebutterAuth()),
-        HttpClient.retry(HttpClient.fetchOk, retrySchedule),
-        Effect.tap((response) =>
-          Effect.gen(function* (_) {
-            const limit = yield* Headers.get(
-              response.headers,
-              "x-ratelimit-limit",
-            );
-            const remaining = yield* Headers.get(
-              response.headers,
-              "x-ratelimit-remaining",
-            );
-            yield* Console.log(`LIMIT: ${remaining}/${limit}`);
-          }),
+        HttpClient.fetch.pipe(
+          HttpClient.tap((response) =>
+            Effect.gen(function* (_) {
+              const limit = yield* Headers.get(
+                response.headers,
+                "x-ratelimit-limit",
+              );
+              const remaining = yield* Headers.get(
+                response.headers,
+                "x-ratelimit-remaining",
+              );
+              yield* Console.log(
+                `STATUS: ${response.status} LIMIT: ${remaining}/${limit} ${url}`,
+              );
+            }),
+          ),
+          HttpClient.filterStatusOk,
+          HttpClient.retry(retrySchedule),
         ),
         Effect.andThen(HttpClientResponse.schemaBodyJson(schema)),
       ),
