@@ -219,3 +219,5 @@ SENDGRID_API_KEY=REDACTED
 ```bash
 npx @salesforce/cli login org --instance-url=https://missionbit--stripedev.sandbox.my.salesforce.com --set-default
 ```
+
+TODO - update salesforce notes
