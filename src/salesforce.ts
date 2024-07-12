@@ -30,6 +30,9 @@ export interface SalesforceClient {
   readonly token: OAuthToken;
   readonly apiVersion: string;
   readonly req: (path: string, options?: JSONRequestInit) => Promise<Response>;
+  readonly recordTypeIds: {
+    readonly Donation: string;
+  };
 }
 
 export interface SObjectResponse {
@@ -122,6 +125,7 @@ export function sObject<SObject extends keyof Schema>(
 export const client = ({
   token,
   apiVersion,
+  recordTypeIds,
 }: Omit<SalesforceClient, "req">): SalesforceClient => {
   const req = async (
     path: string,
@@ -137,11 +141,11 @@ export const client = ({
         ...(options?.body ? { "Content-Type": "application/json" } : {}),
       },
     });
-  return { token, apiVersion, req } as const;
+  return { token, apiVersion, req, recordTypeIds } as const;
 };
 
 export async function login(): Promise<SalesforceClient> {
-  const apiVersion = "v56.0";
+  const apiVersion = "v61.0";
   const instanceUrl: string = requireEnv("SALESFORCE_INSTANCE_URL");
   const url = `${instanceUrl}/services/oauth2/token`;
   const body = new URLSearchParams(
@@ -151,6 +155,9 @@ export async function login(): Promise<SalesforceClient> {
       client_secret: requireEnv("SALESFORCE_CLIENT_SECRET"),
     }),
   ).toString();
+  const recordTypeIds: SalesforceClient["recordTypeIds"] = {
+    Donation: requireEnv("SALESFORCE_RECORD_TYPE_ID_DONATION"),
+  };
   const res = await fetch(url, {
     body,
     method: "POST",
@@ -169,7 +176,7 @@ export async function login(): Promise<SalesforceClient> {
       )}`,
     );
   }
-  return client({ token: data, apiVersion });
+  return client({ token: data, recordTypeIds, apiVersion });
 }
 
 export function soqlQuote(value: string): string {
@@ -236,7 +243,7 @@ export interface Contact {
 
 export interface Opportunity {
   Id: string;
-  Type: string; // "Donation"
+  RecordTypeId: string; // "SALESFORCE_RECORD_TYPE_ID_DONATION"
   Name: string; // "Donation #$donationId"
   ContactId: Contact["Id"];
   Amount: string;
@@ -502,7 +509,10 @@ export async function createOrFetchOpportunityFromCharge(
     }
     return;
   }
-  const contact = await createOrFetchContactFromCharge(client, charge);
+  const { AccountId, ContactId } = await createOrFetchContactFromCharge(
+    client,
+    charge,
+  );
   const getRecurringDetails = async () => {
     if (!subscription || subscription.items.data.length !== 1) {
       return {};
@@ -528,7 +538,7 @@ export async function createOrFetchOpportunityFromCharge(
         subscription.id
       }${extraNameInfo}`,
       Stripe_Subscription_ID__c: subscription.id,
-      npe03__Contact__c: contact.ContactId,
+      npe03__Contact__c: ContactId,
       npe03__Amount__c: (monthlyAmount / 100).toFixed(2),
       npe03__Installment_Period__c: "Monthly",
       npe03__Open_Ended_Status__c: "Open",
@@ -541,9 +551,10 @@ export async function createOrFetchOpportunityFromCharge(
     return { npe03__Recurring_Donation__c: res.id };
   };
   const res = await opportunityApi.create({
-    ...contact,
     ...(await getRecurringDetails()),
-    Type: "Donation",
+    AccountId,
+    ContactId,
+    RecordTypeId: client.recordTypeIds.Donation,
     StageName: stageName,
     Name: opportunityName,
     Amount: (charge.amount / 100).toFixed(2),

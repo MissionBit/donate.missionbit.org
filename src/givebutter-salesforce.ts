@@ -74,10 +74,8 @@ export async function createOrFetchOpportunityFromGivebutterTransaction(
   ]
     .filter(Boolean)
     .join(" ");
-  const contact = await createOrFetchContactFromGivebutterTransaction(
-    client,
-    options,
-  );
+  const { ContactId, AccountId } =
+    await createOrFetchContactFromGivebutterTransaction(client, options);
   const existing = await opportunityApi.getFields(
     `Givebutter_Transaction_ID__c/${transaction.id}`,
     ["Id", "Name", "StageName"],
@@ -107,9 +105,10 @@ export async function createOrFetchOpportunityFromGivebutterTransaction(
     return {};
   };
   const opportunity = await opportunityApi.create({
-    ...contact,
+    RecordTypeId: client.recordTypeIds.Donation,
+    ContactId,
+    AccountId,
     ...(await getRecurringDetails()),
-    Type: "Donation",
     StageName: stageName,
     Name: opportunityName,
     Amount: transaction.amount.toFixed(2),
@@ -122,7 +121,7 @@ export async function createOrFetchOpportunityFromGivebutterTransaction(
     `Created Opportunity ${opportunity.id} for Transaction ${transaction.id}`,
   );
 
-  return { type: "created", contact, opportunity };
+  return { type: "created", contact: { ContactId, AccountId }, opportunity };
 }
 
 const transactionName = ({
