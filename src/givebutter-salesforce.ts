@@ -292,6 +292,7 @@ export async function createOrFetchContactFromGivebutterTransaction(
       ...(email ? { Email: email } : {}),
       Donor__c: true,
       Givebutter_Contact_ID__c: givebutterContactId,
+      RecordTypeId: client.recordTypeIds.General,
     });
     const fields = await contactApi.getFields(res.id, ["Id", "AccountId"]);
     const AccountId = fields?.AccountId;

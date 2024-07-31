@@ -32,6 +32,7 @@ export interface SalesforceClient {
   readonly req: (path: string, options?: JSONRequestInit) => Promise<Response>;
   readonly recordTypeIds: {
     readonly Donation: string;
+    readonly General: string;
   };
 }
 
@@ -157,6 +158,7 @@ export async function login(): Promise<SalesforceClient> {
   ).toString();
   const recordTypeIds: SalesforceClient["recordTypeIds"] = {
     Donation: requireEnv("SALESFORCE_RECORD_TYPE_ID_DONATION"),
+    General: requireEnv("SALESFORCE_RECORD_TYPE_ID_GENERAL"),
   };
   const res = await fetch(url, {
     body,
@@ -222,6 +224,7 @@ export interface Schema {
 
 export interface Contact {
   Id: string;
+  RecordTypeId?: string; // "SALESFORCE_RECORD_TYPE_ID_GENERAL"
   AccountId?: string;
   Stripe_Customer_ID__c?: string;
   Givebutter_Contact_ID__c?: string;
@@ -434,6 +437,7 @@ export async function createOrFetchContactFromCharge(
       Email: email,
       Stripe_Customer_ID__c: stripeCustomerId,
       Donor__c: true,
+      RecordTypeId: client.recordTypeIds.General,
     });
     const fields = await contactApi.getFields(res.id, ["Id", "AccountId"]);
     const AccountId = fields?.AccountId;
