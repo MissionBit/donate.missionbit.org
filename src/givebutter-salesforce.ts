@@ -1,6 +1,7 @@
 import * as S from "@effect/schema/Schema";
 import nameParser from "another-name-parser";
 import {
+  Campaign,
   Contact,
   ContactResult,
   ContactSearchResult,
@@ -14,6 +15,10 @@ import { FormatBlocksOptions } from "./FormatBlocksOptions";
 import { Transaction } from "src/givebutter/transaction";
 import { dollarFormatter } from "src/dollars";
 import { ShortDateFormat } from "src/dates";
+
+type Entries<T> = {
+  [K in keyof T]: [K, T[K]];
+}[keyof T][];
 
 export type GivebutterTransactionOptions = FormatBlocksOptions;
 
@@ -74,23 +79,33 @@ export async function createOrFetchOpportunityFromGivebutterTransaction(
   ]
     .filter(Boolean)
     .join(" ");
+  const campaignRes = await createOrFetchCampaignFromGivebutterTransaction(
+    client,
+    options,
+  );
+  const CampaignId = campaignRes?.CampaignId || null;
   const { ContactId, AccountId } =
     await createOrFetchContactFromGivebutterTransaction(client, options);
   const existing = await opportunityApi.getFields(
     `Givebutter_Transaction_ID__c/${transaction.id}`,
-    ["Id", "Name", "StageName"],
+    ["Id", "Name", "StageName", "CampaignId"],
   );
   if (existing) {
     console.log(
       `Existing Opportunity record found ${existing.Id} for transaction ${transaction.id}`,
     );
-    if (existing.Name !== opportunityName || existing.StageName !== stageName) {
+    if (
+      existing.Name !== opportunityName ||
+      existing.StageName !== stageName ||
+      existing.CampaignId !== CampaignId
+    ) {
       console.log(
-        `Updating Opportunity ${existing.Id} with new name ${opportunityName} and stage ${stageName}`,
+        `Updating Opportunity ${existing.Id} with new name ${opportunityName} and stage ${stageName} and campaign ${CampaignId}`,
       );
       await opportunityApi.update(existing.Id, {
         Name: opportunityName,
         StageName: stageName,
+        CampaignId,
       });
       return { type: "update-existing", OpportunityId: existing.Id };
     } else {
@@ -116,6 +131,7 @@ export async function createOrFetchOpportunityFromGivebutterTransaction(
     CloseDate: closeDate,
     Givebutter_Transaction_ID__c: transaction.id,
     Form_of_Payment__c: "Givebutter",
+    CampaignId,
   });
   console.log(
     `Created Opportunity ${opportunity.id} for Transaction ${transaction.id}`,
@@ -302,4 +318,105 @@ export async function createOrFetchContactFromGivebutterTransaction(
     console.log(`Created contact ${res.id} for ${customerInfo}`);
     return { type: "create", ContactId: res.id, AccountId };
   }
+}
+
+const cachedCampaigns = new WeakMap<
+  SalesforceClient,
+  Map<string, Promise<CampaignResult>>
+>();
+function getCampaignCache(client: SalesforceClient) {
+  let m = cachedCampaigns.get(client);
+  if (!m) {
+    m = new Map();
+    cachedCampaigns.set(client, m);
+  }
+  return m;
+}
+
+export interface CampaignResult {
+  type: "create" | "read" | "update";
+  CampaignId: Campaign["Id"];
+}
+
+async function withCampaignCache(
+  client: SalesforceClient,
+  campaign: GivebutterTransactionOptions["campaign"],
+  fn: (
+    campaign: NonNullable<GivebutterTransactionOptions["campaign"]>,
+  ) => Promise<CampaignResult>,
+): Promise<null | CampaignResult> {
+  const cache = getCampaignCache(client);
+  if (campaign === null) {
+    return null;
+  }
+  const givebutterCampaignId = String(campaign.id);
+  const cachedId = cache.get(givebutterCampaignId);
+  if (cachedId !== undefined) {
+    return cachedId;
+  }
+  const promise = fn(campaign);
+  cache.set(
+    givebutterCampaignId,
+    promise.then(({ CampaignId }) => ({ type: "read", CampaignId })),
+  );
+  return promise;
+}
+
+export async function createOrFetchCampaignFromGivebutterTransaction(
+  client: SalesforceClient,
+  options: GivebutterTransactionOptions,
+): Promise<CampaignResult | null> {
+  return withCampaignCache(
+    client,
+    options.campaign,
+    async (campaign): Promise<CampaignResult> => {
+      const givebutterCampaignId = String(campaign.id);
+      const campaignApi = sObject(client, "campaign");
+      const fields = [
+        "Id",
+        "Name",
+        "Type",
+        "RecordTypeId",
+        "Description",
+        "Status",
+        "StartDate",
+        "EndDate",
+        "Givebutter_Campaign_ID__c",
+      ] as const;
+      const existingCampaign = await campaignApi.getFields(
+        `Givebutter_Campaign_ID__c/${givebutterCampaignId}`,
+        fields,
+      );
+      const campaignData = {
+        Name: campaign.title,
+        Type: campaign.type === "event" ? "Event" : "Fundraising",
+        Description: campaign.description || null,
+        Givebutter_Campaign_ID__c: givebutterCampaignId,
+        RecordTypeId: client.recordTypeIds.Default,
+        Status: "Planned",
+        StartDate: null,
+        EndDate: null,
+      } satisfies Partial<Omit<Campaign, "Id">>;
+      if (existingCampaign) {
+        const campaignId = existingCampaign.Id;
+        const updates = (
+          Object.entries(campaignData) as Entries<typeof campaignData>
+        ).filter(([k, v]) => v !== existingCampaign[k]);
+        const type = updates.length > 0 ? "update" : "read";
+        if (type === "update") {
+          await campaignApi.update(campaignId, Object.fromEntries(updates));
+        }
+        console.log(
+          `Found existing ${type} campaign ${campaignId} for ${givebutterCampaignId}`,
+        );
+        return {
+          type,
+          CampaignId: campaignId,
+        };
+      }
+      const res = await campaignApi.create(campaignData);
+      console.log(`Created new campaign ${res.id} for ${givebutterCampaignId}`);
+      return { type: "create", CampaignId: res.id };
+    },
+  );
 }
