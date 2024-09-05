@@ -33,6 +33,7 @@ export interface SalesforceClient {
   readonly recordTypeIds: {
     readonly Donation: string;
     readonly General: string;
+    readonly Default: string;
   };
 }
 
@@ -159,6 +160,7 @@ export async function login(): Promise<SalesforceClient> {
   const recordTypeIds: SalesforceClient["recordTypeIds"] = {
     Donation: requireEnv("SALESFORCE_RECORD_TYPE_ID_DONATION"),
     General: requireEnv("SALESFORCE_RECORD_TYPE_ID_GENERAL"),
+    Default: requireEnv("SALESFORCE_RECORD_TYPE_ID_DEFAULT"),
   };
   const res = await fetch(url, {
     body,
@@ -217,6 +219,7 @@ export function soql(
 }
 
 export interface Schema {
+  campaign: Campaign;
   contact: Contact;
   opportunity: Opportunity;
   npe03__Recurring_Donation__c: RecurringDonation;
@@ -249,6 +252,7 @@ export interface Opportunity {
   RecordTypeId: string; // "SALESFORCE_RECORD_TYPE_ID_DONATION"
   Name: string; // "Donation #$donationId"
   ContactId: Contact["Id"];
+  CampaignId: Campaign["Id"] | null;
   Amount: string;
   AccountId: NonNullable<Contact["AccountId"]>;
   CloseDate: string; // "2021-01-01"
@@ -259,6 +263,18 @@ export interface Opportunity {
   Form_of_Payment__c?: string;
   Payment_Fees__c?: string;
   Givebutter_Transaction_ID__c?: string;
+}
+
+export interface Campaign {
+  Id: string;
+  Name: string;
+  Type: string; // "Event" | "Fundraising"
+  RecordTypeId: string; // "SALESFORCE_RECORD_TYPE_ID_DEFAULT"
+  Description: string | null;
+  Status: string; // "Planned"
+  StartDate: string | null;
+  EndDate: string | null;
+  Givebutter_Campaign_ID__c: string | null;
 }
 
 export interface RecurringDonation {
@@ -566,6 +582,7 @@ export async function createOrFetchOpportunityFromCharge(
     CloseDate: new Date(charge.created * 1000).toISOString(),
     Stripe_Charge_ID__c: charge.id,
     Form_of_Payment__c: "Stripe",
+    CampaignId: null,
   });
   console.log(`Created Opportunity ${res.id} for Charge ${charge.id}`);
 }
