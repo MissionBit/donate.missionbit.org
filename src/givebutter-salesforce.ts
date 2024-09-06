@@ -362,6 +362,25 @@ async function withCampaignCache(
   return promise;
 }
 
+function parseGivebutterDate(str: string | null | undefined): string | null {
+  const m = /^(\d{4}-\d{2}-\d{2})T/.exec(str ?? "");
+  return m ? m[1] : null;
+}
+
+function currentCampaignStatus(
+  startDate: string | null,
+  endDate: string | null,
+  today: string | null,
+) {
+  if (!today || !startDate || startDate > today) {
+    return "Planned";
+  } else if (endDate && endDate < today) {
+    return "Completed";
+  } else {
+    return "In Progress";
+  }
+}
+
 export async function createOrFetchCampaignFromGivebutterTransaction(
   client: SalesforceClient,
   options: GivebutterTransactionOptions,
@@ -387,15 +406,22 @@ export async function createOrFetchCampaignFromGivebutterTransaction(
         `Givebutter_Campaign_ID__c/${givebutterCampaignId}`,
         fields,
       );
+      const StartDate = parseGivebutterDate(campaign.created_at);
+      const EndDate = parseGivebutterDate(campaign.end_at);
+
       const campaignData = {
         Name: campaign.title,
         Type: campaign.type === "event" ? "Event" : "Fundraising",
         Description: campaign.description || null,
         Givebutter_Campaign_ID__c: givebutterCampaignId,
         RecordTypeId: client.recordTypeIds.Default,
-        Status: "Planned",
-        StartDate: null,
-        EndDate: null,
+        Status: currentCampaignStatus(
+          StartDate,
+          EndDate,
+          parseGivebutterDate(new Date().toISOString()),
+        ),
+        StartDate,
+        EndDate,
       } satisfies Partial<Omit<Campaign, "Id">>;
       if (existingCampaign) {
         const campaignId = existingCampaign.Id;
