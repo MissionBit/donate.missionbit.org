@@ -5,6 +5,8 @@ import {
   Contact,
   ContactResult,
   ContactSearchResult,
+  Opportunity,
+  RecurringDonation,
   SalesforceClient,
   expandState,
   sObject,
@@ -88,8 +90,14 @@ export async function createOrFetchOpportunityFromGivebutterTransaction(
     await createOrFetchContactFromGivebutterTransaction(client, options);
   const existing = await opportunityApi.getFields(
     `Givebutter_Transaction_ID__c/${transaction.id}`,
-    ["Id", "Name", "StageName", "CampaignId"],
+    ["Id", "Name", "StageName", "CampaignId", "npe03__Recurring_Donation__c"],
   );
+  const recurringDetails =
+    await createOrFetchRecurringDonationFromGivebutterTransaction(client, {
+      ...options,
+      opportunity: existing,
+      ContactId,
+    });
   if (existing) {
     console.log(
       `Existing Opportunity record found ${existing.Id} for transaction ${transaction.id}`,
@@ -97,33 +105,30 @@ export async function createOrFetchOpportunityFromGivebutterTransaction(
     if (
       existing.Name !== opportunityName ||
       existing.StageName !== stageName ||
-      existing.CampaignId !== CampaignId
+      existing.CampaignId !== CampaignId ||
+      (existing.npe03__Recurring_Donation__c ?? null) !==
+        (recurringDetails.npe03__Recurring_Donation__c ?? null)
     ) {
       console.log(
-        `Updating Opportunity ${existing.Id} with new name ${opportunityName} and stage ${stageName} and campaign ${CampaignId}`,
+        `Updating Opportunity ${existing.Id} with new name ${opportunityName} and stage ${stageName} and campaign ${CampaignId}${recurringDetails.npe03__Recurring_Donation__c ? ` recurring ${recurringDetails.npe03__Recurring_Donation__c}` : ""}`,
       );
       await opportunityApi.update(existing.Id, {
         Name: opportunityName,
         StageName: stageName,
         CampaignId,
+        ...recurringDetails,
       });
       return { type: "update-existing", OpportunityId: existing.Id };
     } else {
       return { type: "existing", OpportunityId: existing.Id };
     }
   }
-  const getRecurringDetails = async () => {
-    // TODO: implement recurring donations based on plan
-    if (!plan) {
-      return {};
-    }
-    return {};
-  };
+
   const opportunity = await opportunityApi.create({
     RecordTypeId: client.recordTypeIds.Donation,
     ContactId,
     AccountId,
-    ...(await getRecurringDetails()),
+    ...recurringDetails,
     StageName: stageName,
     Name: opportunityName,
     Amount: transaction.amount.toFixed(2),
@@ -154,6 +159,106 @@ const transactionName = ({
         original: `${first} ${last}`,
       }
     : null;
+
+interface GivebutterRecurringDonationOptions
+  extends GivebutterTransactionOptions {
+  opportunity?: Pick<Opportunity, "npe03__Recurring_Donation__c"> | null;
+  ContactId: string;
+}
+
+function planFrequency(
+  plan: NonNullable<GivebutterRecurringDonationOptions["plan"]>,
+): Pick<
+  RecurringDonation,
+  "npe03__Installment_Period__c" | "npsp__InstallmentFrequency__c"
+> {
+  switch (plan.frequency) {
+    case "monthly":
+      return {
+        npsp__InstallmentFrequency__c: 1,
+        npe03__Installment_Period__c: "Monthly",
+      };
+    case "quarterly":
+      return {
+        npsp__InstallmentFrequency__c: 3,
+        npe03__Installment_Period__c: "Monthly",
+      };
+    case "yearly":
+      return {
+        npsp__InstallmentFrequency__c: 1,
+        npe03__Installment_Period__c: "Yearly",
+      };
+  }
+}
+
+function givebutterToISODate(date: string): string {
+  // '2024-07-26 22:04:32' to '2024-07-26T22:04:32Z'
+  return date.replace(/^(\d+-\d+-\d+) (\d+:\d+:\d+)$/, "$1T$2Z");
+}
+
+function planStatus(
+  plan: NonNullable<GivebutterRecurringDonationOptions["plan"]>,
+): Pick<RecurringDonation, "npsp__Status__c" | "npsp__EndDate__c"> {
+  const npsp__EndDate__c =
+    plan.status === "active" ? null : givebutterToISODate(plan.next_bill_date);
+  const npsp__Status__c = {
+    active: "Active",
+    cancelled: "Closed",
+    ended: "Closed",
+    past_due: "Lapsed",
+    paused: "Paused",
+  }[plan.status];
+  return { npsp__Status__c, npsp__EndDate__c };
+}
+
+function planDates(
+  plan: NonNullable<GivebutterRecurringDonationOptions["plan"]>,
+) {
+  const established = givebutterToISODate(plan.start_at);
+  const dayOfMonth = established.match(/^\d+-0?(\d+)-/)?.[1] ?? "1";
+  return {
+    npe03__Date_Established__c: established,
+    npsp__Day_of_Month__c: dayOfMonth,
+  };
+}
+
+export async function createOrFetchRecurringDonationFromGivebutterTransaction(
+  client: SalesforceClient,
+  options: GivebutterRecurringDonationOptions,
+): Promise<Partial<Pick<Opportunity, "npe03__Recurring_Donation__c">>> {
+  let npe03__Recurring_Donation__c =
+    options.opportunity?.npe03__Recurring_Donation__c;
+  if (npe03__Recurring_Donation__c) {
+    // TODO implement updates of existing
+    return { npe03__Recurring_Donation__c };
+  } else if (!options.plan) {
+    return {};
+  }
+  const { plan } = options;
+  const recurringApi = sObject(client, "npe03__Recurring_Donation__c");
+  npe03__Recurring_Donation__c = (
+    await recurringApi.getFields(`Givebutter_Plan_ID__c/${plan.id}`, ["Id"])
+  )?.Id;
+  if (npe03__Recurring_Donation__c) {
+    console.log(
+      `Found existing Recurring Donation ${npe03__Recurring_Donation__c} for plan ${plan.id}`,
+    );
+    // TODO implement updates of existing
+    return { npe03__Recurring_Donation__c };
+  }
+  const res = await recurringApi.create({
+    Name: `Subscription ${dollarFormatter.format(plan.amount)}/mo ${plan.id}`,
+    Givebutter_Plan_ID__c: plan.id,
+    npe03__Contact__c: options.ContactId,
+    npe03__Amount__c: plan.amount.toFixed(2),
+    ...planStatus(plan),
+    ...planFrequency(plan),
+    ...planDates(plan),
+  });
+  console.log(`Created Recurring Donation ${res.id} for plan ${plan.id}`);
+  npe03__Recurring_Donation__c = res.id;
+  return { npe03__Recurring_Donation__c };
+}
 
 export async function createOrFetchContactFromGivebutterTransaction(
   client: SalesforceClient,
