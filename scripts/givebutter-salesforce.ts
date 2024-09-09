@@ -12,20 +12,25 @@ import { parseArgs } from "node:util";
 const { values } = parseArgs({
   options: {
     all: { type: "boolean", default: false, short: "a" },
+    id: { type: "string" },
   },
 });
 
 async function main() {
   const supabase = getSupabaseClient();
-  const { data, error } = await supabase
-    .from(
-      values.all
-        ? "givebutter_transactions"
-        : "givebutter_transactions_pending_salesforce",
-    )
-    .select(
-      "id, created_at, updated_at, data, plan_data, campaign_data, tickets_data",
-    );
+  const q = () => {
+    const r = supabase
+      .from(
+        values.all
+          ? "givebutter_transactions"
+          : "givebutter_transactions_pending_salesforce",
+      )
+      .select(
+        "id, created_at, updated_at, data, plan_data, campaign_data, tickets_data",
+      );
+    return values.id ? r.filter("id", "eq", values.id) : r;
+  };
+  const { data, error } = await q();
   if (error) {
     console.error(error);
     throw error;

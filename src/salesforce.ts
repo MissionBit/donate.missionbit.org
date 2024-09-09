@@ -282,9 +282,20 @@ export interface RecurringDonation {
   Name: string;
   npe03__Contact__c: Contact["Id"];
   npe03__Amount__c: string;
-  npe03__Installment_Period__c: string;
-  npe03__Open_Ended_Status__c: string;
-  npe03__Installments__c: string;
+  npe03__Installment_Period__c:
+    | "Monthly"
+    | "Yearly"
+    | (string & Record<never, never>);
+  npsp__InstallmentFrequency__c: number;
+  npsp__EndDate__c: string | null;
+  npsp__Status__c:
+    | "Active"
+    | "Lapsed"
+    | "Closed"
+    | "Paused"
+    | "Failing"
+    | (string & Record<never, never>);
+  npsp__Day_of_Month__c: string;
   npe03__Date_Established__c: string;
   Stripe_Subscription_ID__c?: string;
   Givebutter_Plan_ID__c?: string;
@@ -553,6 +564,7 @@ export async function createOrFetchOpportunityFromCharge(
       return { npe03__Recurring_Donation__c: existing.Id };
     }
     const monthlyAmount = (item.plan.amount ?? 0) * (item.quantity ?? 1);
+    const established = unixToISODate(subscription.created);
     const res = await recurringApi.create({
       Name: `Subscription ${dollars(monthlyAmount)}/mo ${
         subscription.id
@@ -561,9 +573,11 @@ export async function createOrFetchOpportunityFromCharge(
       npe03__Contact__c: ContactId,
       npe03__Amount__c: (monthlyAmount / 100).toFixed(2),
       npe03__Installment_Period__c: "Monthly",
-      npe03__Open_Ended_Status__c: "Open",
-      npe03__Date_Established__c: unixToISODate(subscription.created),
-      npe03__Installments__c: "1",
+      npsp__Status__c: "Active",
+      npsp__Day_of_Month__c: established.match(/^\d+-0?(\d+)-/)?.[1] ?? "1",
+      npe03__Date_Established__c: established,
+      npsp__InstallmentFrequency__c: 1,
+      npsp__EndDate__c: null,
     });
     console.log(
       `Created Recurring Donation ${res.id} for subscription ${subscription.id}`,
