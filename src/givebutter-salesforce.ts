@@ -19,10 +19,6 @@ import { Transaction } from "src/givebutter/transaction";
 import { dollarFormatter } from "src/dollars";
 import { ShortDateFormat } from "src/dates";
 
-type Entries<T> = {
-  [K in keyof T]: [K, T[K]];
-}[keyof T][];
-
 export type GivebutterTransactionOptions = FormatBlocksOptions;
 
 export interface ExtendedContactResult extends ContactResult {
@@ -243,6 +239,18 @@ function typedEntries<T extends { [k: string]: unknown }>(o: T) {
   }[keyof T & string][];
 }
 
+function planName(
+  plan: NonNullable<GivebutterRecurringDonationOptions["plan"]>,
+): string {
+  const donor = [plan.first_name, plan.last_name].filter(Boolean).join(" ");
+  const freq = { monthly: "mo", quarterly: "qtr", yearly: "yr" }[
+    plan.frequency
+  ];
+  const dateParts = plan.start_at.split(/ /g)[0].split(/-/g);
+  const mmddyyyy = [dateParts[1], dateParts[2], dateParts[0]].join("/");
+  return `${donor} Recurring ${dollarFormatter.format(plan.amount)}/${freq} ${mmddyyyy} ${plan.id}`;
+}
+
 export async function createOrFetchRecurringDonationFromGivebutterTransaction(
   client: SalesforceClient,
   options: GivebutterRecurringDonationOptions & {
@@ -257,7 +265,7 @@ export async function createOrFetchRecurringDonationFromGivebutterTransaction(
     RecurringDonationFields,
   );
   const expected = {
-    Name: `Subscription ${dollarFormatter.format(plan.amount)}/mo ${plan.id}`,
+    Name: planName(plan),
     Givebutter_Plan_ID__c: plan.id,
     npe03__Contact__c: options.ContactId,
     npe03__Amount__c: plan.amount,
@@ -585,9 +593,9 @@ export async function createOrFetchCampaignFromGivebutterTransaction(
       } satisfies Partial<Omit<Campaign, "Id">>;
       if (existingCampaign) {
         const campaignId = existingCampaign.Id;
-        const updates = (
-          Object.entries(campaignData) as Entries<typeof campaignData>
-        ).filter(([k, v]) => v !== existingCampaign[k]);
+        const updates = typedEntries(campaignData).filter(
+          ([k, v]) => v !== existingCampaign[k],
+        );
         const type = updates.length > 0 ? "update" : "read";
         if (type === "update") {
           await campaignApi.update(campaignId, Object.fromEntries(updates));
