@@ -7,6 +7,7 @@ import {
   ContactSearchResult,
   Opportunity,
   RecurringDonation,
+  RecurringDonationFields,
   SalesforceClient,
   expandState,
   sObject,
@@ -92,12 +93,19 @@ export async function createOrFetchOpportunityFromGivebutterTransaction(
     `Givebutter_Transaction_ID__c/${transaction.id}`,
     ["Id", "Name", "StageName", "CampaignId", "npe03__Recurring_Donation__c"],
   );
-  const recurringDetails =
-    await createOrFetchRecurringDonationFromGivebutterTransaction(client, {
+  const recur = await withRecurringDonationCache(
+    client,
+    {
       ...options,
       opportunity: existing,
       ContactId,
-    });
+    },
+    (opts) =>
+      createOrFetchRecurringDonationFromGivebutterTransaction(client, opts),
+  );
+  const recurringDetails = recur
+    ? { npe03__Recurring_Donation__c: recur.npe03__Recurring_Donation__c }
+    : {};
   if (existing) {
     console.log(
       `Existing Opportunity record found ${existing.Id} for transaction ${transaction.id}`,
@@ -107,10 +115,10 @@ export async function createOrFetchOpportunityFromGivebutterTransaction(
       existing.StageName !== stageName ||
       existing.CampaignId !== CampaignId ||
       (existing.npe03__Recurring_Donation__c ?? null) !==
-        (recurringDetails.npe03__Recurring_Donation__c ?? null)
+        (recur?.npe03__Recurring_Donation__c ?? null)
     ) {
       console.log(
-        `Updating Opportunity ${existing.Id} with new name ${opportunityName} and stage ${stageName} and campaign ${CampaignId}${recurringDetails.npe03__Recurring_Donation__c ? ` recurring ${recurringDetails.npe03__Recurring_Donation__c}` : ""}`,
+        `Updating Opportunity ${existing.Id} with new name ${opportunityName} and stage ${stageName} and campaign ${CampaignId}${recur ? ` recurring ${recur.npe03__Recurring_Donation__c}` : ""}`,
       );
       await opportunityApi.update(existing.Id, {
         Name: opportunityName,
@@ -200,7 +208,9 @@ function planStatus(
   plan: NonNullable<GivebutterRecurringDonationOptions["plan"]>,
 ): Pick<RecurringDonation, "npsp__Status__c" | "npsp__EndDate__c"> {
   const npsp__EndDate__c =
-    plan.status === "active" ? null : givebutterToISODate(plan.next_bill_date);
+    plan.status === "active"
+      ? null
+      : givebutterToISODate(plan.next_bill_date).split(/T/)[0];
   const npsp__Status__c = {
     active: "Active",
     cancelled: "Closed",
@@ -214,7 +224,7 @@ function planStatus(
 function planDates(
   plan: NonNullable<GivebutterRecurringDonationOptions["plan"]>,
 ) {
-  const established = givebutterToISODate(plan.start_at);
+  const established = givebutterToISODate(plan.start_at).split(/T/)[0];
   const dayOfMonth = established.match(/^\d+-0?(\d+)-/)?.[1] ?? "1";
   return {
     npe03__Date_Established__c: established,
@@ -222,42 +232,55 @@ function planDates(
   };
 }
 
+interface RecurringDonationResult {
+  type: "create" | "read" | "update";
+  npe03__Recurring_Donation__c: string;
+}
+
+function typedEntries<T extends { [k: string]: unknown }>(o: T) {
+  return Object.entries(o) as {
+    [k in keyof T]: [k, T[k]];
+  }[keyof T & string][];
+}
+
 export async function createOrFetchRecurringDonationFromGivebutterTransaction(
   client: SalesforceClient,
-  options: GivebutterRecurringDonationOptions,
-): Promise<Partial<Pick<Opportunity, "npe03__Recurring_Donation__c">>> {
-  let npe03__Recurring_Donation__c =
-    options.opportunity?.npe03__Recurring_Donation__c;
-  if (npe03__Recurring_Donation__c) {
-    // TODO implement updates of existing
-    return { npe03__Recurring_Donation__c };
-  } else if (!options.plan) {
-    return {};
-  }
+  options: GivebutterRecurringDonationOptions & {
+    plan: NonNullable<GivebutterRecurringDonationOptions["plan"]>;
+  },
+): Promise<RecurringDonationResult> {
   const { plan } = options;
   const recurringApi = sObject(client, "npe03__Recurring_Donation__c");
-  npe03__Recurring_Donation__c = (
-    await recurringApi.getFields(`Givebutter_Plan_ID__c/${plan.id}`, ["Id"])
-  )?.Id;
-  if (npe03__Recurring_Donation__c) {
-    console.log(
-      `Found existing Recurring Donation ${npe03__Recurring_Donation__c} for plan ${plan.id}`,
-    );
-    // TODO implement updates of existing
-    return { npe03__Recurring_Donation__c };
-  }
-  const res = await recurringApi.create({
+  const existing = await recurringApi.getFields(
+    options.opportunity?.npe03__Recurring_Donation__c ??
+      `Givebutter_Plan_ID__c/${plan.id}`,
+    RecurringDonationFields,
+  );
+  const expected = {
     Name: `Subscription ${dollarFormatter.format(plan.amount)}/mo ${plan.id}`,
     Givebutter_Plan_ID__c: plan.id,
     npe03__Contact__c: options.ContactId,
-    npe03__Amount__c: plan.amount.toFixed(2),
+    npe03__Amount__c: plan.amount,
     ...planStatus(plan),
     ...planFrequency(plan),
     ...planDates(plan),
-  });
+  } satisfies Omit<RecurringDonation, "Id">;
+  if (existing) {
+    const updates = typedEntries(expected).filter(
+      ([k]) => existing[k] !== expected[k],
+    );
+    const type = updates.length > 0 ? "update" : "read";
+    if (type === "update") {
+      await recurringApi.update(existing.Id, Object.fromEntries(updates));
+    }
+    console.log(
+      `${type === "update" ? "Updated" : "Foundd"} existing Recurring Donation ${existing.Id} for plan ${plan.id}`,
+    );
+    return { type, npe03__Recurring_Donation__c: existing.Id };
+  }
+  const res = await recurringApi.create(expected);
   console.log(`Created Recurring Donation ${res.id} for plan ${plan.id}`);
-  npe03__Recurring_Donation__c = res.id;
-  return { npe03__Recurring_Donation__c };
+  return { type: "create", npe03__Recurring_Donation__c: res.id };
 }
 
 export async function createOrFetchContactFromGivebutterTransaction(
@@ -425,15 +448,17 @@ export async function createOrFetchContactFromGivebutterTransaction(
   }
 }
 
-const cachedCampaigns = new WeakMap<
-  SalesforceClient,
-  Map<string, Promise<CampaignResult>>
->();
-function getCampaignCache(client: SalesforceClient) {
-  let m = cachedCampaigns.get(client);
+class CachedResults {
+  campaigns = new Map<string, Promise<CampaignResult>>();
+  recurringDonations = new Map<string, Promise<RecurringDonationResult>>();
+}
+const resultCache = new WeakMap<SalesforceClient, CachedResults>();
+
+function getCache(client: SalesforceClient) {
+  let m = resultCache.get(client);
   if (!m) {
-    m = new Map();
-    cachedCampaigns.set(client, m);
+    m = new CachedResults();
+    resultCache.set(client, m);
   }
   return m;
 }
@@ -443,6 +468,36 @@ export interface CampaignResult {
   CampaignId: Campaign["Id"];
 }
 
+async function withRecurringDonationCache(
+  client: SalesforceClient,
+  options: GivebutterRecurringDonationOptions,
+  fn: (
+    options: GivebutterRecurringDonationOptions & {
+      plan: NonNullable<GivebutterRecurringDonationOptions["plan"]>;
+    },
+  ) => Promise<RecurringDonationResult>,
+): Promise<null | RecurringDonationResult> {
+  const { plan } = options;
+  if (!plan) {
+    return null;
+  }
+  const givebutterPlanId = String(plan.id);
+  const cache = getCache(client).recurringDonations;
+  const cacheId = cache.get(givebutterPlanId);
+  if (cacheId !== undefined) {
+    return cacheId;
+  }
+  const promise = fn({ ...options, plan });
+  cache.set(
+    givebutterPlanId,
+    promise.then(({ npe03__Recurring_Donation__c }) => ({
+      type: "read",
+      npe03__Recurring_Donation__c,
+    })),
+  );
+  return promise;
+}
+
 async function withCampaignCache(
   client: SalesforceClient,
   campaign: GivebutterTransactionOptions["campaign"],
@@ -450,11 +505,11 @@ async function withCampaignCache(
     campaign: NonNullable<GivebutterTransactionOptions["campaign"]>,
   ) => Promise<CampaignResult>,
 ): Promise<null | CampaignResult> {
-  const cache = getCampaignCache(client);
   if (campaign === null) {
     return null;
   }
   const givebutterCampaignId = String(campaign.id);
+  const cache = getCache(client).campaigns;
   const cachedId = cache.get(givebutterCampaignId);
   if (cachedId !== undefined) {
     return cachedId;

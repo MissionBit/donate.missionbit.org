@@ -281,7 +281,7 @@ export interface RecurringDonation {
   Id: string;
   Name: string;
   npe03__Contact__c: Contact["Id"];
-  npe03__Amount__c: string;
+  npe03__Amount__c: number;
   npe03__Installment_Period__c:
     | "Monthly"
     | "Yearly"
@@ -300,6 +300,20 @@ export interface RecurringDonation {
   Stripe_Subscription_ID__c?: string;
   Givebutter_Plan_ID__c?: string;
 }
+export const RecurringDonationFields = [
+  "Id",
+  "Name",
+  "npe03__Contact__c",
+  "npe03__Amount__c",
+  "npe03__Installment_Period__c",
+  "npsp__InstallmentFrequency__c",
+  "npsp__EndDate__c",
+  "npsp__Status__c",
+  "npsp__Day_of_Month__c",
+  "npe03__Date_Established__c",
+  "Stripe_Subscription_ID__c",
+  "Givebutter_Plan_ID__c",
+] as const satisfies (keyof RecurringDonation)[];
 
 export type ContactSearchResult = Pick<
   Contact,
@@ -571,7 +585,7 @@ export async function createOrFetchOpportunityFromCharge(
       }${extraNameInfo}`,
       Stripe_Subscription_ID__c: subscription.id,
       npe03__Contact__c: ContactId,
-      npe03__Amount__c: (monthlyAmount / 100).toFixed(2),
+      npe03__Amount__c: monthlyAmount / 100,
       npe03__Installment_Period__c: "Monthly",
       npsp__Status__c: "Active",
       npsp__Day_of_Month__c: established.match(/^\d+-0?(\d+)-/)?.[1] ?? "1",
