@@ -3,14 +3,14 @@ import {
   fetchInvoiceWithPaymentIntent,
   fetchSessionPaymentIntent,
   invoiceTemplate,
-} from "./stripeEmails";
+} from "../stripeEmails";
 import Stripe from "stripe";
-import { stripeCustomerIdFromCharge } from "./stripeSessionInfo";
+import { stripeCustomerIdFromCharge } from "../stripeSessionInfo";
 import nameParser from "another-name-parser";
-import dollars from "./dollars";
-import requireEnv from "./requireEnv";
+import dollars from "../dollars";
+import requireEnv from "../requireEnv";
 import us from "us";
-import getStripe from "./getStripe";
+import getStripe from "../getStripe";
 
 export interface OAuthToken {
   readonly access_token: string;
@@ -253,7 +253,7 @@ export interface Opportunity {
   Name: string; // "Donation #$donationId"
   ContactId: Contact["Id"];
   CampaignId: Campaign["Id"] | null;
-  Amount: string;
+  Amount: number;
   AccountId: NonNullable<Contact["AccountId"]>;
   CloseDate: string; // "2021-01-01"
   StageName: string; // "Closed Won"
@@ -261,7 +261,7 @@ export interface Opportunity {
   Stripe_Charge_ID__c?: string;
   Transaction_ID__c?: string;
   Form_of_Payment__c?: string;
-  Payment_Fees__c?: string;
+  Payment_Fees__c?: number;
   Givebutter_Transaction_ID__c?: string;
 }
 
@@ -605,8 +605,8 @@ export async function createOrFetchOpportunityFromCharge(
     RecordTypeId: client.recordTypeIds.Donation,
     StageName: stageName,
     Name: opportunityName,
-    Amount: (charge.amount / 100).toFixed(2),
-    Payment_Fees__c: (balanceTransaction.fee / 100).toFixed(2),
+    Amount: charge.amount / 100,
+    Payment_Fees__c: balanceTransaction.fee / 100,
     CloseDate: new Date(charge.created * 1000).toISOString(),
     Stripe_Charge_ID__c: charge.id,
     Form_of_Payment__c: "Stripe",
