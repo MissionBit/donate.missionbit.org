@@ -4,7 +4,7 @@ import Link from "next/link";
 import Landing from "./Landing";
 import { DONATE_EMAIL } from "src/emails";
 
-const DonateCancel: React.FC<{}> = () => {
+const DonateCancel: React.FC<Record<never, never>> = () => {
   return (
     <main id="main">
       <Landing />

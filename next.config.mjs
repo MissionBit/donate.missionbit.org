@@ -1,4 +1,4 @@
-const { readFileSync } = require("fs");
+import { readFileSync } from "fs";
 
 const SLASH_REDIRECT = /^(\/\S+)\s+(\S+)(?:\s+(\d+)!?)?$/;
 const netlifyRedirects = [];
@@ -31,4 +31,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;

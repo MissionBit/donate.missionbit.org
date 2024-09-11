@@ -99,14 +99,17 @@ export const Transaction = S.Struct({
     S.NullishOr(
       S.Union(
         S.Array(S.Unknown),
-        S.Struct({
-          referer: S.String,
-          utm_term: S.String,
-          utm_medium: S.String,
-          utm_source: S.String,
-          utm_content: S.String,
-          utm_campaign: S.String,
-        }).pipe(S.extend(S.Record(S.String, S.String)), S.partial()),
+        S.Struct(
+          {
+            referer: S.String,
+            utm_term: S.String,
+            utm_medium: S.String,
+            utm_source: S.String,
+            utm_content: S.String,
+            utm_campaign: S.String,
+          },
+          S.Record({ key: S.String, value: S.String }),
+        ).pipe(S.partial),
       ),
     ),
   ),

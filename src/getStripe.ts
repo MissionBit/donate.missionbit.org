@@ -6,7 +6,7 @@ export function getStripe(): Stripe {
   if (stripe === undefined) {
     stripe = new Stripe(getStripeKey("STRIPE_SK"), {
       // https://github.com/stripe/stripe-node#configuration
-      apiVersion: "2024-04-10",
+      apiVersion: "2024-06-20",
       maxNetworkRetries: 3,
     });
   }

@@ -19,7 +19,7 @@ export class MailService {
   constructor(apiKey: string) {
     this.apiKey = apiKey;
   }
-  async send(data: MailDataRequired): Promise<[Response, {} | null]> {
+  async send(data: MailDataRequired): Promise<[Response, unknown | null]> {
     const res = await fetch("https://api.sendgrid.com/v3/mail/send", {
       method: "POST",
       headers: {

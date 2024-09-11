@@ -67,7 +67,9 @@ const montserrat = localFont({
   variable: "--font-Montserrat",
 });
 
-export default function RootLayout({ children }: React.PropsWithChildren<{}>) {
+export default function RootLayout({
+  children,
+}: React.PropsWithChildren<Record<never, never>>) {
   return (
     <html lang="en" className={montserrat.className}>
       <body>
