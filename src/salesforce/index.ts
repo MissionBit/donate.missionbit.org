@@ -135,7 +135,7 @@ export const client = ({
   ): Promise<Response> =>
     fetch(`${token.instance_url}${path}`, {
       ...options,
-      body: options?.body ? JSON.stringify(options.body) : undefined,
+      body: options?.body ? JSON.stringify(options.body) : null,
       headers: {
         Accept: "application/json",
         ...options?.headers,
