@@ -74,7 +74,7 @@ export type SQueryResult<T> =
     };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function sQuery<T extends {} = any>(
+export async function sQuery<T extends Record<never, never> = any>(
   client: SalesforceClient,
   query: string,
 ): Promise<SQueryResult<T>> {

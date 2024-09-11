@@ -103,12 +103,12 @@ export async function getBalanceTransactions(
       const type = "direct";
       const name = metadata.anonymous
         ? "Anonymous"
-        : txn.source.billing_details?.name ??
+        : (txn.source.billing_details?.name ??
           ([metadata.user_first_name, metadata.user_last_name]
             .filter((x) => !!x)
             .join(" ") ||
             metadata.user_email) ??
-          null;
+          null);
       stripeTransactions.push({
         id: txn.id,
         created: txn.created,

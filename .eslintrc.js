@@ -26,13 +26,7 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: "module",
   },
-  plugins: [
-    "react",
-    "react-hooks",
-    "@typescript-eslint",
-    "unused-imports",
-    "vitest",
-  ],
+  plugins: ["react", "react-hooks", "@typescript-eslint", "vitest"],
   settings: {
     react: {
       version: "detect",
@@ -48,27 +42,7 @@ module.exports = {
     "no-case-declarations": "off",
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/no-var-requires": "off",
-    "unused-imports/no-unused-imports-ts": "error",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/ban-types": [
-      "error",
-      {
-        extendDefaults: true,
-        types: {
-          "{}": false,
-        },
-      },
-    ],
-    "unused-imports/no-unused-vars-ts": [
-      "error",
-      {
-        vars: "all",
-        varsIgnorePattern: "^_",
-        args: "after-used",
-        argsIgnorePattern: "^_",
-        ignoreRestSiblings: false,
-      },
-    ],
   },
   overrides: [],
 };

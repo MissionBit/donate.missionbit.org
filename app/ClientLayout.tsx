@@ -17,6 +17,6 @@ if (typeof window !== "undefined") {
 
 export default function ClientLayout({
   children,
-}: React.PropsWithChildren<{}>) {
+}: React.PropsWithChildren<Record<never, never>>) {
   return <>{children}</>;
 }

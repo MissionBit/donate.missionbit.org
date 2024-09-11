@@ -6,6 +6,7 @@ import styles from "./ReceiptPhotos.module.scss";
 function loadPhoto(postfix: string, alt: string) {
   return {
     alt,
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     src: require(
       /* webpackInclude: /\.jpg$/ */ `public/images/donate/donate-receipt-${postfix}.jpg`,
     ).default,

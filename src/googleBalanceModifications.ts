@@ -94,7 +94,7 @@ async function spreadsheetApiRequest(
   }
 }
 
-function isEmptyObject(v: unknown): v is {} {
+function isEmptyObject(v: unknown): v is Record<never, never> {
   if (typeof v !== "object" || v === null) {
     return false;
   }

@@ -368,7 +368,7 @@ const Donors: React.FC<{
   );
 };
 
-const DonateBanner: React.FC<{}> = () => {
+const DonateBanner: React.FC<Record<never, never>> = () => {
   return (
     // eslint-disable-next-line @next/next/no-html-link-for-pages
     <a href="/donate" className={styles.donateBanner}>
