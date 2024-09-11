@@ -1,3 +1,4 @@
+import * as S from "@effect/schema/Schema";
 import { fetch } from "cross-fetch";
 import {
   fetchInvoiceWithPaymentIntent,
@@ -11,23 +12,15 @@ import dollars from "../dollars";
 import requireEnv from "../requireEnv";
 import us from "us";
 import getStripe from "../getStripe";
-
-export interface OAuthToken {
-  readonly access_token: string;
-  readonly signature: string;
-  readonly scope: string;
-  readonly instance_url: string;
-  readonly id: string;
-  readonly token_type: string;
-  readonly issued_at: string;
-}
+import { OAuthToken } from "./OAuthToken";
+export { OAuthToken };
 
 export type JSONRequestInit = Omit<RequestInit, "body"> & {
   body?: unknown;
 };
 
 export interface SalesforceClient {
-  readonly token: OAuthToken;
+  readonly token: typeof OAuthToken.Type;
   readonly apiVersion: string;
   readonly req: (path: string, options?: JSONRequestInit) => Promise<Response>;
   readonly recordTypeIds: {
@@ -180,7 +173,11 @@ export async function login(): Promise<SalesforceClient> {
       )}`,
     );
   }
-  return client({ token: data, recordTypeIds, apiVersion });
+  return client({
+    token: await S.decodeUnknownPromise(OAuthToken)(data),
+    recordTypeIds,
+    apiVersion,
+  });
 }
 
 export function soqlQuote(value: string): string {
