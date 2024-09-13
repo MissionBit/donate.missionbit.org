@@ -1,6 +1,6 @@
-import * as S from "@effect/schema/Schema";
+import { Schema as S } from "@effect/schema";
 
-export const OAuthToken = S.Struct({
+export class OAuthToken extends S.Class<OAuthToken>("OAuthToken")({
   access_token: S.String,
   signature: S.String,
   scope: S.String,
@@ -8,6 +8,4 @@ export const OAuthToken = S.Struct({
   id: S.String,
   token_type: S.String,
   issued_at: S.String,
-}).annotations({
-  identifier: "OAuthToken",
-});
+}) {}

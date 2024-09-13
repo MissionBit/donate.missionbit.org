@@ -13,14 +13,15 @@ import requireEnv from "../requireEnv";
 import us from "us";
 import getStripe from "../getStripe";
 import { OAuthToken } from "./OAuthToken";
-export { OAuthToken };
+import { soql } from "./soql";
+export { OAuthToken, soql };
 
 export type JSONRequestInit = Omit<RequestInit, "body"> & {
   body?: unknown;
 };
 
 export interface SalesforceClient {
-  readonly token: typeof OAuthToken.Type;
+  readonly token: OAuthToken;
   readonly apiVersion: string;
   readonly req: (path: string, options?: JSONRequestInit) => Promise<Response>;
   readonly recordTypeIds: {
@@ -178,41 +179,6 @@ export async function login(): Promise<SalesforceClient> {
     recordTypeIds,
     apiVersion,
   });
-}
-
-export function soqlQuote(value: string): string {
-  const escapes = {
-    ["\n"]: "\\n",
-    ["\r"]: "\\r",
-    ["\t"]: "\\t",
-    ["\b"]: "\\b",
-    ["\f"]: "\\f",
-    ['"']: '\\"',
-    [`'`]: `\\'`,
-    ["\\"]: "\\\\",
-  };
-  return (
-    "'" +
-    value.replace(
-      /[\n\r\t\b\f"'\\]/g,
-      (match) => escapes[match as keyof typeof escapes],
-    ) +
-    "'"
-  );
-}
-
-export function soql(
-  strings: TemplateStringsArray,
-  ...values: unknown[]
-): string {
-  return strings
-    .map(
-      (str, i) =>
-        `${str}${
-          typeof values[i] === "string" ? soqlQuote(values[i] as string) : ""
-        }`,
-    )
-    .join("");
 }
 
 export interface Schema {
