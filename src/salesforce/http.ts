@@ -63,6 +63,11 @@ export class SalesforceClient extends Context.Tag("@services/SalesforceClient")<
   SalesforceClient,
   {
     readonly token: OAuthToken;
+    readonly authClient: HttpClient.HttpClient<
+      HttpClientResponse.HttpClientResponse,
+      HttpClientError,
+      Scope.Scope
+    >;
     readonly dataClient: HttpClient.HttpClient<
       HttpClientResponse.HttpClientResponse,
       HttpClientError,
@@ -93,16 +98,19 @@ export class SalesforceClient extends Context.Tag("@services/SalesforceClient")<
         ),
       );
       const token = yield* loginClient(req);
-      const dataClient = cfg.client.pipe(
-        HttpClient.mapRequest(HttpClientRequest.prependUrl(cfg.dataUrl)),
+      const authClient = cfg.client.pipe(
         HttpClient.mapRequest(
           HttpClientRequest.bearerToken(token.access_token),
         ),
+      );
+      const dataClient = authClient.pipe(
+        HttpClient.mapRequest(HttpClientRequest.prependUrl(cfg.dataUrl)),
       );
 
       return {
         token,
         dataClient,
+        authClient,
       };
     }),
   );

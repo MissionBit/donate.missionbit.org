@@ -22,6 +22,12 @@ export class Contact extends S.Class<Contact>("Contact")({
   MailingPostalCode: S.NullOr(S.String),
   MailingCountryCode: S.NullOr(S.String),
   MailingStreet: S.NullOr(S.String),
+  npsp__Do_Not_Contact__c: S.Boolean,
+  npe01__WorkPhone__c: S.NullOr(S.String),
+  HasOptedOutOfEmail: S.Boolean,
+  npe01__WorkEmail__c: S.NullOr(S.String),
+  npe01__HomeEmail__c: S.NullOr(S.String),
+  npe01__AlternateEmail__c: S.NullOr(S.String),
 }) {
   static apiName = "contact";
 }

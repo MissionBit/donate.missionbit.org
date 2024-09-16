@@ -10,11 +10,11 @@ import { stripeCustomerIdFromCharge } from "../stripeSessionInfo";
 import nameParser from "another-name-parser";
 import dollars from "../dollars";
 import requireEnv from "../requireEnv";
-import us from "us";
 import getStripe from "../getStripe";
 import { OAuthToken } from "./OAuthToken";
 import { soql } from "./soql";
-export { OAuthToken, soql };
+import { expandState } from "./expandState";
+export { OAuthToken, soql, expandState };
 
 export type JSONRequestInit = Omit<RequestInit, "body"> & {
   body?: unknown;
@@ -295,10 +295,6 @@ export interface ContactResult {
   ContactId: Contact["Id"];
   AccountId: NonNullable<Contact["AccountId"]>;
 }
-
-export const expandState = (
-  state?: string | undefined | null,
-): string | undefined => (state ? us.states[state]?.name : undefined);
 
 const metadataName = (
   metadata: Stripe.Charge["metadata"],
