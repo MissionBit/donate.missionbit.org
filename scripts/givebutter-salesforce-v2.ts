@@ -1,5 +1,5 @@
 import { Effect, Option, Predicate, pipe, Order, Stream } from "effect";
-import { Semigroup, Traversable } from "@effect/typeclass";
+import { Semigroup } from "@effect/typeclass";
 import nameParser from "another-name-parser";
 import { evalQuery, SupabaseContext } from "src/getSupabaseClient";
 import { NodeSdk } from "@effect/opentelemetry";
@@ -19,6 +19,8 @@ import { SObjectClient } from "src/salesforce/SObjectClient";
 import { Contact as GBContact } from "src/givebutter/contact";
 import { Contact as SFContact } from "src/salesforce/Contact";
 import { Campaign as SFCampaign } from "src/salesforce/Campaign";
+import { Opportunity } from "src/salesforce/Opportunity";
+import { RecurringDonation } from "src/salesforce/RecurringDonation";
 import { Campaign as GBCampaign } from "src/givebutter/campaign";
 import { head } from "effect/Array";
 import { soql, soqlQuote } from "src/salesforce/soql";
@@ -27,6 +29,8 @@ import { twoLetterCountryCode } from "src/salesforce/twoLetterCountryCode";
 import { SalesforceRecordTypes } from "src/salesforce/http";
 import * as EffectInstances from "@effect/typeclass/data/Effect";
 import * as OptionInstances from "@effect/typeclass/data/Option";
+import { dollarFormatter } from "src/dollars";
+import { ShortDateFormat } from "src/dates";
 
 const { values } = parseArgs({
   options: {
@@ -347,7 +351,9 @@ const createDonorRecord = (row: GivebutterTransactionRow) =>
   Effect.gen(function* () {
     const client = yield* SObjectClient;
     const obj = yield* expectedDonorFromRow(row);
-    return yield* client.contact.create(obj);
+    return yield* client.contact
+      .create(obj)
+      .pipe(Effect.map((v) => SFContact.make(v)));
   });
 
 export const salesforceContactForGivebutterContact = (
@@ -367,33 +373,226 @@ export const salesforceContactForGivebutterContact = (
         // Update the existing record or create a new one
         Effect.flatMap(
           Option.match({
-            onSome: Effect.succeed,
+            onSome: (contact) => updateDonorRecord(row, contact),
             onNone: () => createDonorRecord(row),
           }),
         ),
-        Effect.flatMap((contact) => updateDonorRecord(row, contact)),
       );
     return record;
   });
 
+function planName(plan: typeof Plan.Type): string {
+  const donor = [plan.first_name, plan.last_name].filter(Boolean).join(" ");
+  const freq = { monthly: "mo", quarterly: "qtr", yearly: "yr" }[
+    plan.frequency
+  ];
+  const dateParts = plan.start_at.split(/ /g)[0].split(/-/g);
+  const mmddyyyy = [dateParts[1], dateParts[2], dateParts[0]].join("/");
+  return `${donor} Recurring ${dollarFormatter.format(plan.amount)}/${freq} ${mmddyyyy} ${plan.id}`;
+}
+
+function planFrequency(
+  plan: typeof Plan.Type,
+): Pick<
+  RecurringDonation,
+  "npe03__Installment_Period__c" | "npsp__InstallmentFrequency__c"
+> {
+  switch (plan.frequency) {
+    case "monthly":
+      return {
+        npsp__InstallmentFrequency__c: 1,
+        npe03__Installment_Period__c: "Monthly",
+      };
+    case "quarterly":
+      return {
+        npsp__InstallmentFrequency__c: 3,
+        npe03__Installment_Period__c: "Monthly",
+      };
+    case "yearly":
+      return {
+        npsp__InstallmentFrequency__c: 1,
+        npe03__Installment_Period__c: "Yearly",
+      };
+  }
+}
+
+function givebutterToISODate(date: string): string {
+  // '2024-07-26 22:04:32' to '2024-07-26T22:04:32Z'
+  return date.replace(/^(\d+-\d+-\d+) (\d+:\d+:\d+)$/, "$1T$2Z");
+}
+
+function planStatus(
+  plan: typeof Plan.Type,
+): Pick<RecurringDonation, "npsp__Status__c" | "npsp__EndDate__c"> {
+  const npsp__EndDate__c =
+    plan.status === "active"
+      ? null
+      : givebutterToISODate(plan.next_bill_date).split(/T/)[0];
+  const npsp__Status__c = {
+    active: "Active",
+    cancelled: "Closed",
+    ended: "Closed",
+    past_due: "Lapsed",
+    paused: "Paused",
+  }[plan.status];
+  return { npsp__Status__c, npsp__EndDate__c };
+}
+
+function planDates(plan: typeof Plan.Type) {
+  const established = givebutterToISODate(plan.start_at).split(/T/)[0];
+  const dayOfMonth = established.match(/^\d+-0?(\d+)-/)?.[1] ?? "1";
+  return {
+    npe03__Date_Established__c: established,
+    npsp__Day_of_Month__c: dayOfMonth,
+  };
+}
+
+function typedEntries<T extends { [k: string]: unknown }>(o: T) {
+  return Object.entries(o) as {
+    [k in keyof T]: [k, T[k]];
+  }[keyof T & string][];
+}
+
+export const createOrFetchRecurringDonationFromGivebutterTransaction = (
+  row: GivebutterTransactionRow,
+  contact: SFContact,
+) =>
+  Option.fromNullable(row.plan_data).pipe(
+    optTraverse((plan) =>
+      Effect.gen(function* () {
+        const client = yield* SObjectClient;
+        const expected = {
+          Name: planName(plan),
+          npe03__Contact__c: contact.Id,
+          npe03__Amount__c: plan.amount,
+          ...planStatus(plan),
+          ...planFrequency(plan),
+          ...planDates(plan),
+          Givebutter_Plan_ID__c: plan.id,
+          Stripe_Subscription_ID__c: null,
+        } satisfies Omit<RecurringDonation, "Id">;
+        return yield* pipe(
+          yield* client.recurringDonation.get(
+            `Givebutter_Plan_ID__c/${plan.id}`,
+          ),
+          Option.match({
+            onSome: (existing: RecurringDonation) =>
+              Effect.gen(function* () {
+                const updates = typedEntries(expected).filter(
+                  ([k]) => existing[k] !== expected[k],
+                );
+                if (updates.length > 0) {
+                  yield* client.recurringDonation.update(
+                    existing.Id,
+                    Object.fromEntries(updates),
+                  );
+                  return RecurringDonation.make({
+                    ...existing,
+                    ...expected,
+                  });
+                }
+                return existing;
+              }),
+            onNone: () =>
+              client.recurringDonation
+                .create(expected)
+                .pipe(Effect.map((v) => RecurringDonation.make(v))),
+          }),
+        );
+      }),
+    ),
+  );
+
+function stageForGivebutterStatus(
+  chargeStatus: (typeof Transaction.Type)["status"],
+): string {
+  switch (chargeStatus) {
+    case "authorized":
+      return "01-Pledged";
+    case "succeeded":
+      return "02-Won";
+    case "failed":
+      return "03-Lost";
+    case "cancelled":
+      return "03-Lost";
+    default:
+      return "01-Pledged";
+  }
+}
 const processRow = (row: GivebutterTransactionRow) =>
   Effect.gen(function* () {
     // TODO implement contact cache
     // TODO implement campaign cache
     // TODO implement recurring donation cache
-    // TODO opportunity
-    // TODO recurring
     const contact = yield* salesforceContactForGivebutterContact(row);
     const campaign = yield* createOrFetchCampaignFromGivebutterTransaction(row);
-
-    // const metadata = await createOrFetchOpportunityFromGivebutterTransaction(
-    //   client,
-    //   info,
-    // );
-    // await supabase
-    //   .from("givebutter_salesforce")
-    //   .upsert({ id: row.id, metadata });
-    // console.log(`Resolved ${row.id} ${JSON.stringify(metadata, null, 2)}`);
+    const recurring =
+      yield* createOrFetchRecurringDonationFromGivebutterTransaction(
+        row,
+        contact,
+      );
+    const recordTypes = yield* SalesforceRecordTypes;
+    const { data: transaction, plan_data: plan } = row;
+    const closeDate = transaction.created_at;
+    const stageName = stageForGivebutterStatus(transaction.status);
+    const opportunityName = [
+      transaction.first_name,
+      transaction.last_name,
+      transaction.giving_space &&
+      transaction.giving_space.name !==
+        `${transaction.first_name} ${transaction.last_name}`
+        ? `(${transaction.giving_space.name})`
+        : null,
+      dollarFormatter.format(transaction.amount),
+      plan ? "Recurring" : null,
+      "Donation",
+      ShortDateFormat.format(new Date(closeDate)),
+    ]
+      .filter(Boolean)
+      .join(" ");
+    const client = yield* SObjectClient;
+    const expected = {
+      RecordTypeId: recordTypes.Donation,
+      ContactId: contact.Id,
+      AccountId: contact.AccountId,
+      npe03__Recurring_Donation__c: Option.map(recurring, (v) => v.Id).pipe(
+        Option.getOrNull,
+      ),
+      StageName: stageName,
+      Name: opportunityName,
+      Amount: transaction.amount,
+      Payment_Fees__c: transaction.fee - transaction.fee_covered,
+      CloseDate: closeDate,
+      Givebutter_Transaction_ID__c: transaction.id,
+      Form_of_Payment__c: "Givebutter",
+      CampaignId: Option.map(campaign, (v) => v.Id).pipe(Option.getOrNull),
+    } satisfies Partial<Omit<Opportunity, "Id">>;
+    const existing = yield* client.opportunity.get(
+      `Givebutter_Transaction_ID__c/${transaction.id}`,
+    );
+    return yield* Option.match(existing, {
+      onNone: () =>
+        client.opportunity
+          .create(expected)
+          .pipe(Effect.map((v) => Opportunity.make(v))),
+      onSome: (existing) =>
+        Effect.gen(function* () {
+          const updates = typedEntries(expected).filter(
+            ([k]) => existing[k] !== expected[k],
+          );
+          if (updates.length > 0) {
+            yield* client.opportunity.update(
+              existing.Id,
+              Object.fromEntries(updates),
+            );
+            return Opportunity.make({
+              ...existing,
+              ...expected,
+            });
+          }
+          return existing;
+        }),
+    });
   }).pipe(Effect.withSpan("processRow", { attributes: { id: row.data.id } }));
 
 const mainProgram = Effect.gen(function* () {
