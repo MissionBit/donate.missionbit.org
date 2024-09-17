@@ -57,6 +57,10 @@ export interface SObjectClientInstance<
   query: (
     where: string,
   ) => Stream.Stream<Self, HttpClientError.HttpClientError | ParseError>;
+  withCache: <E, R>(
+    id: string,
+    eff: () => Effect.Effect<Self, E, R>,
+  ) => Effect.Effect<Self, E, R>;
 }
 
 const makeQuerySchema = <T>(schema: S.Schema<T>) =>
@@ -127,6 +131,7 @@ function sObjectClientBuilder<
           HttpClientResponse.schemaBodyJson(querySchema),
         ),
       );
+      const cache = new Map<string, Self>();
       return {
         schema,
         get: (id) =>
@@ -157,6 +162,16 @@ function sObjectClientBuilder<
                 ];
               }),
           ),
+        withCache: (id, eff) =>
+          Effect.gen(function* () {
+            const cached = cache.get(id);
+            if (cached) {
+              return cached;
+            }
+            const v = yield* eff();
+            cache.set(id, v);
+            return v;
+          }),
       } satisfies SObjectClientInstance<Self, Fields>;
     }),
   );

@@ -228,9 +228,9 @@ const createOrFetchCampaignFromGivebutterTransaction = (
     optTraverse((campaign) =>
       Effect.gen(function* () {
         const client = yield* SObjectClient;
-        return yield* client.campaign
-          .get(`Givebutter_Campaign_ID__c/${campaign.id}`)
-          .pipe(
+        const lookupKey = `Givebutter_Campaign_ID__c/${campaign.id}`;
+        return yield* client.campaign.withCache(lookupKey, () =>
+          client.campaign.get(lookupKey).pipe(
             Effect.flatMap(
               Option.match({
                 onSome: (sfCampaign) =>
@@ -241,7 +241,8 @@ const createOrFetchCampaignFromGivebutterTransaction = (
                   ),
               }),
             ),
-          );
+          ),
+        );
       }),
     ),
   );
@@ -361,9 +362,9 @@ export const salesforceContactForGivebutterContact = (
 ) =>
   Effect.gen(function* () {
     const client = yield* SObjectClient;
-    const record: typeof SFContact.Type = yield* client.contact
-      .get(`Givebutter_Contact_ID__c/${row.data.contact_id}`)
-      .pipe(
+    const lookupKey = `Givebutter_Contact_ID__c/${row.data.contact_id}`;
+    const record: SFContact = yield* client.contact.withCache(lookupKey, () =>
+      client.contact.get(lookupKey).pipe(
         Effect.flatMap(
           Option.match({
             onSome: Effect.succeedSome,
@@ -377,7 +378,8 @@ export const salesforceContactForGivebutterContact = (
             onNone: () => createDonorRecord(row),
           }),
         ),
-      );
+      ),
+    );
     return record;
   });
 
@@ -471,33 +473,35 @@ export const createOrFetchRecurringDonationFromGivebutterTransaction = (
           Givebutter_Plan_ID__c: plan.id,
           Stripe_Subscription_ID__c: null,
         } satisfies Omit<RecurringDonation, "Id">;
-        return yield* pipe(
-          yield* client.recurringDonation.get(
-            `Givebutter_Plan_ID__c/${plan.id}`,
-          ),
-          Option.match({
-            onSome: (existing: RecurringDonation) =>
-              Effect.gen(function* () {
-                const updates = typedEntries(expected).filter(
-                  ([k]) => existing[k] !== expected[k],
-                );
-                if (updates.length > 0) {
-                  yield* client.recurringDonation.update(
-                    existing.Id,
-                    Object.fromEntries(updates),
-                  );
-                  return RecurringDonation.make({
-                    ...existing,
-                    ...expected,
-                  });
-                }
-                return existing;
+        const lookupKey = `Givebutter_Plan_ID__c/${plan.id}`;
+        return yield* client.recurringDonation.withCache(lookupKey, () =>
+          client.recurringDonation.get(lookupKey).pipe(
+            Effect.flatMap(
+              Option.match({
+                onSome: (existing: RecurringDonation) =>
+                  Effect.gen(function* () {
+                    const updates = typedEntries(expected).filter(
+                      ([k]) => existing[k] !== expected[k],
+                    );
+                    if (updates.length > 0) {
+                      yield* client.recurringDonation.update(
+                        existing.Id,
+                        Object.fromEntries(updates),
+                      );
+                      return RecurringDonation.make({
+                        ...existing,
+                        ...expected,
+                      });
+                    }
+                    return existing;
+                  }),
+                onNone: () =>
+                  client.recurringDonation
+                    .create(expected)
+                    .pipe(Effect.map((v) => RecurringDonation.make(v))),
               }),
-            onNone: () =>
-              client.recurringDonation
-                .create(expected)
-                .pipe(Effect.map((v) => RecurringDonation.make(v))),
-          }),
+            ),
+          ),
         );
       }),
     ),
@@ -521,9 +525,7 @@ function stageForGivebutterStatus(
 }
 const processRow = (row: GivebutterTransactionRow) =>
   Effect.gen(function* () {
-    // TODO implement contact cache
-    // TODO implement campaign cache
-    // TODO implement recurring donation cache
+    // TODO implement observability
     const contact = yield* salesforceContactForGivebutterContact(row);
     const campaign = yield* createOrFetchCampaignFromGivebutterTransaction(row);
     const recurring =
