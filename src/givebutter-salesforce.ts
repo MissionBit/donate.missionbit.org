@@ -282,7 +282,7 @@ export async function createOrFetchRecurringDonationFromGivebutterTransaction(
       await recurringApi.update(existing.Id, Object.fromEntries(updates));
     }
     console.log(
-      `${type === "update" ? "Updated" : "Foundd"} existing Recurring Donation ${existing.Id} for plan ${plan.id}`,
+      `${type === "update" ? "Updated" : "Found"} existing Recurring Donation ${existing.Id} for plan ${plan.id}`,
     );
     return { type, npe03__Recurring_Donation__c: existing.Id };
   }

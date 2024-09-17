@@ -1,5 +1,5 @@
 import { Effect, Option, Predicate, pipe, Order, Stream } from "effect";
-import { Semigroup } from "@effect/typeclass";
+import { Semigroup, Traversable } from "@effect/typeclass";
 import nameParser from "another-name-parser";
 import { evalQuery, SupabaseContext } from "src/getSupabaseClient";
 import { NodeSdk } from "@effect/opentelemetry";
@@ -18,11 +18,15 @@ import { HttpClient } from "@effect/platform";
 import { SObjectClient } from "src/salesforce/SObjectClient";
 import { Contact as GBContact } from "src/givebutter/contact";
 import { Contact as SFContact } from "src/salesforce/Contact";
+import { Campaign as SFCampaign } from "src/salesforce/Campaign";
+import { Campaign as GBCampaign } from "src/givebutter/campaign";
 import { head } from "effect/Array";
 import { soql, soqlQuote } from "src/salesforce/soql";
 import { expandState } from "src/salesforce/expandState";
 import { twoLetterCountryCode } from "src/salesforce/twoLetterCountryCode";
 import { SalesforceRecordTypes } from "src/salesforce/http";
+import * as EffectInstances from "@effect/typeclass/data/Effect";
+import * as OptionInstances from "@effect/typeclass/data/Option";
 
 const { values } = parseArgs({
   options: {
@@ -134,34 +138,136 @@ const searchForSalesforceContact = (
     );
   });
 
-type KVEntry<T> = {
-  [k in keyof T]: readonly [k, T[k]];
-}[keyof T & string];
+const effectApplicative = EffectInstances.getApplicative();
+const optTraverse = OptionInstances.Traversable.traverse(effectApplicative);
+
+function parseGivebutterDate(str: string | null | undefined): string | null {
+  const m = /^(\d{4}-\d{2}-\d{2})T/.exec(str ?? "");
+  return m ? m[1] : null;
+}
+
+function currentCampaignStatus(
+  startDate: string | null,
+  endDate: string | null,
+  today: string | null,
+) {
+  if (!today || !startDate || startDate > today) {
+    return "Planned";
+  } else if (endDate && endDate < today) {
+    return "Completed";
+  } else {
+    return "In Progress";
+  }
+}
+
+function expectedCampaignFromGivebutter(
+  campaign: typeof GBCampaign.Type,
+): Effect.Effect<
+  Partial<Omit<typeof SFCampaign.Type, "Id">>,
+  never,
+  SalesforceRecordTypes
+> {
+  const givebutterCampaignId = String(campaign.id);
+  const StartDate = parseGivebutterDate(campaign.created_at);
+  const EndDate = parseGivebutterDate(campaign.end_at);
+  return SalesforceRecordTypes.pipe(
+    Effect.map(
+      (recordTypes) =>
+        ({
+          Name: campaign.title,
+          Type: campaign.type === "event" ? "Event" : "Fundraising",
+          Description: campaign.description || null,
+          Givebutter_Campaign_ID__c: givebutterCampaignId,
+          RecordTypeId: recordTypes.Default,
+          Status: currentCampaignStatus(
+            StartDate,
+            EndDate,
+            parseGivebutterDate(new Date().toISOString()),
+          ),
+          StartDate,
+          EndDate,
+        }) satisfies Partial<Omit<typeof SFCampaign.Type, "Id">>,
+    ),
+  );
+}
+
+const updateCampaignRecord = (
+  gbCampaign: typeof GBCampaign.Type,
+  sfCampaign: typeof SFCampaign.Type,
+) =>
+  Effect.gen(function* () {
+    const expected = yield* expectedCampaignFromGivebutter(gbCampaign);
+    const keys = [
+      "Name",
+      "Type",
+      "Description",
+      "Status",
+      "StartDate",
+      "EndDate",
+    ] as const;
+    const updates = keys.flatMap((k) =>
+      sfCampaign[k] === expected[k] ? [] : [[k, expected[k]]],
+    );
+    if (updates.length > 0) {
+      const client = yield* SObjectClient;
+      yield* client.campaign.update(sfCampaign.Id, Object.fromEntries(updates));
+      const updated: typeof SFCampaign.Type = { ...sfCampaign, ...expected };
+      return updated;
+    }
+    return sfCampaign;
+  });
+
+const createOrFetchCampaignFromGivebutterTransaction = (
+  row: GivebutterTransactionRow,
+) =>
+  Option.fromNullable(row.campaign_data).pipe(
+    optTraverse((campaign) =>
+      Effect.gen(function* () {
+        const client = yield* SObjectClient;
+        return yield* client.campaign
+          .get(`Givebutter_Campaign_ID__c/${campaign.id}`)
+          .pipe(
+            Effect.flatMap(
+              Option.match({
+                onSome: (sfCampaign) =>
+                  updateCampaignRecord(campaign, sfCampaign),
+                onNone: () =>
+                  expectedCampaignFromGivebutter(campaign).pipe(
+                    Effect.andThen(client.campaign.create),
+                  ),
+              }),
+            ),
+          );
+      }),
+    ),
+  );
 
 const updateDonorRecord = (
   row: GivebutterTransactionRow,
   contact: typeof SFContact.Type,
 ) =>
   Effect.gen(function* () {
+    const expected = yield* expectedDonorFromRow(row);
     const contactId = contact.Id;
     if (!contact.AccountId) {
       yield* Effect.fail(
         new Error(`Expecting AccountId for existing contact ${contactId}`),
       );
     }
-    const updates: KVEntry<
-      Pick<typeof SFContact.Type, "Donor__c" | "Givebutter_Contact_ID__c">
-    >[] = [];
-    // TODO opt-in preferences
-    if (!contact.Donor__c) {
-      updates.push(["Donor__c", true]);
-    }
-    if (!contact.Givebutter_Contact_ID__c) {
-      updates.push(["Givebutter_Contact_ID__c", String(row.contact_data.id)]);
-    }
+    const keys = [
+      "Donor__c",
+      "Givebutter_Contact_ID__c",
+      "HasOptedOutOfEmail",
+      "npsp__Do_Not_Contact__c",
+    ] as const;
+    const updates = keys.flatMap((k) =>
+      contact[k] === expected[k] ? [] : [[k, expected[k]]],
+    );
     if (updates.length > 0) {
       const client = yield* SObjectClient;
       yield* client.contact.update(contact.Id, Object.fromEntries(updates));
+      const updated: typeof SFContact.Type = { ...contact, ...expected };
+      return updated;
     }
     return contact;
   });
@@ -205,10 +311,10 @@ const expectedDonorFromRow = (row: GivebutterTransactionRow) =>
     return {
       ...(optOut
         ? [
-            ["HasOptedOutOfEmail", optOut],
-            ["npsp__Do_Not_Contact__c", optOut],
+            ["HasOptedOutOfEmail", true],
+            ["npsp__Do_Not_Contact__c", true],
           ]
-        : []),
+        : [["Agree_to_receive_promotional_materials__c", true]]),
       ...nameFields(),
       ...Object.fromEntries(
         [
@@ -272,7 +378,13 @@ export const salesforceContactForGivebutterContact = (
 
 const processRow = (row: GivebutterTransactionRow) =>
   Effect.gen(function* () {
+    // TODO implement contact cache
+    // TODO implement campaign cache
+    // TODO implement recurring donation cache
+    // TODO opportunity
+    // TODO recurring
     const contact = yield* salesforceContactForGivebutterContact(row);
+    const campaign = yield* createOrFetchCampaignFromGivebutterTransaction(row);
 
     // const metadata = await createOrFetchOpportunityFromGivebutterTransaction(
     //   client,

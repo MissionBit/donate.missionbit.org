@@ -16,9 +16,12 @@ import {
 } from "@effect/platform";
 import { Schema as S } from "@effect/schema";
 import { filterStatusOk } from "@effect/platform/HttpClient";
+import { ParseError } from "@effect/schema/ParseResult";
 import { SalesforceClient, SalesforceConfig } from "./http";
 import { Contact } from "./Contact";
-import { ParseError } from "@effect/schema/ParseResult";
+import { Campaign } from "./Campaign";
+import { Opportunity } from "./Opportunity";
+import { RecurringDonation } from "./RecurringDonation";
 
 export class SObjectResponse extends S.Class<SObjectResponse>(
   "SObjectResponse",
@@ -161,6 +164,9 @@ function sObjectClientBuilder<
 
 const makeClients = Effect.all({
   contact: sObjectClientBuilder(Contact),
+  campaign: sObjectClientBuilder(Campaign),
+  opportunity: sObjectClientBuilder(Opportunity),
+  recurringDonation: sObjectClientBuilder(RecurringDonation),
 } as const);
 
 export class SObjectClient extends Context.Tag("@services/SObjectClient")<

@@ -28,6 +28,7 @@ export class Contact extends S.Class<Contact>("Contact")({
   npe01__WorkEmail__c: S.NullOr(S.String),
   npe01__HomeEmail__c: S.NullOr(S.String),
   npe01__AlternateEmail__c: S.NullOr(S.String),
+  Agree_to_receive_promotional_materials__c: S.Boolean,
 }) {
   static apiName = "contact";
 }
