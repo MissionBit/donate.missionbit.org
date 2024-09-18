@@ -43,6 +43,7 @@
     "@effect/platform": "^0.64.0",
     "@effect/schema": "^0.72.3",
     "@headlessui/react": "^2.1.6",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.53.0",
     "@opentelemetry/sdk-metrics": "^1.26.0",
     "@opentelemetry/sdk-trace-base": "^1.26.0",
     "@opentelemetry/sdk-trace-node": "^1.26.0",
@@ -69,7 +70,9 @@
     "use-elapsed-time": "^3.0.4"
   },
   "devDependencies": {
+    "@effect/typeclass": "^0.27.0",
     "@next/eslint-plugin-next": "^14.2.9",
+    "@supabase/postgrest-js": "^1.16.1",
     "@supabase/supabase-js": "^2.45.4",
     "@types/eslint": "^8.56.10",
     "@types/google.analytics": "^0.0.46",

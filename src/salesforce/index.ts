@@ -1,26 +1,20 @@
+import * as S from "@effect/schema/Schema";
 import { fetch } from "cross-fetch";
 import {
   fetchInvoiceWithPaymentIntent,
   fetchSessionPaymentIntent,
   invoiceTemplate,
-} from "./stripeEmails";
+} from "../stripeEmails";
 import Stripe from "stripe";
-import { stripeCustomerIdFromCharge } from "./stripeSessionInfo";
+import { stripeCustomerIdFromCharge } from "../stripeSessionInfo";
 import nameParser from "another-name-parser";
-import dollars from "./dollars";
-import requireEnv from "./requireEnv";
-import us from "us";
-import getStripe from "./getStripe";
-
-export interface OAuthToken {
-  readonly access_token: string;
-  readonly signature: string;
-  readonly scope: string;
-  readonly instance_url: string;
-  readonly id: string;
-  readonly token_type: string;
-  readonly issued_at: string;
-}
+import dollars from "../dollars";
+import requireEnv from "../requireEnv";
+import getStripe from "../getStripe";
+import { OAuthToken } from "./OAuthToken";
+import { soql } from "./soql";
+import { expandState } from "./expandState";
+export { OAuthToken, soql, expandState };
 
 export type JSONRequestInit = Omit<RequestInit, "body"> & {
   body?: unknown;
@@ -135,7 +129,7 @@ export const client = ({
   ): Promise<Response> =>
     fetch(`${token.instance_url}${path}`, {
       ...options,
-      body: options?.body ? JSON.stringify(options.body) : undefined,
+      body: options?.body ? JSON.stringify(options.body) : null,
       headers: {
         Accept: "application/json",
         ...options?.headers,
@@ -180,42 +174,11 @@ export async function login(): Promise<SalesforceClient> {
       )}`,
     );
   }
-  return client({ token: data, recordTypeIds, apiVersion });
-}
-
-export function soqlQuote(value: string): string {
-  const escapes = {
-    ["\n"]: "\\n",
-    ["\r"]: "\\r",
-    ["\t"]: "\\t",
-    ["\b"]: "\\b",
-    ["\f"]: "\\f",
-    ['"']: '\\"',
-    [`'`]: `\\'`,
-    ["\\"]: "\\\\",
-  };
-  return (
-    "'" +
-    value.replace(
-      /[\n\r\t\b\f"'\\]/g,
-      (match) => escapes[match as keyof typeof escapes],
-    ) +
-    "'"
-  );
-}
-
-export function soql(
-  strings: TemplateStringsArray,
-  ...values: unknown[]
-): string {
-  return strings
-    .map(
-      (str, i) =>
-        `${str}${
-          typeof values[i] === "string" ? soqlQuote(values[i] as string) : ""
-        }`,
-    )
-    .join("");
+  return client({
+    token: await S.decodeUnknownPromise(OAuthToken)(data),
+    recordTypeIds,
+    apiVersion,
+  });
 }
 
 export interface Schema {
@@ -253,7 +216,7 @@ export interface Opportunity {
   Name: string; // "Donation #$donationId"
   ContactId: Contact["Id"];
   CampaignId: Campaign["Id"] | null;
-  Amount: string;
+  Amount: number;
   AccountId: NonNullable<Contact["AccountId"]>;
   CloseDate: string; // "2021-01-01"
   StageName: string; // "Closed Won"
@@ -261,7 +224,7 @@ export interface Opportunity {
   Stripe_Charge_ID__c?: string;
   Transaction_ID__c?: string;
   Form_of_Payment__c?: string;
-  Payment_Fees__c?: string;
+  Payment_Fees__c?: number;
   Givebutter_Transaction_ID__c?: string;
 }
 
@@ -332,10 +295,6 @@ export interface ContactResult {
   ContactId: Contact["Id"];
   AccountId: NonNullable<Contact["AccountId"]>;
 }
-
-export const expandState = (
-  state?: string | undefined | null,
-): string | undefined => (state ? us.states[state]?.name : undefined);
 
 const metadataName = (
   metadata: Stripe.Charge["metadata"],
@@ -605,8 +564,8 @@ export async function createOrFetchOpportunityFromCharge(
     RecordTypeId: client.recordTypeIds.Donation,
     StageName: stageName,
     Name: opportunityName,
-    Amount: (charge.amount / 100).toFixed(2),
-    Payment_Fees__c: (balanceTransaction.fee / 100).toFixed(2),
+    Amount: charge.amount / 100,
+    Payment_Fees__c: balanceTransaction.fee / 100,
     CloseDate: new Date(charge.created * 1000).toISOString(),
     Stripe_Charge_ID__c: charge.id,
     Form_of_Payment__c: "Stripe",
