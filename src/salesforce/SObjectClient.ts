@@ -23,6 +23,22 @@ import { Campaign } from "./Campaign";
 import { Opportunity } from "./Opportunity";
 import { RecurringDonation } from "./RecurringDonation";
 
+const filterStatusOkDebug = <E, R>(
+  self: HttpClient.HttpClient.WithResponse<E, R>,
+): HttpClient.HttpClient.WithResponse<HttpClientError.ResponseError | E, R> =>
+  filterStatusOk(self).pipe(
+    HttpClient.transformResponse(
+      Effect.tapErrorTag("ResponseError", (err) =>
+        Effect.gen(function* () {
+          if (err instanceof HttpClientError.ResponseError) {
+            const text = yield* err.response.text;
+            yield* Effect.annotateCurrentSpan("errorText", text);
+          }
+        }),
+      ),
+    ),
+  );
+
 export class SObjectResponse extends S.Class<SObjectResponse>(
   "SObjectResponse",
 )({
@@ -92,7 +108,7 @@ function sObjectClientBuilder<
   return Effect.all([SalesforceClient, SalesforceConfig]).pipe(
     Effect.andThen(([{ authClient, dataClient }, { dataUrl }]) => {
       const queryReq = HttpClientRequest.get(`${dataUrl}/query/`);
-      const okClient = dataClient.pipe(filterStatusOk);
+      const okClient = dataClient.pipe(filterStatusOkDebug);
       const unconditionalGetClient = dataClient.pipe(
         HttpClient.mapEffectScoped(HttpClientResponse.schemaBodyJson(schema)),
       );
@@ -126,7 +142,7 @@ function sObjectClientBuilder<
         updateSchema,
       )(postRequest);
       const queryClient = authClient.pipe(
-        filterStatusOk,
+        filterStatusOkDebug,
         HttpClient.mapEffectScoped(
           HttpClientResponse.schemaBodyJson(querySchema),
         ),
@@ -135,43 +151,68 @@ function sObjectClientBuilder<
       return {
         schema,
         get: (id) =>
-          getClient(
-            HttpClientRequest.get(`${prefix}/${id}?fields=${allFields}`),
+          Effect.withSpan(
+            getClient(
+              HttpClientRequest.get(`${prefix}/${id}?fields=${allFields}`),
+            ),
+            "SObjectClient.get",
+            { attributes: { id, apiName: schema.apiName } },
           ),
         update: (id, input) =>
-          updateClient(HttpClientRequest.patch(`${prefix}/${id}`))(input),
-        create: (input) => createClient(input),
+          Effect.withSpan(
+            updateClient(HttpClientRequest.patch(`${prefix}/${id}`))(input),
+            "SObjectClient.update",
+            { attributes: { id, input, apiName: schema.apiName } },
+          ),
+        create: (input) =>
+          Effect.withSpan(createClient(input), "SObjectClient.create", {
+            attributes: { input },
+          }),
         query: (where) =>
-          Stream.paginateChunkEffect(
-            queryReq.pipe(
-              HttpClientRequest.appendUrlParam(
-                "q",
-                `${queryTemplate} ${where}`,
+          Stream.withSpan(
+            Stream.paginateChunkEffect(
+              queryReq.pipe(
+                HttpClientRequest.appendUrlParam(
+                  "q",
+                  `${queryTemplate} ${where}`,
+                ),
               ),
-            ),
-            (req) =>
-              Effect.gen(function* () {
-                const { records, nextRecordsUrl } = yield* queryClient(req);
-                return [
-                  Chunk.unsafeFromArray(records),
-                  Option.fromNullable(nextRecordsUrl).pipe(
-                    Option.map((url) =>
-                      HttpClientRequest.setUrl(url)(queryReq),
+              (req) =>
+                Effect.gen(function* () {
+                  const { records, nextRecordsUrl } = yield* queryClient(req);
+                  return [
+                    Chunk.unsafeFromArray(records),
+                    Option.fromNullable(nextRecordsUrl).pipe(
+                      Option.map((url) =>
+                        HttpClientRequest.setUrl(url)(queryReq),
+                      ),
                     ),
-                  ),
-                ];
-              }),
+                  ];
+                }),
+            ),
+            "SObjectClient.query",
+            {
+              attributes: { where, apiName: schema.apiName },
+            },
           ),
         withCache: (id, eff) =>
-          Effect.gen(function* () {
-            const cached = cache.get(id);
-            if (cached) {
-              return cached;
-            }
-            const v = yield* eff();
-            cache.set(id, v);
-            return v;
-          }),
+          Effect.withSpan(
+            Effect.gen(function* () {
+              const cached = cache.get(id);
+              yield* Effect.annotateCurrentSpan("miss", cached === undefined);
+              if (cached) {
+                yield* Effect.annotateCurrentSpan("value.Id", cached.Id);
+                return cached;
+              } else {
+                const v = yield* eff();
+                yield* Effect.annotateCurrentSpan("value.Id", v.Id);
+                cache.set(id, v);
+                return v;
+              }
+            }),
+            "SObjectClient.withCache",
+            { attributes: { id, apiName: schema.apiName } },
+          ),
       } satisfies SObjectClientInstance<Self, Fields>;
     }),
   );

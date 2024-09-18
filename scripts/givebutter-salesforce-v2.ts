@@ -1,4 +1,12 @@
-import { Effect, Option, Predicate, pipe, Order, Stream } from "effect";
+import {
+  Effect,
+  Option,
+  Predicate,
+  Console,
+  pipe,
+  Order,
+  Stream,
+} from "effect";
 import { Semigroup } from "@effect/typeclass";
 import nameParser from "another-name-parser";
 import { evalQuery, SupabaseContext } from "src/getSupabaseClient";
@@ -70,8 +78,17 @@ const transactionName = ({
 const searchForSalesforceContact = (
   client: SObjectClient["Type"],
   row: GivebutterTransactionRow,
+  opportunity: Option.Option<Opportunity>,
 ) =>
   Effect.gen(function* () {
+    const existing = yield* pipe(
+      opportunity,
+      optTraverse((opp) => client.contact.get(opp.ContactId)),
+      Effect.map(Option.flatten),
+    );
+    if (Option.isSome(existing)) {
+      return existing;
+    }
     const transaction = row.data;
     const givebutterContactId = String(row.contact_data.id);
     const emails = [
@@ -210,7 +227,9 @@ const updateCampaignRecord = (
       "EndDate",
     ] as const;
     const updates = keys.flatMap((k) =>
-      sfCampaign[k] === expected[k] ? [] : [[k, expected[k]]],
+      sfCampaign[k] === expected[k] && expected[k] !== undefined
+        ? []
+        : ([[k, expected[k]]] as const),
     );
     if (updates.length > 0) {
       const client = yield* SObjectClient;
@@ -223,12 +242,16 @@ const updateCampaignRecord = (
 
 const createOrFetchCampaignFromGivebutterTransaction = (
   row: GivebutterTransactionRow,
+  opportunity: Option.Option<Opportunity>,
 ) =>
   Option.fromNullable(row.campaign_data).pipe(
     optTraverse((campaign) =>
       Effect.gen(function* () {
         const client = yield* SObjectClient;
-        const lookupKey = `Givebutter_Campaign_ID__c/${campaign.id}`;
+        const lookupKey = opportunity.pipe(
+          Option.flatMapNullable((opp) => opp.CampaignId),
+          Option.getOrElse(() => `Givebutter_Campaign_ID__c/${campaign.id}`),
+        );
         return yield* client.campaign.withCache(lookupKey, () =>
           client.campaign.get(lookupKey).pipe(
             Effect.flatMap(
@@ -266,9 +289,12 @@ const updateDonorRecord = (
       "npsp__Do_Not_Contact__c",
     ] as const;
     const updates = keys.flatMap((k) =>
-      contact[k] === expected[k] ? [] : [[k, expected[k]]],
+      contact[k] === expected[k] || expected[k] === undefined
+        ? ([] as const)
+        : ([[k, expected[k]]] as const),
     );
     if (updates.length > 0) {
+      yield* Console.log("Updating contact", contact.Id, updates);
       const client = yield* SObjectClient;
       yield* client.contact.update(contact.Id, Object.fromEntries(updates));
       const updated: typeof SFContact.Type = { ...contact, ...expected };
@@ -292,14 +318,14 @@ const expectedDonorFromRow = (row: GivebutterTransactionRow) =>
       );
     const phone = transaction.phone;
     const nameFields = () => {
-      const NAME_FIELD_MAP: [
-        keyof ReturnType<typeof nameParser>,
-        keyof typeof SFContact.Type,
-      ][] = [
+      const NAME_FIELD_MAP = [
         ["first", "FirstName"],
         ["middle", "MiddleName"],
         ["suffix", "Suffix"],
-      ];
+      ] as const satisfies readonly (readonly [
+        keyof ReturnType<typeof nameParser>,
+        keyof typeof SFContact.Type,
+      ])[];
       if (parsedName.last === null) {
         return { LastName: parsedName.original };
       }
@@ -310,10 +336,15 @@ const expectedDonorFromRow = (row: GivebutterTransactionRow) =>
           ),
         ),
         LastName: parsedName.last,
-      };
+      } satisfies Partial<
+        Pick<
+          typeof SFContact.Type,
+          "LastName" | "FirstName" | "MiddleName" | "Suffix"
+        >
+      >;
     };
     const optOut = !row.contact_data.is_email_subscribed;
-    return {
+    const expected: Partial<Omit<typeof SFContact.Type, "Id">> = {
       ...(optOut
         ? [
             ["HasOptedOutOfEmail", true],
@@ -346,6 +377,7 @@ const expectedDonorFromRow = (row: GivebutterTransactionRow) =>
       Givebutter_Contact_ID__c: givebutterContactId,
       RecordTypeId: recordTypes.General,
     };
+    return expected;
   });
 
 const createDonorRecord = (row: GivebutterTransactionRow) =>
@@ -359,6 +391,7 @@ const createDonorRecord = (row: GivebutterTransactionRow) =>
 
 export const salesforceContactForGivebutterContact = (
   row: GivebutterTransactionRow,
+  opportunity: Option.Option<Opportunity>,
 ) =>
   Effect.gen(function* () {
     const client = yield* SObjectClient;
@@ -368,7 +401,7 @@ export const salesforceContactForGivebutterContact = (
         Effect.flatMap(
           Option.match({
             onSome: Effect.succeedSome,
-            onNone: () => searchForSalesforceContact(client, row),
+            onNone: () => searchForSalesforceContact(client, row, opportunity),
           }),
         ),
         // Update the existing record or create a new one
@@ -457,6 +490,7 @@ function typedEntries<T extends { [k: string]: unknown }>(o: T) {
 
 export const createOrFetchRecurringDonationFromGivebutterTransaction = (
   row: GivebutterTransactionRow,
+  opportunity: Option.Option<Opportunity>,
   contact: SFContact,
 ) =>
   Option.fromNullable(row.plan_data).pipe(
@@ -473,7 +507,10 @@ export const createOrFetchRecurringDonationFromGivebutterTransaction = (
           Givebutter_Plan_ID__c: plan.id,
           Stripe_Subscription_ID__c: null,
         } satisfies Omit<RecurringDonation, "Id">;
-        const lookupKey = `Givebutter_Plan_ID__c/${plan.id}`;
+        const lookupKey = opportunity.pipe(
+          Option.flatMapNullable((opp) => opp.npe03__Recurring_Donation__c),
+          Option.getOrElse(() => `Givebutter_Plan_ID__c/${plan.id}`),
+        );
         return yield* client.recurringDonation.withCache(lookupKey, () =>
           client.recurringDonation.get(lookupKey).pipe(
             Effect.flatMap(
@@ -481,7 +518,9 @@ export const createOrFetchRecurringDonationFromGivebutterTransaction = (
                 onSome: (existing: RecurringDonation) =>
                   Effect.gen(function* () {
                     const updates = typedEntries(expected).filter(
-                      ([k]) => existing[k] !== expected[k],
+                      ([k]) =>
+                        existing[k] !== expected[k] &&
+                        expected[k] !== undefined,
                     );
                     if (updates.length > 0) {
                       yield* client.recurringDonation.update(
@@ -526,15 +565,23 @@ function stageForGivebutterStatus(
 const processRow = (row: GivebutterTransactionRow) =>
   Effect.gen(function* () {
     // TODO implement observability
-    const contact = yield* salesforceContactForGivebutterContact(row);
-    const campaign = yield* createOrFetchCampaignFromGivebutterTransaction(row);
+    const client = yield* SObjectClient;
+    const { data: transaction, plan_data: plan } = row;
+    const existing = yield* client.opportunity.get(
+      `Givebutter_Transaction_ID__c/${transaction.id}`,
+    );
+    const contact = yield* salesforceContactForGivebutterContact(row, existing);
+    const campaign = yield* createOrFetchCampaignFromGivebutterTransaction(
+      row,
+      existing,
+    );
     const recurring =
       yield* createOrFetchRecurringDonationFromGivebutterTransaction(
         row,
+        existing,
         contact,
       );
     const recordTypes = yield* SalesforceRecordTypes;
-    const { data: transaction, plan_data: plan } = row;
     const closeDate = transaction.created_at;
     const stageName = stageForGivebutterStatus(transaction.status);
     const opportunityName = [
@@ -552,7 +599,6 @@ const processRow = (row: GivebutterTransactionRow) =>
     ]
       .filter(Boolean)
       .join(" ");
-    const client = yield* SObjectClient;
     const expected = {
       RecordTypeId: recordTypes.Donation,
       ContactId: contact.Id,
@@ -564,14 +610,11 @@ const processRow = (row: GivebutterTransactionRow) =>
       Name: opportunityName,
       Amount: transaction.amount,
       Payment_Fees__c: transaction.fee - transaction.fee_covered,
-      CloseDate: closeDate,
+      CloseDate: yield* Option.fromNullable(parseGivebutterDate(closeDate)),
       Givebutter_Transaction_ID__c: transaction.id,
       Form_of_Payment__c: "Givebutter",
       CampaignId: Option.map(campaign, (v) => v.Id).pipe(Option.getOrNull),
     } satisfies Partial<Omit<Opportunity, "Id">>;
-    const existing = yield* client.opportunity.get(
-      `Givebutter_Transaction_ID__c/${transaction.id}`,
-    );
     return yield* Option.match(existing, {
       onNone: () =>
         client.opportunity
@@ -580,9 +623,17 @@ const processRow = (row: GivebutterTransactionRow) =>
       onSome: (existing) =>
         Effect.gen(function* () {
           const updates = typedEntries(expected).filter(
-            ([k]) => existing[k] !== expected[k],
+            ([k]) =>
+              k !== "ContactId" &&
+              k !== "AccountId" &&
+              existing[k] !== expected[k] &&
+              expected[k] !== undefined,
           );
           if (updates.length > 0) {
+            yield* Effect.annotateCurrentSpan(
+              "prev",
+              Object.fromEntries(updates.map(([k]) => [k, existing[k]])),
+            );
             yield* client.opportunity.update(
               existing.Id,
               Object.fromEntries(updates),
