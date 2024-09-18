@@ -15,6 +15,7 @@ import {
   ConsoleSpanExporter,
   BatchSpanProcessor,
 } from "@opentelemetry/sdk-trace-base";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { Campaign } from "src/givebutter/campaign";
 import { Plan } from "src/givebutter/plan";
 import { Ticket } from "src/givebutter/ticket";
@@ -43,6 +44,7 @@ import { ShortDateFormat } from "src/dates";
 const { values } = parseArgs({
   options: {
     all: { type: "boolean", default: false, short: "a" },
+    otel: { type: "boolean", default: false, short: "o" },
     id: { type: "string" },
   },
 });
@@ -673,7 +675,10 @@ const mainProgram = Effect.gen(function* () {
 
 const NodeSdkLive = NodeSdk.layer(() => ({
   resource: { serviceName: "givebutter-salesforce" },
-  spanProcessor: new BatchSpanProcessor(new ConsoleSpanExporter()),
+  spanProcessor: new BatchSpanProcessor(
+    // https://effect.website/docs/guides/observability/telemetry/tracing
+    values.otel ? new OTLPTraceExporter() : new ConsoleSpanExporter(),
+  ),
 }));
 
 async function main() {
@@ -682,6 +687,7 @@ async function main() {
     Effect.provide(NodeSdkLive),
     Effect.provide(HttpClient.layer),
     Effect.provide(SupabaseContext.Live),
+    Effect.catchAllCause(Effect.logError),
   );
   Effect.runPromise(prog);
 }
