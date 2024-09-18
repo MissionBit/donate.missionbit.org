@@ -112,6 +112,6 @@ export class SalesforceClient extends Context.Tag("@services/SalesforceClient")<
         dataClient,
         authClient,
       };
-    }),
+    }).pipe(Effect.withSpan("SalesforceClient.Live")),
   );
 }

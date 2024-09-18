@@ -109,7 +109,7 @@ function sObjectClientBuilder<
     Effect.andThen(([{ authClient, dataClient }, { dataUrl }]) => {
       const queryReq = HttpClientRequest.get(`${dataUrl}/query/`);
       const okClient = dataClient.pipe(filterStatusOkDebug);
-      const unconditionalGetClient = dataClient.pipe(
+      const unconditionalGetClient = okClient.pipe(
         HttpClient.mapEffectScoped(HttpClientResponse.schemaBodyJson(schema)),
       );
       const getClient = unconditionalGetClient.pipe(

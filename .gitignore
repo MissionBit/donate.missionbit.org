@@ -21,3 +21,4 @@ out
 /.mailing
 
 *.tsbuildinfo
+/docker/local/tempo-data

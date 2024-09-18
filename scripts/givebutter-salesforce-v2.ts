@@ -89,6 +89,7 @@ const searchForSalesforceContact = (
       Effect.map(Option.flatten),
     );
     if (Option.isSome(existing)) {
+      yield* Effect.annotateCurrentSpan("foundBy", "opportunity");
       return existing;
     }
     const transaction = row.data;
@@ -154,12 +155,14 @@ const searchForSalesforceContact = (
       return 0;
     };
     const semigroup = Semigroup.max(Option.getOrder(contactOrder));
-    return yield* Stream.runFold(
+    const result = yield* Stream.runFold(
       client.contact.query(clauses.join(" OR ")),
       Option.none<SFContact>(),
       (s, a) => semigroup.combine(s, Option.some(a)),
     );
-  });
+    yield* Effect.annotateCurrentSpan("found", Option.isSome(result));
+    return result;
+  }).pipe(Effect.withSpan("searchForSalesforceContact"));
 
 const effectApplicative = EffectInstances.getApplicative();
 const optTraverse = OptionInstances.Traversable.traverse(effectApplicative);
@@ -233,6 +236,7 @@ const updateCampaignRecord = (
         ? []
         : ([[k, expected[k]]] as const),
     );
+    yield* Effect.annotateCurrentSpan("updates.length", updates.length);
     if (updates.length > 0) {
       const client = yield* SObjectClient;
       yield* client.campaign.update(sfCampaign.Id, Object.fromEntries(updates));
@@ -240,7 +244,14 @@ const updateCampaignRecord = (
       return updated;
     }
     return sfCampaign;
-  });
+  }).pipe(
+    Effect.withSpan("updateCampaignRecord", {
+      attributes: {
+        Givebutter_Campaign_ID: gbCampaign.id,
+        CampaignId: sfCampaign.Id,
+      },
+    }),
+  );
 
 const createOrFetchCampaignFromGivebutterTransaction = (
   row: GivebutterTransactionRow,
@@ -268,7 +279,11 @@ const createOrFetchCampaignFromGivebutterTransaction = (
             ),
           ),
         );
-      }),
+      }).pipe(
+        Effect.withSpan("createOrFetchCampaignFromGivebutterTransaction", {
+          attributes: { Givebutter_Campaign_ID: campaign.id },
+        }),
+      ),
     ),
   );
 
@@ -284,26 +299,30 @@ const updateDonorRecord = (
         new Error(`Expecting AccountId for existing contact ${contactId}`),
       );
     }
-    const keys = [
-      "Donor__c",
-      "Givebutter_Contact_ID__c",
-      "HasOptedOutOfEmail",
-      "npsp__Do_Not_Contact__c",
-    ] as const;
+    const keys = ["Donor__c", "Givebutter_Contact_ID__c"] as const;
     const updates = keys.flatMap((k) =>
-      contact[k] === expected[k] || expected[k] === undefined
+      contact[k] || contact[k] === expected[k]
         ? ([] as const)
         : ([[k, expected[k]]] as const),
     );
+    yield* Effect.annotateCurrentSpan("updates.length", updates.length);
     if (updates.length > 0) {
-      yield* Console.log("Updating contact", contact.Id, updates);
+      yield* Console.log(
+        "Updating contact",
+        contact.Id,
+        updates.map(([k, v]) => [k, v, contact[k] ?? null]),
+      );
       const client = yield* SObjectClient;
       yield* client.contact.update(contact.Id, Object.fromEntries(updates));
       const updated: typeof SFContact.Type = { ...contact, ...expected };
       return updated;
     }
     return contact;
-  });
+  }).pipe(
+    Effect.withSpan("updateDonorRecord", {
+      attributes: { ContactId: contact.Id },
+    }),
+  );
 
 const expectedDonorFromRow = (row: GivebutterTransactionRow) =>
   Effect.gen(function* () {
@@ -386,10 +405,16 @@ const createDonorRecord = (row: GivebutterTransactionRow) =>
   Effect.gen(function* () {
     const client = yield* SObjectClient;
     const obj = yield* expectedDonorFromRow(row);
-    return yield* client.contact
+    const contact = yield* client.contact
       .create(obj)
       .pipe(Effect.map((v) => SFContact.make(v)));
-  });
+    yield* Effect.annotateCurrentSpan("ContactId", contact.Id);
+    return contact;
+  }).pipe(
+    Effect.withSpan("createDonorRecord", {
+      attributes: { Givebutter_Contact_ID: row.contact_data.id },
+    }),
+  );
 
 export const salesforceContactForGivebutterContact = (
   row: GivebutterTransactionRow,
@@ -416,7 +441,17 @@ export const salesforceContactForGivebutterContact = (
       ),
     );
     return record;
-  });
+  }).pipe(
+    Effect.withSpan("salesforceContactForGivebutterContact", {
+      attributes: {
+        Givebutter_Contact_ID: row.data.contact_id,
+        OpportunityId: opportunity.pipe(
+          Option.map((c) => c.Id),
+          Option.getOrNull,
+        ),
+      },
+    }),
+  );
 
 function planName(plan: typeof Plan.Type): string {
   const donor = [plan.first_name, plan.last_name].filter(Boolean).join(" ");
@@ -524,7 +559,16 @@ export const createOrFetchRecurringDonationFromGivebutterTransaction = (
                         existing[k] !== expected[k] &&
                         expected[k] !== undefined,
                     );
+                    yield* Effect.annotateCurrentSpan(
+                      "updates.length",
+                      updates.length,
+                    );
                     if (updates.length > 0) {
+                      yield* Console.log(
+                        "Updating RecurringDonation",
+                        existing.Id,
+                        updates.map(([k, v]) => [k, v, existing[k] ?? null]),
+                      );
                       yield* client.recurringDonation.update(
                         existing.Id,
                         Object.fromEntries(updates),
@@ -535,16 +579,32 @@ export const createOrFetchRecurringDonationFromGivebutterTransaction = (
                       });
                     }
                     return existing;
-                  }),
+                  }).pipe(
+                    Effect.withSpan("updateRecurringDonation", {
+                      attributes: { RecurringDonationId: existing.Id },
+                    }),
+                  ),
                 onNone: () =>
-                  client.recurringDonation
-                    .create(expected)
-                    .pipe(Effect.map((v) => RecurringDonation.make(v))),
+                  client.recurringDonation.create(expected).pipe(
+                    Effect.map((v) => RecurringDonation.make(v)),
+                    Effect.withSpan("createRecurringDonation"),
+                  ),
               }),
             ),
           ),
         );
-      }),
+      }).pipe(
+        Effect.withSpan(
+          "createOrFetchRecurringDonationFromGivebutterTransaction",
+          {
+            attributes: {
+              Givebutter_Plan_ID: plan.id,
+              Givebutter_Transaction_ID: row.data.id,
+              ContactId: contact.Id,
+            },
+          },
+        ),
+      ),
     ),
   );
 
@@ -566,9 +626,12 @@ function stageForGivebutterStatus(
 }
 const processRow = (row: GivebutterTransactionRow) =>
   Effect.gen(function* () {
-    // TODO implement observability
     const client = yield* SObjectClient;
     const { data: transaction, plan_data: plan } = row;
+    if (transaction.amount <= 0) {
+      yield* Effect.annotateCurrentSpan("ignored", "zero-dollar");
+      return;
+    }
     const existing = yield* client.opportunity.get(
       `Givebutter_Transaction_ID__c/${transaction.id}`,
     );
@@ -617,7 +680,7 @@ const processRow = (row: GivebutterTransactionRow) =>
       Form_of_Payment__c: "Givebutter",
       CampaignId: Option.map(campaign, (v) => v.Id).pipe(Option.getOrNull),
     } satisfies Partial<Omit<Opportunity, "Id">>;
-    return yield* Option.match(existing, {
+    const res = yield* Option.match(existing, {
       onNone: () =>
         client.opportunity
           .create(expected)
@@ -631,10 +694,12 @@ const processRow = (row: GivebutterTransactionRow) =>
               existing[k] !== expected[k] &&
               expected[k] !== undefined,
           );
+          yield* Effect.annotateCurrentSpan("updates.length", updates.length);
           if (updates.length > 0) {
-            yield* Effect.annotateCurrentSpan(
-              "prev",
-              Object.fromEntries(updates.map(([k]) => [k, existing[k]])),
+            yield* Console.log(
+              "Updating Opportunity",
+              existing.Id,
+              updates.map(([k, v]) => [k, v, existing[k] ?? null]),
             );
             yield* client.opportunity.update(
               existing.Id,
@@ -646,14 +711,36 @@ const processRow = (row: GivebutterTransactionRow) =>
             });
           }
           return existing;
-        }),
+        }).pipe(
+          Effect.withSpan("updateOpportunity", {
+            attributes: { OpportunityId: existing.Id },
+          }),
+        ),
     });
-  }).pipe(Effect.withSpan("processRow", { attributes: { id: row.data.id } }));
+    yield* Effect.annotateCurrentSpan("OpportunityId", res.Id);
+    yield* Effect.annotateCurrentSpan("ContactId", contact.Id);
+    yield* Effect.annotateCurrentSpan("AccountId", contact.AccountId);
+    yield* campaign.pipe(
+      optTraverse((v) => Effect.annotateCurrentSpan("CampaignId", v.Id)),
+    );
+    yield* recurring.pipe(
+      optTraverse((v) =>
+        Effect.annotateCurrentSpan("RecurringDonationId", v.Id),
+      ),
+    );
+  }).pipe(
+    Effect.withSpan("processRow", {
+      attributes: {
+        Givebutter_Transaction_ID: row.data.id,
+        amount: row.data.amount,
+      },
+    }),
+  );
 
 const mainProgram = Effect.gen(function* () {
   const supabase = yield* SupabaseContext;
   const decodeRow = S.decodeUnknown(GivebutterTransactionRow);
-  yield* evalQuery(() => {
+  const rows = yield* evalQuery(() => {
     const r = supabase
       .from(
         values.all
@@ -664,14 +751,12 @@ const mainProgram = Effect.gen(function* () {
         "id, created_at, updated_at, data, plan_data, campaign_data, tickets_data, contact_data",
       );
     return values.id ? r.filter("id", "eq", values.id) : r;
-  }).pipe(
-    Effect.flatMap(
-      Effect.forEach((row) => decodeRow(row).pipe(Effect.flatMap(processRow)), {
-        discard: true,
-      }),
-    ),
-  );
-});
+  });
+  yield* Effect.annotateCurrentSpan("rowCount", rows.length);
+  for (const row of rows) {
+    yield* processRow(yield* decodeRow(row));
+  }
+}).pipe(Effect.withSpan("mainProgram"));
 
 const NodeSdkLive = NodeSdk.layer(() => ({
   resource: { serviceName: "givebutter-salesforce" },
@@ -688,6 +773,7 @@ async function main() {
     Effect.provide(HttpClient.layer),
     Effect.provide(SupabaseContext.Live),
     Effect.catchAllCause(Effect.logError),
+    Effect.withSpan("main", { attributes: values }),
   );
   Effect.runPromise(prog);
 }
