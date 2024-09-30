@@ -628,6 +628,11 @@ const processRow = (row: GivebutterTransactionRow) =>
   Effect.gen(function* () {
     const client = yield* SObjectClient;
     const { data: transaction, plan_data: plan } = row;
+    if (transaction.plan_id && !plan) {
+      yield* Effect.fail(
+        `Transaction ${transaction.id} references Plan ${transaction.plan_id} which has not yet been synchronized`,
+      );
+    }
     if (transaction.amount <= 0) {
       yield* Effect.annotateCurrentSpan("ignored", "zero-dollar");
       return;

@@ -202,6 +202,11 @@ async function main() {
         ),
       ),
     }).pipe(Effect.runPromise);
+    if (info.transaction.plan_id && !info.plan) {
+      throw new Error(
+        `Transaction ${info.transaction.id} references Plan ${info.transaction.plan_id} which has not yet been synchronized`,
+      );
+    }
     await slack.chat.postMessage({
       channel: "#givebutter",
       ...formatBlocks(info),
