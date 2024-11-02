@@ -113,7 +113,7 @@ const searchForSalesforceContact = (
     const clauses = [
       soql`Givebutter_Contact_ID__c = ${givebutterContactId}`,
       ...emailCols.map(
-        (col) => `${col} IN (${emails.map(soqlQuote).join(",")}`,
+        (col) => `${col} IN (${emails.map(soqlQuote).join(",")})`,
       ),
       ...(parsedName && parsedName.last && parsedName.first
         ? [
