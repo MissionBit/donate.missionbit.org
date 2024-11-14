@@ -215,9 +215,9 @@ function upsertCampaignMembers() {
 async function main() {
   const allEffects = Effect.scoped(
     Effect.all([
+      upsert(getPlansUrl()),
       upsert(getCampaignsUrl("all")),
       upsert(getContactsUrl("all")),
-      upsert(getPlansUrl()),
       upsert(getTransactionsUrl("all")),
       upsert(getTicketsUrl()),
       upsertCampaignMembers(),
