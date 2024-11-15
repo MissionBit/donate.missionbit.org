@@ -1,15 +1,32 @@
 import * as S from "@effect/schema/Schema";
 import { Effect } from "effect";
 import requireEnv from "src/requireEnv";
-import { getSupabaseClient } from "src/getSupabaseClient";
+import { getSupabaseClient, SupabaseContext } from "src/getSupabaseClient";
 import { Webhook } from "src/givebutter/webhook";
 import { getCampaignsUrl } from "src/givebutter/campaign";
 import { getContactsUrl } from "src/givebutter/contact";
 import { getTicketsUrl } from "src/givebutter/ticket";
-import { getTransactionsUrl } from "src/givebutter/transaction";
+import { getTransactionsUrl, Transaction } from "src/givebutter/transaction";
+import { getPlansUrl } from "src/givebutter/plan";
+import { ApiLimiter, giveButterGet } from "src/givebutter/http";
+import { HttpClient } from "@effect/platform";
+import {
+  ConsoleSpanExporter,
+  BatchSpanProcessor,
+} from "@opentelemetry/sdk-trace-base";
+import { NodeSdk } from "@effect/opentelemetry";
 
 export const dynamic = "force-dynamic";
 export const runtime = "edge";
+
+const NodeSdkLive = NodeSdk.layer(() => ({
+  resource: { serviceName: "givebutter-salesforce" },
+  spanProcessor: new BatchSpanProcessor(
+    // https://effect.website/docs/guides/observability/telemetry/tracing
+    // values.otel ? new OTLPTraceExporter() : new ConsoleSpanExporter(),
+    new ConsoleSpanExporter(),
+  ),
+}));
 
 function getObjectUrl(hook: S.Schema.Type<typeof Webhook>): string {
   switch (hook.event) {
@@ -61,10 +78,45 @@ export async function POST(req: Request): Promise<Response> {
       event: hook.event,
       data: hook.data,
     });
+    const row = toRow(hook);
     const upsert = await supabase
       .from("givebutter_object")
-      .upsert(toRow(hook), { count: "exact" });
-    return Response.json({ received: true, state: "inserted", db, upsert });
+      .upsert(row, { count: "exact" });
+    const cascades: string[] = [];
+    if (hook.event === "transaction.succeeded") {
+      const txn = await Effect.runPromise(
+        S.decodeUnknown(Transaction)(row.data),
+      );
+      const plans = new Set<string>();
+      if (txn.plan_id) {
+        plans.add(txn.plan_id);
+      }
+      for (const sub of txn.transactions) {
+        if (sub.plan_id) {
+          plans.add(sub.plan_id);
+        }
+      }
+      cascades.push(...plans);
+      for (const plan_id of plans) {
+        await Effect.runPromise(
+          Effect.scoped(upsertPlan(plan_id)).pipe(
+            Effect.provide(NodeSdkLive),
+            Effect.provide(ApiLimiter.Live),
+            Effect.provide(HttpClient.layer),
+            Effect.provide(SupabaseContext.Live),
+            Effect.catchAllCause(Effect.logError),
+            Effect.withSpan("webhook", { attributes: { hook } }),
+          ),
+        ).catch((err) => console.error(err));
+      }
+    }
+    return Response.json({
+      received: true,
+      state: "inserted",
+      db,
+      upsert,
+      cascades,
+    });
   } catch (err) {
     if (
       body &&
@@ -87,4 +139,26 @@ export async function POST(req: Request): Promise<Response> {
       });
     }
   }
+}
+
+function upsertPlan(plan_id: string) {
+  const [prefix, schema] = getPlansUrl();
+  return Effect.gen(function* () {
+    const row = yield* giveButterGet(`${prefix}/${plan_id}`, schema);
+    const supabase = yield* SupabaseContext;
+    return yield* Effect.tryPromise({
+      try: async () => {
+        const { error, count } = await supabase
+          .from("givebutter_object")
+          .upsert(row, { count: "exact" });
+        if (error) {
+          console.error(`Error with ${prefix}`);
+          throw error;
+        }
+        console.log(`Upserted ${count} rows from ${prefix}/${plan_id}`);
+        return row.id;
+      },
+      catch: (unknown) => new Error(`something went wrong ${unknown}`),
+    });
+  }).pipe(Effect.withSpan(`upsertPlan`, { attributes: { plan_id } }));
 }
