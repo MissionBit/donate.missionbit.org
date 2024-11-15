@@ -637,6 +637,10 @@ const processRow = (row: GivebutterTransactionRow) =>
       yield* Effect.annotateCurrentSpan("ignored", "zero-dollar");
       return;
     }
+    if (!transaction.email) {
+      yield* Effect.annotateCurrentSpan("ignored", "no-email");
+      return;
+    }
     const existing = yield* client.opportunity.get(
       `Givebutter_Transaction_ID__c/${transaction.id}`,
     );
