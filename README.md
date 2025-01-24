@@ -221,3 +221,7 @@ npx @salesforce/cli login org --instance-url=https://missionbit--stripedev.sandb
 ```
 
 TODO - update salesforce notes
+
+## Webhook Flowcharts
+
+[Webhook Flowcharts](./WEBHOOK_FLOWCHARTS.md)
