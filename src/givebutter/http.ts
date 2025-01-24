@@ -56,11 +56,26 @@ export function giveButterGet<T>(url: string, schema: S.Schema<T>) {
   });
 }
 
+function filterPaginatedUrl(href: string) {
+  const url = new URL(href);
+  for (const k of [...url.searchParams.keys()]) {
+    if (/^(?:apiKey|keyable)/.test(k)) {
+      url.searchParams.delete(k);
+    }
+  }
+  return url.toString();
+}
+
 export function streamPages<T>(firstUrl: string, schema: S.Schema<T>) {
   const paginatedSchema = PaginatedResponse(schema);
   return Stream.paginateEffect(firstUrl, (url) =>
     giveButterGet(url, paginatedSchema).pipe(
-      Effect.map((page) => [page, Option.fromNullable(page.links.next)]),
+      Effect.map((page) => [
+        page,
+        Option.fromNullable(page.links.next).pipe(
+          Option.map(filterPaginatedUrl),
+        ),
+      ]),
     ),
   );
 }

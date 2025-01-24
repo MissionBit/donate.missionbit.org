@@ -148,7 +148,8 @@ function upsert<T extends GivebutterObj>(
           }
           return acc;
         },
-        catch: (unknown) => new Error(`something went wrong ${unknown}`),
+        catch: (unknown) =>
+          new Error(`something went wrong ${JSON.stringify(unknown)}`),
       }),
     ),
     Effect.andThen(markDeleted(urlPrefix(pair[0]))),
