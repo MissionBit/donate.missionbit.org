@@ -9,7 +9,8 @@ direction.
 
 ### Email Webhook
 
-The /api/webhook endpoint is only responsible for sending emails
+The /api/webhook endpoint is only responsible for sending emails for donations
+made through the legacy donate.missionbit.org portal
 
 ```mermaid
 flowchart TD
@@ -20,17 +21,19 @@ flowchart TD
   B("stripeCheckoutSessionCompleted")
   C("stripeInvoicePaymentSucceeded")
   D("stripeInvoicePaymentFailed")
+  E[Sendgrid API]
 
 %% Edges
 
   A -- "type:
-  checkout.session.completed" --> B -- "mode: payment" --> stripeCheckoutSessionCompletedPaymentEmail -- "fetchSessionPaymentIntent" --> sendEmail
+  checkout.session.completed" --> B -- "mode: payment" --> stripeCheckoutSessionCompletedPaymentEmail -- "fetchSessionPaymentIntent
+  Stripe API" --> sendEmail
   A -- "type:
   invoice.payment_succeeded" --> C --> stripeInvoicePaymentEmail
   A -- "type:
   invoice.payment_failed" --> D --> stripeInvoicePaymentEmail
-  stripeInvoicePaymentEmail --> stripeInvoicePaymentEmailData -- "has email data?" --> sendEmail
-
+  stripeInvoicePaymentEmail -- "Stripe API" --> stripeInvoicePaymentEmailData -- "has email data?" --> sendEmail
+  sendEmail --> E
 ```
 
 
