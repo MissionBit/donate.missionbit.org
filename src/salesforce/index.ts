@@ -26,6 +26,8 @@ export interface SalesforceClient {
   readonly req: (path: string, options?: JSONRequestInit) => Promise<Response>;
   readonly recordTypeIds: {
     readonly Donation: string;
+    readonly Matching_Gift: string;
+    readonly Special_Event_Revenue: string;
     readonly General: string;
     readonly Default: string;
   };
@@ -153,6 +155,10 @@ export async function login(): Promise<SalesforceClient> {
   ).toString();
   const recordTypeIds: SalesforceClient["recordTypeIds"] = {
     Donation: requireEnv("SALESFORCE_RECORD_TYPE_ID_DONATION"),
+    Matching_Gift: requireEnv("SALESFORCE_RECORD_TYPE_ID_MATCHING_GIFT"),
+    Special_Event_Revenue: requireEnv(
+      "SALESFORCE_RECORD_TYPE_ID_SPECIAL_EVENT_REVENUE",
+    ),
     General: requireEnv("SALESFORCE_RECORD_TYPE_ID_GENERAL"),
     Default: requireEnv("SALESFORCE_RECORD_TYPE_ID_DEFAULT"),
   };
@@ -212,7 +218,7 @@ export interface Contact {
 
 export interface Opportunity {
   Id: string;
-  RecordTypeId: string; // "SALESFORCE_RECORD_TYPE_ID_DONATION"
+  RecordTypeId: string; // "SALESFORCE_RECORD_TYPE_ID_DONATION" | "SALESFORCE_RECORD_TYPE_ID_MATCHING_GIFT" | "SALESFORCE_RECORD_TYPE_ID_SPECIAL_EVENT_REVENUE"
   Name: string; // "Donation #$donationId"
   ContactId: Contact["Id"];
   CampaignId: Campaign["Id"] | null;
@@ -465,9 +471,9 @@ function stageForStatus(chargeStatus: string): string {
     case "pending":
       return "01-Pledged";
     case "succeeded":
-      return "02-Won";
+      return "Posted - Fully Paid";
     case "failed":
-      return "03-Lost";
+      return "Lost";
     default:
       return "01-Pledged";
   }

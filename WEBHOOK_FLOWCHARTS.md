@@ -7,7 +7,32 @@ direction.
 
 ## Stripe
 
-### Email Webhook
+## Stripe->Salesforce Webhook
+
+The /api/salesforce-webhook endpoint is responsible for synchronizing Stripe
+transactions to Salesforce, and for posting them to Slack
+
+```mermaid
+flowchart TD
+
+%% Nodes
+  A("POST /api/salesforce-webhook
+  type: charge.succeeded")
+  B("Get Opportunity by
+  Stripe_Charge_ID__c")
+  OppExists("Opportunity Exists")
+  OppCheck("Needs Update?")
+  OppMissing("No Opportunity Record")
+
+%% Edges
+ A --> stripeChargeSucceeded -- "Stripe API" --> createOrFetchOpportunityFromCharge -- "Salesforce API" --> B
+ B --> OppExists -- "Update Opportunity Name
+ Update Stage Name
+ B --> OppMissing
+```
+
+
+### Stripe->Email Webhook
 
 The /api/webhook endpoint is only responsible for sending emails for donations
 made through the legacy donate.missionbit.org portal
@@ -36,10 +61,9 @@ flowchart TD
   sendEmail --> E
 ```
 
-
 ## Eventbrite
 
-### Slack Order Notifications
+### Eventbrite->Slack Order Notifications
 
 Notifications of Eventbrite orders are directly posted to Slack
 

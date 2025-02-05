@@ -615,15 +615,31 @@ function stageForGivebutterStatus(
     case "authorized":
       return "01-Pledged";
     case "succeeded":
-      return "02-Won";
+      return "Posted - Fully Paid";
     case "failed":
-      return "03-Lost";
+      return "Lost";
     case "cancelled":
-      return "03-Lost";
+      return "Lost";
     default:
       return "01-Pledged";
   }
 }
+
+function donationRecordTypeForCampaign(optCampaign: Option.Option<SFCampaign>) {
+  return Effect.gen(function* () {
+    const recordTypes = yield* SalesforceRecordTypes;
+    return optCampaign.pipe(
+      Option.match({
+        onNone: () => recordTypes.Donation,
+        onSome: (campaign) =>
+          campaign.Type === "Event" || /Gala|Demo Day/i.test(campaign.Name)
+            ? recordTypes.Special_Event_Revenue
+            : recordTypes.Donation,
+      }),
+    );
+  });
+}
+
 const processRow = (row: GivebutterTransactionRow) =>
   Effect.gen(function* () {
     const client = yield* SObjectClient;
@@ -655,7 +671,6 @@ const processRow = (row: GivebutterTransactionRow) =>
         existing,
         contact,
       );
-    const recordTypes = yield* SalesforceRecordTypes;
     const closeDate = transaction.created_at;
     const stageName = stageForGivebutterStatus(transaction.status);
     const opportunityName = [
@@ -674,7 +689,7 @@ const processRow = (row: GivebutterTransactionRow) =>
       .filter(Boolean)
       .join(" ");
     const expected = {
-      RecordTypeId: recordTypes.Donation,
+      RecordTypeId: yield* donationRecordTypeForCampaign(campaign),
       ContactId: contact.Id,
       AccountId: contact.AccountId,
       npe03__Recurring_Donation__c: Option.map(recurring, (v) => v.Id).pipe(
@@ -696,12 +711,18 @@ const processRow = (row: GivebutterTransactionRow) =>
           .pipe(Effect.map((v) => Opportunity.make(v))),
       onSome: (existing) =>
         Effect.gen(function* () {
+          const recordTypes = yield* SalesforceRecordTypes;
           const updates = typedEntries(expected).filter(
             ([k]) =>
               k !== "ContactId" &&
               k !== "AccountId" &&
               existing[k] !== expected[k] &&
-              expected[k] !== undefined,
+              expected[k] !== undefined &&
+              // Don't update a matching gift's record type
+              !(
+                k === "RecordTypeId" &&
+                existing[k] === recordTypes.Matching_Gift
+              ),
           );
           yield* Effect.annotateCurrentSpan("updates.length", updates.length);
           if (updates.length > 0) {

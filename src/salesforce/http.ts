@@ -15,6 +15,8 @@ export class SalesforceRecordTypes extends Context.Tag(
   SalesforceRecordTypes,
   {
     readonly Donation: string;
+    readonly Matching_Gift: string;
+    readonly Special_Event_Revenue: string;
     readonly General: string;
     readonly Default: string;
   }
@@ -23,7 +25,16 @@ export class SalesforceRecordTypes extends Context.Tag(
     SalesforceRecordTypes,
     Effect.gen(function* () {
       return {
+        // 012Pn000000VUbJIAW
         Donation: yield* Config.string("SALESFORCE_RECORD_TYPE_ID_DONATION"),
+        // 0121P0000002RH9QAM
+        Matching_Gift: yield* Config.string(
+          "SALESFORCE_RECORD_TYPE_ID_MATCHING_GIFT",
+        ),
+        // 012Pn000000VUbMIAW
+        Special_Event_Revenue: yield* Config.string(
+          "SALESFORCE_RECORD_TYPE_ID_SPECIAL_EVENT_REVENUE",
+        ),
         General: yield* Config.string("SALESFORCE_RECORD_TYPE_ID_GENERAL"),
         Default: yield* Config.string("SALESFORCE_RECORD_TYPE_ID_DEFAULT"),
       };

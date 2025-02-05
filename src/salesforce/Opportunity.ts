@@ -6,14 +6,17 @@ import { RecurringDonation } from "./RecurringDonation";
 
 export class Opportunity extends S.Class<Opportunity>("Opportunity")({
   Id: S.String,
-  RecordTypeId: S.String, // "SALESFORCE_RECORD_TYPE_ID_DONATION"
+  RecordTypeId: S.String, // "SALESFORCE_RECORD_TYPE_ID_DONATION" | "SALESFORCE_RECORD_TYPE_ID_MATCHING_GIFT" | "SALESFORCE_RECORD_TYPE_ID_SPECIAL_EVENT_REVENUE"
   Name: S.String, // "Donation #$donationId"
   ContactId: Contact.fields["Id"],
   CampaignId: S.NullOr(Campaign.fields["Id"]),
   Amount: S.Number,
   AccountId: Contact.fields["AccountId"],
   CloseDate: S.String, // "2021-01-01"
-  StageName: S.Union(S.Literal("01-Pledged", "02-Won", "03-Lost"), OtherString),
+  StageName: S.Union(
+    S.Literal("01-Pledged", "02-Won", "03-Lost", "Lost", "Posted - Fully Paid"),
+    OtherString,
+  ),
   npe03__Recurring_Donation__c: S.NullOr(RecurringDonation.fields["Id"]),
   Stripe_Charge_ID__c: S.NullOr(S.String),
   Transaction_ID__c: S.NullOr(S.String),
