@@ -77,6 +77,10 @@ export interface SObjectClientInstance<
     id: string,
     eff: () => Effect.Effect<Self, E, R>,
   ) => Effect.Effect<Self, E, R>;
+  withOptionCache: <E, R>(
+    id: string,
+    eff: () => Effect.Effect<Option.Option<Self>, E, R>,
+  ) => Effect.Effect<Option.Option<Self>, E, R>;
 }
 
 const makeQuerySchema = <T>(schema: S.Schema<T>) =>
@@ -211,6 +215,27 @@ function sObjectClientBuilder<
               }
             }),
             "SObjectClient.withCache",
+            { attributes: { id, apiName: schema.apiName } },
+          ),
+        withOptionCache: (id, eff) =>
+          Effect.withSpan(
+            Effect.gen(function* () {
+              const cached = cache.get(id);
+              yield* Effect.annotateCurrentSpan("miss", cached === undefined);
+              if (cached) {
+                yield* Effect.annotateCurrentSpan("value.Id", cached.Id);
+                return Option.some(cached);
+              } else {
+                const opt = yield* eff();
+                if (Option.isSome(opt)) {
+                  const v = opt.value;
+                  yield* Effect.annotateCurrentSpan("value.Id", v.Id);
+                  cache.set(id, v);
+                }
+                return opt;
+              }
+            }),
+            "SObjectClient.withOptionCache",
             { attributes: { id, apiName: schema.apiName } },
           ),
       } satisfies SObjectClientInstance<Self, Fields>;

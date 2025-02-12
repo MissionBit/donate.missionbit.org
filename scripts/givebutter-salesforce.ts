@@ -416,6 +416,25 @@ const createDonorRecord = (row: GivebutterTransactionRow) =>
     }),
   );
 
+export const existingSalesforceContactForGivebutterContact = (
+  row: GivebutterTransactionRow,
+  opportunity: Option.Option<Opportunity>,
+) =>
+  Effect.gen(function* () {
+    const client = yield* SObjectClient;
+    const lookupKey = `Givebutter_Contact_ID__c/${row.data.contact_id}`;
+    return yield* client.contact.withOptionCache(lookupKey, () =>
+      client.contact.get(lookupKey).pipe(
+        Effect.flatMap(
+          Option.match({
+            onSome: Effect.succeedSome,
+            onNone: () => searchForSalesforceContact(client, row, opportunity),
+          }),
+        ),
+      ),
+    );
+  });
+
 export const salesforceContactForGivebutterContact = (
   row: GivebutterTransactionRow,
   opportunity: Option.Option<Opportunity>,
@@ -653,14 +672,24 @@ const processRow = (row: GivebutterTransactionRow) =>
       yield* Effect.annotateCurrentSpan("ignored", "zero-dollar");
       return;
     }
-    if (!transaction.email) {
-      yield* Effect.annotateCurrentSpan("ignored", "no-email");
-      return;
-    }
     const existing = yield* client.opportunity.get(
       `Givebutter_Transaction_ID__c/${transaction.id}`,
     );
-    const contact = yield* salesforceContactForGivebutterContact(row, existing);
+    let contact;
+    if (!transaction.email) {
+      const optContact = yield* existingSalesforceContactForGivebutterContact(
+        row,
+        existing,
+      );
+      if (Option.isNone(optContact)) {
+        yield* Effect.annotateCurrentSpan("ignored", "no-email");
+        return;
+      } else {
+        contact = optContact.value;
+      }
+    } else {
+      contact = yield* salesforceContactForGivebutterContact(row, existing);
+    }
     const campaign = yield* createOrFetchCampaignFromGivebutterTransaction(
       row,
       existing,
