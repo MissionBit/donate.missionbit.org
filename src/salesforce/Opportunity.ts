@@ -14,7 +14,20 @@ export class Opportunity extends S.Class<Opportunity>("Opportunity")({
   AccountId: Contact.fields["AccountId"],
   CloseDate: S.String, // "2021-01-01"
   StageName: S.Union(
-    S.Literal("01-Pledged", "02-Won", "03-Lost", "Lost", "Posted - Fully Paid"),
+    S.Literal(
+      "Prospecting",
+      "LOI Submitted",
+      "Proposal Submitted",
+      "Cultivating",
+      "Ask Made",
+      "Verbal Pledge",
+      "Awarded",
+      "Awarded - Fully Paid",
+      "Posted",
+      "Posted - Fully Paid",
+      "Lost",
+      "Withdrawn",
+    ),
     OtherString,
   ),
   npe03__Recurring_Donation__c: S.NullOr(RecurringDonation.fields["Id"]),

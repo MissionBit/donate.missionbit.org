@@ -466,16 +466,16 @@ function getBalanceTransactionId(charge: Stripe.Charge): string {
     : charge.balance_transaction.id;
 }
 
-function stageForStatus(chargeStatus: string): string {
+function stageForStatus(chargeStatus: string): Opportunity["StageName"] {
   switch (chargeStatus) {
     case "pending":
-      return "01-Pledged";
+      return "Posted";
     case "succeeded":
       return "Posted - Fully Paid";
     case "failed":
       return "Lost";
     default:
-      return "01-Pledged";
+      return "Ask Made";
   }
 }
 

@@ -610,10 +610,10 @@ export const createOrFetchRecurringDonationFromGivebutterTransaction = (
 
 function stageForGivebutterStatus(
   chargeStatus: (typeof Transaction.Type)["status"],
-): string {
+): Opportunity["StageName"] {
   switch (chargeStatus) {
     case "authorized":
-      return "01-Pledged";
+      return "Posted";
     case "succeeded":
       return "Posted - Fully Paid";
     case "failed":
@@ -621,7 +621,7 @@ function stageForGivebutterStatus(
     case "cancelled":
       return "Lost";
     default:
-      return "01-Pledged";
+      return "Ask Made";
   }
 }
 
@@ -770,19 +770,19 @@ const processRow = (row: GivebutterTransactionRow) =>
 const mainProgram = Effect.gen(function* () {
   const supabase = yield* SupabaseContext;
   const decodeRow = S.decodeUnknown(GivebutterTransactionRow);
+  const tableName = values.all
+    ? "givebutter_transactions"
+    : "givebutter_transactions_pending_salesforce";
   const rows = yield* evalQuery(() => {
     const r = supabase
-      .from(
-        values.all
-          ? "givebutter_transactions"
-          : "givebutter_transactions_pending_salesforce",
-      )
+      .from(tableName)
       .select(
         "id, created_at, updated_at, data, plan_data, campaign_data, tickets_data, contact_data",
       );
     return values.id ? r.filter("id", "eq", values.id) : r;
   });
   yield* Effect.annotateCurrentSpan("rowCount", rows.length);
+  yield* Effect.annotateCurrentSpan("tableName", tableName);
   for (const row of rows) {
     yield* processRow(yield* decodeRow(row));
   }
