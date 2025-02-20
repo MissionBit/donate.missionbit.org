@@ -112,9 +112,11 @@ const searchForSalesforceContact = (
     ] as const;
     const clauses = [
       soql`Givebutter_Contact_ID__c = ${givebutterContactId}`,
-      ...emailCols.map(
-        (col) => `${col} IN (${emails.map(soqlQuote).join(",")})`,
-      ),
+      ...(emails.length > 0
+        ? emailCols.map(
+            (col) => `${col} IN (${emails.map(soqlQuote).join(",")})`,
+          )
+        : []),
       ...(parsedName && parsedName.last && parsedName.first
         ? [
             soql`(FirstName LIKE ${parsedName.first + "%"} AND LastName = ${
