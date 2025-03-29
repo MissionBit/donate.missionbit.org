@@ -81,7 +81,13 @@ export const Transaction = S.Struct({
   email: S.NullishOr(S.String),
   phone: S.NullishOr(S.String),
   address: S.NullishOr(BaseAddress),
-  status: S.Literal("succeeded", "authorized", "failed", "cancelled"),
+  status: S.Literal(
+    "succeeded",
+    "authorized",
+    "failed",
+    "cancelled",
+    "pending",
+  ),
   method: S.Union(
     S.Literal(
       "card",

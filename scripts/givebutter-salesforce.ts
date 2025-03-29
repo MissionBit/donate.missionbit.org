@@ -635,6 +635,8 @@ function stageForGivebutterStatus(
   switch (chargeStatus) {
     case "authorized":
       return "Posted";
+    case "pending":
+      return "Posted";
     case "succeeded":
       return "Posted - Fully Paid";
     case "failed":
