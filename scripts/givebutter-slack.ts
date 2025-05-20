@@ -12,11 +12,24 @@ import {
   Transaction,
 } from "src/givebutter/transaction";
 import slack from "src/slack";
-import { getSupabaseClient } from "src/getSupabaseClient";
+import { getSupabaseClient, SupabaseContext } from "src/getSupabaseClient";
 import { Campaign } from "src/givebutter/campaign";
-import { Plan } from "src/givebutter/plan";
+import { getPlansUrl, Plan } from "src/givebutter/plan";
 import { Ticket } from "src/givebutter/ticket";
 import { FormatBlocksOptions } from "../src/FormatBlocksOptions";
+import { ApiLimiter, giveButterGet } from "src/givebutter/http";
+import { HttpClient } from "@effect/platform";
+import { SalesforceLive } from "src/salesforce/layer";
+import { NodeSdk } from "@effect/opentelemetry";
+import {
+  BatchSpanProcessor,
+  ConsoleSpanExporter,
+} from "@opentelemetry/sdk-trace-base";
+
+const NodeSdkLive = NodeSdk.layer(() => ({
+  resource: { serviceName: "givebutter-slack" },
+  spanProcessor: new BatchSpanProcessor(new ConsoleSpanExporter()),
+}));
 
 function getDashboardContactUrl(contactId: string | number): string {
   return `https://dashboard.givebutter.com/accounts/119606/contacts/${contactId}`;
@@ -176,6 +189,28 @@ function formatBlocks({
   return { text: sectionText, blocks };
 }
 
+function upsertPlan(plan_id: string) {
+  const [prefix, schema] = getPlansUrl();
+  return Effect.gen(function* () {
+    const row = yield* giveButterGet(`${prefix}/${plan_id}`, schema);
+    const supabase = yield* SupabaseContext;
+    return yield* Effect.tryPromise({
+      try: async () => {
+        const { error, count } = await supabase
+          .from("givebutter_object")
+          .upsert(row, { count: "exact" });
+        if (error) {
+          console.error(`Error with ${prefix}`);
+          throw error;
+        }
+        console.log(`Upserted ${count} rows from ${prefix}/${plan_id}`);
+        return row;
+      },
+      catch: (unknown) => new Error(`something went wrong ${unknown}`),
+    });
+  }).pipe(Effect.withSpan(`upsertPlan`, { attributes: { plan_id } }));
+}
+
 async function main() {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
@@ -187,34 +222,52 @@ async function main() {
     console.error(error);
     throw error;
   }
-  for (const row of data) {
-    const info = await Effect.all({
-      transaction: S.decodeUnknown(Transaction)(row.data),
-      campaign: row.campaign_data
+  const mainProgram = Effect.gen(function* () {
+    for (const row of data) {
+      const transaction = yield* S.decodeUnknown(Transaction)(row.data);
+      const campaign = yield* row.campaign_data
         ? S.decodeUnknown(Campaign)(row.campaign_data)
-        : Effect.succeed(null),
-      plan: row.plan_data
+        : Effect.succeed(null);
+      let plan = yield* row.plan_data
         ? S.decodeUnknown(Plan)(row.plan_data)
-        : Effect.succeed(null),
-      tickets: Effect.all(
+        : Effect.succeed(null);
+      if (transaction.plan_id && !plan) {
+        // synchronize plan
+        plan = yield* upsertPlan(transaction.plan_id);
+      }
+      const tickets = yield* Effect.all(
         (row.tickets_data as unknown[]).map((data) =>
           S.decodeUnknown(Ticket)(data),
         ),
-      ),
-    }).pipe(Effect.runPromise);
-    if (info.transaction.plan_id && !info.plan) {
-      throw new Error(
-        `Transaction ${info.transaction.id} references Plan ${info.transaction.plan_id} which has not yet been synchronized`,
       );
+      const info = { transaction, campaign, plan, tickets };
+      if (info.transaction.plan_id && !info.plan) {
+        throw new Error(
+          `Transaction ${info.transaction.id} references Plan ${info.transaction.plan_id} which has not yet been synchronized`,
+        );
+      }
+      yield* Effect.tryPromise(async () => {
+        await slack.chat.postMessage({
+          channel: "#givebutter",
+          ...formatBlocks(info),
+          unfurl_links: false,
+          unfurl_media: false,
+        });
+        await supabase.from("givebutter_slack").insert({ id: row.id });
+      });
     }
-    await slack.chat.postMessage({
-      channel: "#givebutter",
-      ...formatBlocks(info),
-      unfurl_links: false,
-      unfurl_media: false,
-    });
-    await supabase.from("givebutter_slack").insert({ id: row.id });
-  }
+  });
+  const prog = Effect.scoped(mainProgram).pipe(
+    Effect.provide(SalesforceLive),
+    Effect.provide(NodeSdkLive),
+    Effect.provide(ApiLimiter.Live),
+    Effect.provide(HttpClient.layer),
+    Effect.provide(SupabaseContext.Live),
+    Effect.catchAllCause(Effect.logError),
+    Effect.withSpan("main"),
+  );
+
+  await Effect.runPromise(prog);
 }
 
 main();
