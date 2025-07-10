@@ -62,12 +62,13 @@ function lineItem(name: string, unit_amount: number) {
   };
 }
 
-function session_args(
+async function session_args(
+  stripe: Stripe,
   origin: string,
   amount: number,
   frequency: Frequency,
   metadata: { [k: string]: string },
-): Stripe.Checkout.SessionCreateParams {
+): Promise<Stripe.Checkout.SessionCreateParams> {
   const payment_method_types: Stripe.Checkout.SessionCreateParams.PaymentMethodType[] =
     ["card"];
   const success_url = `${origin}/result?session_id={CHECKOUT_SESSION_ID}`;
@@ -75,6 +76,19 @@ function session_args(
   const coverFees =
     metadata.coverFees === "coverFees" ? Math.ceil(amount * 0.03) : 0;
   if (frequency === "monthly") {
+    const prices = await stripe.prices.list({
+      active: true,
+      type: "recurring",
+    });
+    let monthlyId = MONTHLY_PLAN_ID;
+    let monthlyCoverFeesId = MONTHLY_COVER_FEES_PLAN_ID;
+    for (const { lookup_key, id } of prices.data) {
+      if (lookup_key === MONTHLY_PLAN_ID) {
+        monthlyId = id;
+      } else if (lookup_key === MONTHLY_COVER_FEES_PLAN_ID) {
+        monthlyCoverFeesId = id;
+      }
+    }
     return {
       mode: "subscription",
       payment_method_types,
@@ -84,9 +98,9 @@ function session_args(
         metadata,
       },
       line_items: [
-        { price: MONTHLY_PLAN_ID, quantity: amount },
+        { price: monthlyId, quantity: amount },
         ...(coverFees > 0
-          ? [{ price: MONTHLY_COVER_FEES_PLAN_ID, quantity: coverFees }]
+          ? [{ price: monthlyCoverFeesId, quantity: coverFees }]
           : []),
       ],
     };
@@ -121,7 +135,7 @@ export async function POST(req: Request) {
     // Create Checkout Sessions from body params.
     const checkoutSession: Stripe.Checkout.Session =
       await stripe.checkout.sessions.create(
-        session_args(origin, amount, frequency, {
+        await session_args(stripe, origin, amount, frequency, {
           ...metadata,
           origin,
           app: APP,
