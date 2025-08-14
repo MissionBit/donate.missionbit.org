@@ -75,8 +75,8 @@ export const Transaction = S.Struct({
   fund_code: S.NullishOr(S.String),
   // Added 2024-06-10
   contact_id: S.Union(S.String, S.Number),
-  first_name: S.String,
-  last_name: S.String,
+  first_name: S.NullishOr(S.String),
+  last_name: S.NullishOr(S.String),
   company: S.NullishOr(S.String),
   email: S.NullishOr(S.String),
   phone: S.NullishOr(S.String),
