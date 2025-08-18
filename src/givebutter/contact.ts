@@ -68,6 +68,14 @@ export const Contact = S.Struct({
   is_address_subscribed: S.Boolean,
   created_at: S.String,
   updated_at: S.String,
+  type: S.optional(S.Union(S.Literal("company"), S.String)),
+  external_id: S.optional(S.NullishOr(S.Unknown)),
+  employer: S.optional(S.NullishOr(S.String)),
+  salutation_name: S.optional(S.NullishOr(S.String)),
+  company_name: S.optional(S.NullishOr(S.String)),
+  preferred_name: S.optional(S.NullishOr(S.String)),
+  associated_companies: S.optional(S.NullishOr(S.Unknown)),
+  address_unsubscribed_at: S.optional(S.NullishOr(S.String)),
 }).annotations({ identifier: "Contact" });
 
 export const GetContactsResponse = PaginatedResponse(Contact);
