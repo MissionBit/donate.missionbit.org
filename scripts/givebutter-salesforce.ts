@@ -811,7 +811,8 @@ const mainProgram = Effect.gen(function* () {
       .from(tableName)
       .select(
         "id, created_at, updated_at, data, plan_data, campaign_data, tickets_data, contact_data",
-      );
+      )
+      .filter("contact_data", "not.is", null);
     return values.id ? r.filter("id", "eq", values.id) : r;
   });
   yield* Effect.annotateCurrentSpan("rowCount", rows.length);
