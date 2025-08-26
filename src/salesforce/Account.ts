@@ -6,21 +6,23 @@ import { OtherString } from "./OtherString";
 export class Account extends S.Class<Account>("Account")({
   Id: S.String,
   Name: S.String,
-  Type: S.Union(
-    S.Literal(
-      "School",
-      "Foundation",
-      "Government",
-      "Business",
-      "Nonprofit",
-      "Community Organization",
-      "Middle School",
-      "Household",
-      "Company",
-      "High School",
-      "College/University",
+  Type: S.NullOr(
+    S.Union(
+      S.Literal(
+        "School",
+        "Foundation",
+        "Government",
+        "Business",
+        "Nonprofit",
+        "Community Organization",
+        "Middle School",
+        "Household",
+        "Company",
+        "High School",
+        "College/University",
+      ),
+      OtherString,
     ),
-    OtherString,
   ),
   RecordTypeId: S.String, // "SALESFORCE_RECORD_TYPE_ID_ORGANIZATION" | "SALESFORCE_RECORD_TYPE_ID_HOUSEHOLD"
   Givebutter_Contact_ID__c: S.NullOr(S.String),

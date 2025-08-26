@@ -19,10 +19,10 @@
     "analyze:server": "cross-env BUNDLE_ANALYZE=server next build",
     "analyze:browser": "cross-env BUNDLE_ANALYZE=browser next build",
     "prepare": "husky",
-    "tsx": "NODE_OPTIONS='--import tsx -r dotenv/config' node",
-    "cron": "export NODE_OPTIONS='--import tsx -r dotenv/config' && node scripts/givebutter-slack.ts && node scripts/givebutter-salesforce.ts",
-    "cron-cache": "export NODE_OPTIONS='--import tsx -r dotenv/config' && node scripts/cache-google.ts",
-    "cron-givebutter": "export NODE_OPTIONS='--import tsx -r dotenv/config' && node scripts/givebutter.ts"
+    "tsx": "node --import tsx -r dotenv/config",
+    "cron": "npm run tsx scripts/givebutter-slack.ts && npm run tsx scripts/givebutter-salesforce.ts",
+    "cron-cache": "npm run tsx scripts/cache-google.ts",
+    "cron-givebutter": "npm run tsx scripts/givebutter.ts"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": "eslint --cache --fix"

@@ -39,8 +39,8 @@ import { twoLetterCountryCode } from "src/salesforce/twoLetterCountryCode";
 import { SalesforceRecordTypes } from "src/salesforce/http";
 import * as EffectInstances from "@effect/typeclass/data/Effect";
 import * as OptionInstances from "@effect/typeclass/data/Option";
-import { dollarFormatter } from "src/dollars";
-import { ShortDateFormat } from "src/dates";
+import { dollarFormatterNoGrouping } from "src/dollars";
+import { SFDateFormat } from "src/dates";
 import { upsertContact, upsertPlan } from "app/api/givebutter-webhook/route";
 import { ApiLimiter } from "src/givebutter/http";
 
@@ -352,7 +352,10 @@ const updateAccountRecord = (
 ) =>
   Effect.gen(function* () {
     const expected = yield* expectedAccountFromRow(row);
-    const keys = ["Givebutter_Contact_ID__c"] as const;
+    const keys = [
+      "Givebutter_Contact_ID__c",
+      ...(account.Type ? [] : (["Type"] as const)),
+    ] as const;
     const updates = keys.flatMap((k) =>
       account[k] || account[k] === expected[k]
         ? ([] as const)
@@ -641,7 +644,7 @@ function planName(plan: typeof Plan.Type): string {
   ];
   const dateParts = plan.start_at.split(/ /g)[0].split(/-/g);
   const mmddyyyy = [dateParts[1], dateParts[2], dateParts[0]].join("/");
-  return `${donor} Recurring ${dollarFormatter.format(plan.amount)}/${freq} ${mmddyyyy} ${plan.id}`;
+  return `${donor} Recurring ${dollarFormatterNoGrouping.format(plan.amount)}/${freq} ${mmddyyyy} ${plan.id}`;
 }
 
 function planFrequency(
@@ -836,6 +839,15 @@ function donationRecordTypeForCampaign(optCampaign: Option.Option<SFCampaign>) {
   });
 }
 
+const campaignRecordTypeName = Effect.fn("campaignRecordTypeName")(function* (
+  recordTypeId: string,
+) {
+  const recordTypes = yield* SalesforceRecordTypes;
+  return recordTypeId === recordTypes.Special_Event_Revenue
+    ? "Special Event Revenue"
+    : "Donation";
+});
+
 const processRow = (originalRow: GivebutterTransactionRow) =>
   Effect.gen(function* () {
     const client = yield* SObjectClient;
@@ -891,23 +903,29 @@ const processRow = (originalRow: GivebutterTransactionRow) =>
       );
     const closeDate = transaction.created_at;
     const stageName = stageForGivebutterStatus(transaction.status);
+    const RecordTypeId = yield* donationRecordTypeForCampaign(campaign);
+
     const opportunityName = [
-      transaction.first_name,
-      transaction.last_name,
-      transaction.giving_space &&
-      transaction.giving_space.name !==
-        `${transaction.first_name} ${transaction.last_name}`
-        ? `(${transaction.giving_space.name})`
-        : null,
-      dollarFormatter.format(transaction.amount),
+      ...(S.is(SFContact)(contactOrAccount)
+        ? [
+            transaction.first_name,
+            transaction.last_name,
+            transaction.giving_space &&
+            transaction.giving_space.name !==
+              `${transaction.first_name} ${transaction.last_name}`
+              ? `(${transaction.giving_space.name})`
+              : null,
+          ]
+        : [contactOrAccount.Name]),
+      dollarFormatterNoGrouping.format(transaction.amount),
       plan ? "Recurring" : null,
-      "Donation",
-      ShortDateFormat.format(new Date(closeDate)),
+      yield* campaignRecordTypeName(RecordTypeId),
+      SFDateFormat.format(new Date(closeDate)),
     ]
       .filter(Boolean)
       .join(" ");
     const expected = {
-      RecordTypeId: yield* donationRecordTypeForCampaign(campaign),
+      RecordTypeId,
       ...(S.is(SFContact)(contactOrAccount)
         ? {
             ContactId: contactOrAccount.Id,

@@ -33,6 +33,13 @@ export const ShortDateFormat = new Intl.DateTimeFormat("en-US", {
   day: "numeric",
 });
 
+export const SFDateFormat = new Intl.DateTimeFormat("en-US", {
+  timeZone,
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+});
+
 export const CourseDateTimeFormat = new Intl.DateTimeFormat("en-US", {
   timeZone,
   month: "long",
