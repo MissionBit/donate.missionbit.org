@@ -36,9 +36,9 @@ export const Address = pipe(
 export const Contact = S.Struct({
   id: S.Number,
   prefix: S.NullishOr(S.Unknown),
-  first_name: S.String,
+  first_name: S.NullishOr(S.String),
   middle_name: S.NullishOr(S.String),
-  last_name: S.String,
+  last_name: S.NullishOr(S.String),
   suffix: S.NullishOr(S.Unknown),
   gender: S.NullishOr(S.Unknown),
   dob: S.NullishOr(S.String),
@@ -68,7 +68,7 @@ export const Contact = S.Struct({
   is_address_subscribed: S.Boolean,
   created_at: S.String,
   updated_at: S.String,
-  type: S.optional(S.Union(S.Literal("company"), S.String)),
+  type: S.optional(S.Union(S.Literal("individual", "company"), S.String)),
   external_id: S.optional(S.NullishOr(S.Unknown)),
   employer: S.optional(S.NullishOr(S.String)),
   salutation_name: S.optional(S.NullishOr(S.String)),
@@ -80,9 +80,7 @@ export const Contact = S.Struct({
 
 export const GetContactsResponse = PaginatedResponse(Contact);
 
-export function getContactsUrl(scope: "active" | "all" | "archived" = "all") {
-  return [
-    `https://api.givebutter.com/v1/contacts?scope=${scope}`,
-    Contact,
-  ] as const;
+const prefix = `https://api.givebutter.com/v1/contacts`;
+export function getContactsUrl(scope: "active" | "all" | "archived" | null) {
+  return [scope ? `${prefix}?scope=${scope}` : prefix, Contact] as const;
 }

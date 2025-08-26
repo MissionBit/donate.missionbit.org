@@ -193,7 +193,7 @@ function upsertMembers(
 function upsertCampaignMembers() {
   return Effect.tryPromise({
     try: async () => {
-      const campaignPrefix = `${urlPrefix(getCampaignsUrl()[0])}/`;
+      const campaignPrefix = `${urlPrefix(getCampaignsUrl(null)[0])}/`;
       const prefixLength = campaignPrefix.length;
       const { data, error } = await supabase
         .from("givebutter_object")

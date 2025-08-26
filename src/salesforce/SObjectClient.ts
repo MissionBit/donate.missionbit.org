@@ -22,6 +22,7 @@ import { Contact } from "./Contact";
 import { Campaign } from "./Campaign";
 import { Opportunity } from "./Opportunity";
 import { RecurringDonation } from "./RecurringDonation";
+import { Account } from "./Account";
 
 const filterStatusOkDebug = <E, R>(
   self: HttpClient.HttpClient.WithResponse<E, R>,
@@ -244,6 +245,7 @@ function sObjectClientBuilder<
 }
 
 const makeClients = Effect.all({
+  account: sObjectClientBuilder(Account),
   contact: sObjectClientBuilder(Contact),
   campaign: sObjectClientBuilder(Campaign),
   opportunity: sObjectClientBuilder(Opportunity),

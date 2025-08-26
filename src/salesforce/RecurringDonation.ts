@@ -1,13 +1,15 @@
 import { Schema as S } from "@effect/schema";
 import { OtherString } from "./OtherString";
 import { Contact } from "./Contact";
+import { Account } from "./Account";
 
 export class RecurringDonation extends S.Class<RecurringDonation>(
   "RecurringDonation",
 )({
   Id: S.String,
   Name: S.String,
-  npe03__Contact__c: Contact.fields["Id"],
+  npe03__Contact__c: S.NullOr(Contact.fields["Id"]),
+  npe03__Organization__c: Account.fields["Id"],
   npe03__Amount__c: S.Number,
   npe03__Installment_Period__c: S.Union(
     S.Literal("Monthly", "Yearly"),

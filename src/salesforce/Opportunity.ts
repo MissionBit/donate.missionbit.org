@@ -8,7 +8,7 @@ export class Opportunity extends S.Class<Opportunity>("Opportunity")({
   Id: S.String,
   RecordTypeId: S.String, // "SALESFORCE_RECORD_TYPE_ID_DONATION" | "SALESFORCE_RECORD_TYPE_ID_MATCHING_GIFT" | "SALESFORCE_RECORD_TYPE_ID_SPECIAL_EVENT_REVENUE"
   Name: S.String, // "Donation #$donationId"
-  ContactId: Contact.fields["Id"],
+  ContactId: S.NullOr(Contact.fields["Id"]),
   CampaignId: S.NullOr(Campaign.fields["Id"]),
   Amount: S.Number,
   AccountId: Contact.fields["AccountId"],

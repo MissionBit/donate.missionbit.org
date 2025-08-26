@@ -56,7 +56,7 @@ export const Campaign = S.Struct({
 }).annotations({ identifier: "Campaign" });
 
 export function getCampaignsUrl(
-  scope: "benefiting" | "chapters" | "all" | null = "all",
+  scope: "benefiting" | "chapters" | "all" | null,
 ) {
   const prefix = "https://api.givebutter.com/v1/campaigns";
   return [scope ? `${prefix}?scope=${scope}` : prefix, Campaign] as const;

@@ -1,5 +1,5 @@
 import * as S from "@effect/schema/Schema";
-import { Effect } from "effect";
+import { Effect, Layer, ManagedRuntime } from "effect";
 import requireEnv from "src/requireEnv";
 import { getSupabaseClient, SupabaseContext } from "src/getSupabaseClient";
 import { Webhook } from "src/givebutter/webhook";
@@ -15,6 +15,7 @@ import {
   BatchSpanProcessor,
 } from "@opentelemetry/sdk-trace-base";
 import { NodeSdk } from "@effect/opentelemetry";
+import { toSupabaseRow } from "src/toSupabaseRow";
 
 export const dynamic = "force-dynamic";
 export const runtime = "edge";
@@ -32,13 +33,13 @@ function getObjectUrl(hook: S.Schema.Type<typeof Webhook>): string {
   switch (hook.event) {
     case "campaign.created":
     case "campaign.updated":
-      return getCampaignsUrl()[0];
+      return getCampaignsUrl(null)[0];
     case "contact.created":
-      return getContactsUrl()[0];
+      return getContactsUrl(null)[0];
     case "ticket.created":
       return getTicketsUrl()[0];
     case "transaction.succeeded":
-      return getTransactionsUrl()[0];
+      return getTransactionsUrl(null)[0];
   }
 }
 
@@ -71,8 +72,16 @@ export async function POST(req: Request): Promise<Response> {
   const supabase = getSupabaseClient();
   const body = await req.json();
   const table = supabase.from("givebutter_webhook");
+  const runtime = ManagedRuntime.make(
+    Layer.mergeAll(
+      NodeSdkLive,
+      ApiLimiter.Live,
+      HttpClient.layer,
+      SupabaseContext.Live,
+    ),
+  );
   try {
-    const hook = await Effect.runPromise(S.decodeUnknown(Webhook)(body));
+    const hook = await runtime.runPromise(S.decodeUnknown(Webhook)(body));
     const db = await table.insert({
       givebutter_id: hook.id,
       event: hook.event,
@@ -84,6 +93,8 @@ export async function POST(req: Request): Promise<Response> {
       .upsert(row, { count: "exact" });
     const cascades: string[] = [];
     if (hook.event === "transaction.succeeded") {
+      const [planUrl] = getPlansUrl();
+      const [contactUrl] = getContactsUrl(null);
       const txn = await Effect.runPromise(
         S.decodeUnknown(Transaction)(row.data),
       );
@@ -96,18 +107,25 @@ export async function POST(req: Request): Promise<Response> {
           plans.add(sub.plan_id);
         }
       }
-      cascades.push(...plans);
+      for (const id of plans) {
+        cascades.push(`${planUrl}/${id}`);
+      }
+      await runtime.runPromise(
+        Effect.scoped(upsertContact(String(hook.data.contact_id))).pipe(
+          Effect.catchAllCause(Effect.logError),
+          Effect.withSpan("webhook", { attributes: { hook } }),
+        ),
+      );
+      cascades.push(`${contactUrl}/${hook.data.contact_id}`);
       for (const plan_id of plans) {
-        await Effect.runPromise(
-          Effect.scoped(upsertPlan(plan_id)).pipe(
-            Effect.provide(NodeSdkLive),
-            Effect.provide(ApiLimiter.Live),
-            Effect.provide(HttpClient.layer),
-            Effect.provide(SupabaseContext.Live),
-            Effect.catchAllCause(Effect.logError),
-            Effect.withSpan("webhook", { attributes: { hook } }),
-          ),
-        ).catch((err) => console.error(err));
+        await runtime
+          .runPromise(
+            Effect.scoped(upsertPlan(plan_id)).pipe(
+              Effect.catchAllCause(Effect.logError),
+              Effect.withSpan("webhook", { attributes: { hook } }),
+            ),
+          )
+          .catch((err) => console.error(err));
       }
     }
     return Response.json({
@@ -141,7 +159,29 @@ export async function POST(req: Request): Promise<Response> {
   }
 }
 
-function upsertPlan(plan_id: string) {
+export function upsertContact(contact_id: string) {
+  const [prefix, schema] = getContactsUrl(null);
+  return Effect.gen(function* () {
+    const row = yield* giveButterGet(`${prefix}/${contact_id}`, schema);
+    const supabase = yield* SupabaseContext;
+    return yield* Effect.tryPromise({
+      try: async () => {
+        const { error, count } = await supabase
+          .from("givebutter_object")
+          .upsert(toSupabaseRow(prefix)(row), { count: "exact" });
+        if (error) {
+          console.error(`Error with ${prefix}`);
+          throw error;
+        }
+        console.log(`Upserted ${count} rows from ${prefix}/${contact_id}`);
+        return row;
+      },
+      catch: (unknown) => unknown,
+    });
+  }).pipe(Effect.withSpan(`upsertContact`, { attributes: { contact_id } }));
+}
+
+export function upsertPlan(plan_id: string) {
   const [prefix, schema] = getPlansUrl();
   return Effect.gen(function* () {
     const row = yield* giveButterGet(`${prefix}/${plan_id}`, schema);
@@ -150,15 +190,15 @@ function upsertPlan(plan_id: string) {
       try: async () => {
         const { error, count } = await supabase
           .from("givebutter_object")
-          .upsert(row, { count: "exact" });
+          .upsert(toSupabaseRow(prefix)(row), { count: "exact" });
         if (error) {
           console.error(`Error with ${prefix}`);
           throw error;
         }
         console.log(`Upserted ${count} rows from ${prefix}/${plan_id}`);
-        return row.id;
+        return row;
       },
-      catch: (unknown) => new Error(`something went wrong ${unknown}`),
+      catch: (unknown) => unknown,
     });
   }).pipe(Effect.withSpan(`upsertPlan`, { attributes: { plan_id } }));
 }

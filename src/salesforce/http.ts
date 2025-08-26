@@ -19,6 +19,8 @@ export class SalesforceRecordTypes extends Context.Tag(
     readonly Special_Event_Revenue: string;
     readonly General: string;
     readonly Default: string;
+    readonly Organization: string;
+    readonly Household: string;
   }
 >() {
   static Live = Layer.effect(
@@ -37,6 +39,10 @@ export class SalesforceRecordTypes extends Context.Tag(
         ),
         General: yield* Config.string("SALESFORCE_RECORD_TYPE_ID_GENERAL"),
         Default: yield* Config.string("SALESFORCE_RECORD_TYPE_ID_DEFAULT"),
+        Organization: yield* Config.string(
+          "SALESFORCE_RECORD_TYPE_ID_ORGANIZATION",
+        ),
+        Household: yield* Config.string("SALESFORCE_RECORD_TYPE_ID_HOUSEHOLD"),
       };
     }),
   );

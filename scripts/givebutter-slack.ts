@@ -14,10 +14,10 @@ import {
 import slack from "src/slack";
 import { getSupabaseClient, SupabaseContext } from "src/getSupabaseClient";
 import { Campaign } from "src/givebutter/campaign";
-import { getPlansUrl, Plan } from "src/givebutter/plan";
+import { Plan } from "src/givebutter/plan";
 import { Ticket } from "src/givebutter/ticket";
 import { FormatBlocksOptions } from "../src/FormatBlocksOptions";
-import { ApiLimiter, giveButterGet } from "src/givebutter/http";
+import { ApiLimiter } from "src/givebutter/http";
 import { HttpClient } from "@effect/platform";
 import { SalesforceLive } from "src/salesforce/layer";
 import { NodeSdk } from "@effect/opentelemetry";
@@ -25,6 +25,7 @@ import {
   BatchSpanProcessor,
   ConsoleSpanExporter,
 } from "@opentelemetry/sdk-trace-base";
+import { upsertPlan } from "app/api/givebutter-webhook/route";
 
 const NodeSdkLive = NodeSdk.layer(() => ({
   resource: { serviceName: "givebutter-slack" },
@@ -187,28 +188,6 @@ function formatBlocks({
     },
   ] satisfies KnownBlock[];
   return { text: sectionText, blocks };
-}
-
-function upsertPlan(plan_id: string) {
-  const [prefix, schema] = getPlansUrl();
-  return Effect.gen(function* () {
-    const row = yield* giveButterGet(`${prefix}/${plan_id}`, schema);
-    const supabase = yield* SupabaseContext;
-    return yield* Effect.tryPromise({
-      try: async () => {
-        const { error, count } = await supabase
-          .from("givebutter_object")
-          .upsert(row, { count: "exact" });
-        if (error) {
-          console.error(`Error with ${prefix}`);
-          throw error;
-        }
-        console.log(`Upserted ${count} rows from ${prefix}/${plan_id}`);
-        return row;
-      },
-      catch: (unknown) => new Error(`something went wrong ${unknown}`),
-    });
-  }).pipe(Effect.withSpan(`upsertPlan`, { attributes: { plan_id } }));
 }
 
 async function main() {
