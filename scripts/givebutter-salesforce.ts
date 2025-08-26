@@ -863,6 +863,10 @@ const processRow = (originalRow: GivebutterTransactionRow) =>
       yield* Effect.annotateCurrentSpan("ignored", "zero-dollar");
       return;
     }
+    if (contact_data.emails.length === 0 && !contact_data.company_name) {
+      yield* Effect.annotateCurrentSpan("ignored", "no-email");
+      return;
+    }
     const row = GivebutterTransactionRowWithContact.make({
       ...originalRow,
       plan_data,
