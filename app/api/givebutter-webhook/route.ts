@@ -40,6 +40,12 @@ function getObjectUrl(hook: S.Schema.Type<typeof Webhook>): string {
       return getTicketsUrl()[0];
     case "transaction.succeeded":
       return getTransactionsUrl(null)[0];
+    case "plan.canceled":
+    case "plan.created":
+    case "plan.paused":
+    case "plan.resumed":
+    case "plan.updated":
+      return getPlansUrl()[0];
   }
 }
 

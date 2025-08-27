@@ -5,6 +5,7 @@ import { Ticket } from "./ticket";
 import { Transaction } from "./transaction";
 import { Contact } from "./contact";
 import { Option } from "effect";
+import { Plan } from "./plan";
 
 function makeWebhook<
   Event extends string,
@@ -28,6 +29,11 @@ export const TransactionSucceeded = makeWebhook(
   Transaction,
 );
 export const ContactCreated = makeWebhook("contact.created", Contact);
+export const PlanCanceled = makeWebhook("plan.canceled", Plan);
+export const PlanCreated = makeWebhook("plan.created", Plan);
+export const PlanPaused = makeWebhook("plan.paused", Plan);
+export const PlanResumed = makeWebhook("plan.resumed", Plan);
+export const PlanUpdated = makeWebhook("plan.updated", Plan);
 
 export const Webhook = S.Union(
   CampaignCreated,
@@ -35,4 +41,9 @@ export const Webhook = S.Union(
   TicketCreated,
   TransactionSucceeded,
   ContactCreated,
+  PlanCanceled,
+  PlanCreated,
+  PlanPaused,
+  PlanResumed,
+  PlanUpdated,
 );
