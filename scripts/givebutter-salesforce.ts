@@ -41,7 +41,7 @@ import * as EffectInstances from "@effect/typeclass/data/Effect";
 import * as OptionInstances from "@effect/typeclass/data/Option";
 import { dollarFormatterNoGrouping } from "src/dollars";
 import { SFDateFormat } from "src/dates";
-import { upsertContact, upsertPlan } from "app/api/givebutter-webhook/route";
+import { upsertContact, upsertPlan } from "src/webhookUpserts";
 import { ApiLimiter } from "src/givebutter/http";
 
 const { values } = parseArgs({
