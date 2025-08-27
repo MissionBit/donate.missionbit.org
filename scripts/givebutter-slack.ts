@@ -25,7 +25,7 @@ import {
   BatchSpanProcessor,
   ConsoleSpanExporter,
 } from "@opentelemetry/sdk-trace-base";
-import { upsertPlan } from "app/api/givebutter-webhook/route";
+import { upsertPlan } from "src/webhookUpserts";
 
 const NodeSdkLive = NodeSdk.layer(() => ({
   resource: { serviceName: "givebutter-slack" },
