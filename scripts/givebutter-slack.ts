@@ -26,6 +26,7 @@ import {
   ConsoleSpanExporter,
 } from "@opentelemetry/sdk-trace-base";
 import { upsertPlan } from "src/webhookUpserts";
+import { Contact } from "src/givebutter/contact";
 
 const NodeSdkLive = NodeSdk.layer(() => ({
   resource: { serviceName: "givebutter-slack" },
@@ -130,12 +131,21 @@ function formatBlocks({
   campaign,
   plan,
   tickets,
+  contact,
 }: FormatBlocksOptions) {
   const isAnonymous = txn.giving_space?.name === "Anonymous";
   const givingSpaceName = txn.giving_space?.name;
+  const companyName = contact?.company_name;
   const contactName = [txn.first_name, txn.last_name].filter(Boolean).join(" ");
   const txnName =
-    contactName || txn.email || txn.phone || givingSpaceName || "";
+    contactName && companyName
+      ? `${companyName} (${contactName})`
+      : contactName ||
+        companyName ||
+        txn.email ||
+        txn.phone ||
+        givingSpaceName ||
+        "";
   const shortName = txn.first_name || txnName.split(" ")[0];
   const name =
     !isAnonymous && givingSpaceName && givingSpaceName !== txnName
@@ -195,7 +205,7 @@ async function main() {
   const { data, error } = await supabase
     .from("givebutter_transactions_pending_slack")
     .select(
-      "id, created_at, updated_at, data, plan_data, campaign_data, tickets_data",
+      "id, created_at, updated_at, data, plan_data, campaign_data, contact_data, tickets_data",
     );
   if (error) {
     console.error(error);
@@ -214,12 +224,21 @@ async function main() {
         // synchronize plan
         plan = yield* upsertPlan(transaction.plan_id);
       }
+      const contact = yield* row.contact_data
+        ? S.decodeUnknown(Contact)(row.contact_data)
+        : Effect.succeed(null);
       const tickets = yield* Effect.all(
         (row.tickets_data as unknown[]).map((data) =>
           S.decodeUnknown(Ticket)(data),
         ),
       );
-      const info = { transaction, campaign, plan, tickets };
+      const info: FormatBlocksOptions = {
+        transaction,
+        campaign,
+        contact,
+        plan,
+        tickets,
+      };
       if (info.transaction.plan_id && !info.plan) {
         throw new Error(
           `Transaction ${info.transaction.id} references Plan ${info.transaction.plan_id} which has not yet been synchronized`,
