@@ -863,7 +863,16 @@ const processRow = (originalRow: GivebutterTransactionRow) =>
       yield* Effect.annotateCurrentSpan("ignored", "zero-dollar");
       return;
     }
-    if (contact_data.emails.length === 0 && !contact_data.company_name) {
+    const emails = [
+      ...new Set(
+        [transaction.email, ...contact_data.emails.map((r) => r.value)].filter(
+          Predicate.isString,
+        ),
+      ),
+    ];
+    const email = head(emails).pipe(Option.getOrNull);
+
+    if (!email && !contact_data.company_name) {
       yield* Effect.annotateCurrentSpan("ignored", "no-email");
       return;
     }
@@ -876,7 +885,7 @@ const processRow = (originalRow: GivebutterTransactionRow) =>
       `Givebutter_Transaction_ID__c/${transaction.id}`,
     );
     let contactOrAccount: SFContact | SFAccount;
-    if (!transaction.email) {
+    if (!email) {
       const optContact = yield* existingSalesforceContactForGivebutterContact(
         row,
         existing,
