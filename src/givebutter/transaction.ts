@@ -19,31 +19,17 @@ export const LineItemDonation = S.Struct({
   total: S.Number,
 }).annotations({ identifier: "LineItemDonation" });
 
-export const LineItemTicket = S.Struct({
+export const LineItemItem = S.Struct({
   type: S.Literal("item"),
-  subtype: S.Literal("ticket"),
+  subtype: S.Literal("ticket", "product", "shipping"),
   description: S.NullishOr(S.String),
   quantity: S.Number,
   price: S.Number,
   discount: S.Number,
   total: S.Number,
-}).annotations({ identifier: "LineItemTicket" });
+}).annotations({ identifier: "LineItemItem" });
 
-export const LineItemProduct = S.Struct({
-  type: S.Literal("item"),
-  subtype: S.Literal("product"),
-  description: S.NullishOr(S.String),
-  quantity: S.Number,
-  price: S.Number,
-  discount: S.Number,
-  total: S.Number,
-}).annotations({ identifier: "LineItemProduct" });
-
-export const LineItem = S.Union(
-  LineItemDonation,
-  LineItemTicket,
-  LineItemProduct,
-).annotations({
+export const LineItem = S.Union(LineItemDonation, LineItemItem).annotations({
   identifier: "LineItem",
 });
 
