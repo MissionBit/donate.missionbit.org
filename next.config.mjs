@@ -23,7 +23,19 @@ const STRIPE_KEY_POSTFIX =
 
 const nextConfig = {
   redirects() {
-    return netlifyRedirects;
+    return [
+      ...netlifyRedirects,
+      {
+        source: "/",
+        destination: "https://missionbit.org/donate/",
+        permanent: false,
+      },
+      {
+        source: "/(\\d+)",
+        destination: "https://missionbit.org/donate/",
+        permanent: false,
+      },
+    ];
   },
   env: {
     STRIPE_KEY_POSTFIX,
