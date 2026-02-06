@@ -28,11 +28,18 @@ const nextConfig = {
       {
         source: "/",
         destination: "https://missionbit.org/donate/",
+        permanent: true,
+      },
+      {
+        source: "/monthly/:amount(\\d+)",
+        destination:
+          "https://missionbit.org/donate/?amount=:amount&frequency=monthly",
         permanent: false,
       },
       {
-        source: "/(\\d+)",
-        destination: "https://missionbit.org/donate/",
+        source: "/:amount(\\d+)",
+        destination:
+          "https://missionbit.org/donate/?amount=:amount&frequency=once",
         permanent: false,
       },
     ];
