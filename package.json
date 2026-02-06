@@ -20,7 +20,7 @@
     "analyze:browser": "cross-env BUNDLE_ANALYZE=browser next build",
     "prepare": "husky",
     "tsx": "node --import tsx -r dotenv/config",
-    "cron": "npm run tsx scripts/givebutter-slack.ts && npm run tsx scripts/givebutter-salesforce.ts",
+    "cron": "npm run tsx scripts/givebutter-salesforce.ts",
     "cron-cache": "npm run tsx scripts/cache-google.ts",
     "cron-givebutter": "npm run tsx scripts/givebutter.ts"
   },
