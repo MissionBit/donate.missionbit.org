@@ -98,7 +98,7 @@ export const Transaction = S.Struct({
   transacted_at: S.String,
   created_at: S.String,
   giving_space: S.NullishOr(GivingSpace),
-  dedication: S.NullishOr(S.String),
+  dedication: S.NullishOr(S.Unknown),
   transactions: S.Array(SubTransaction),
   custom_fields: S.Array(S.Unknown),
   utm_parameters: S.optional(
