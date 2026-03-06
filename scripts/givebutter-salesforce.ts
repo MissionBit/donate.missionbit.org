@@ -690,6 +690,7 @@ function planStatus(
     ended: "Closed",
     past_due: "Lapsed",
     paused: "Paused",
+    past_due_failed: "Lapsed",
   }[plan.status];
   return { npsp__Status__c, npsp__EndDate__c };
 }
