@@ -180,6 +180,7 @@ const searchForSalesforceContact = (
       "npe01__HomeEmail__c",
       "npe01__AlternateEmail__c",
     ] as const;
+    const phoneCols = ["Phone", "npe01__WorkPhone__c"] as const;
     const phones = phoneCandidates(transaction.phone);
     const clauses = [
       soql`Givebutter_Contact_ID__c = ${givebutterContactId}`,
@@ -188,7 +189,11 @@ const searchForSalesforceContact = (
             (col) => `${col} IN (${emails.map(soqlQuote).join(",")})`,
           )
         : []),
-      ...[...phones].map((phone) => soql`Phone = ${phone}`),
+      ...(phones.size > 0
+        ? phoneCols.map(
+            (col) => `${col} IN (${[...phones].map(soqlQuote).join(",")})`,
+          )
+        : []),
     ];
     // Choose best contact by (in order of preference): Givebutter ID, email, or phone match
     const contactOrder: Order.Order<SFContact> = (a, b) => {
@@ -210,13 +215,11 @@ const searchForSalesforceContact = (
           }
         }
       }
-      const aPhone = !!a.Phone && phones.has(a.Phone);
-      const bPhone = !!b.Phone && phones.has(b.Phone);
-      if (aPhone !== bPhone) {
-        if (aPhone) {
-          return 1;
-        } else if (bPhone) {
-          return -1;
+      if (phones.size > 0) {
+        const aPhone = phoneCols.some((col) => phones.has(a[col] ?? ""));
+        const bPhone = phoneCols.some((col) => phones.has(b[col] ?? ""));
+        if (aPhone !== bPhone) {
+          return aPhone ? 1 : -1;
         }
       }
       // Anything else must be a name match and we don't rank those
