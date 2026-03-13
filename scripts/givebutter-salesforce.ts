@@ -159,7 +159,6 @@ const searchForSalesforceContact = (
       ),
     ];
     const email = head(emails).pipe(Option.getOrNull);
-    const parsedName = transactionName(transaction);
     const phone = transaction.phone;
     const emailCols = [
       "Email",
@@ -174,16 +173,9 @@ const searchForSalesforceContact = (
             (col) => `${col} IN (${emails.map(soqlQuote).join(",")})`,
           )
         : []),
-      ...(parsedName && parsedName.last && parsedName.first
-        ? [
-            soql`(FirstName LIKE ${parsedName.first + "%"} AND LastName = ${
-              parsedName.last
-            })`,
-          ]
-        : []),
       ...(phone ? [soql`Phone = ${phone}`] : []),
     ];
-    // Choose best contact by (in order of preference): Givebutter ID, email, phone, or name match
+    // Choose best contact by (in order of preference): Givebutter ID, email, or phone match
     const contactOrder: Order.Order<SFContact> = (a, b) => {
       if (a.Givebutter_Contact_ID__c !== b.Givebutter_Contact_ID__c) {
         if (a.Givebutter_Contact_ID__c === givebutterContactId) {
