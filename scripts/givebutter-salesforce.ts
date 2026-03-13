@@ -130,6 +130,21 @@ const searchForSalesforceAccount = (
     return result;
   }).pipe(Effect.withSpan("searchForSalesforceAccount"));
 
+function phoneCandidates(phone: string | null | undefined): Set<string> {
+  const candidates = new Set<string>();
+  if (phone) {
+    candidates.add(phone);
+    const normalized = phone.replace(/[^0-9]/g, "");
+    candidates.add(normalized);
+    if (normalized.startsWith("1")) {
+      candidates.add(normalized.slice(1));
+    } else {
+      candidates.add(`1${normalized}`);
+    }
+  }
+  return candidates;
+}
+
 const searchForSalesforceContact = (
   client: SObjectClient["Type"],
   row: GivebutterTransactionRow,
@@ -159,13 +174,13 @@ const searchForSalesforceContact = (
       ),
     ];
     const email = head(emails).pipe(Option.getOrNull);
-    const phone = transaction.phone;
     const emailCols = [
       "Email",
       "npe01__WorkEmail__c",
       "npe01__HomeEmail__c",
       "npe01__AlternateEmail__c",
     ] as const;
+    const phones = phoneCandidates(transaction.phone);
     const clauses = [
       soql`Givebutter_Contact_ID__c = ${givebutterContactId}`,
       ...(emails.length > 0
@@ -173,7 +188,7 @@ const searchForSalesforceContact = (
             (col) => `${col} IN (${emails.map(soqlQuote).join(",")})`,
           )
         : []),
-      ...(phone ? [soql`Phone = ${phone}`] : []),
+      ...[...phones].map((phone) => soql`Phone = ${phone}`),
     ];
     // Choose best contact by (in order of preference): Givebutter ID, email, or phone match
     const contactOrder: Order.Order<SFContact> = (a, b) => {
@@ -195,10 +210,12 @@ const searchForSalesforceContact = (
           }
         }
       }
-      if (phone && a.Phone !== b.Phone) {
-        if (a.Phone === phone) {
+      const aPhone = !!a.Phone && phones.has(a.Phone);
+      const bPhone = !!b.Phone && phones.has(b.Phone);
+      if (aPhone !== bPhone) {
+        if (aPhone) {
           return 1;
-        } else if (b.Phone === phone) {
+        } else if (bPhone) {
           return -1;
         }
       }
