@@ -19,7 +19,7 @@ import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { Campaign } from "src/givebutter/campaign";
 import { Plan } from "src/givebutter/plan";
 import { Ticket } from "src/givebutter/ticket";
-import { Transaction } from "src/givebutter/transaction";
+import { getTransactionsUrl, Transaction } from "src/givebutter/transaction";
 import * as S from "@effect/schema/Schema";
 import { parseArgs } from "node:util";
 import { SalesforceLive } from "src/salesforce/layer";
@@ -861,6 +861,26 @@ const campaignRecordTypeName = Effect.fn("campaignRecordTypeName")(function* (
     : "Donation";
 });
 
+const recordSalesforceTransaction = Effect.fn("recordSalesforceTransaction")(
+  function* (row: GivebutterTransactionRow, metadata: unknown) {
+    const id = row.id;
+    const supabase = yield* SupabaseContext;
+    return yield* Effect.tryPromise({
+      try: async () => {
+        const { error, count } = await supabase
+          .from("givebutter_salesforce")
+          .upsert({ id, metadata }, { count: "exact" });
+        if (error) {
+          console.error(`Error with ${id}`);
+          throw error;
+        }
+        console.log(`Upserted ${count} givebutter_salesforce rows from ${id}`);
+      },
+      catch: (unknown) => unknown,
+    });
+  },
+);
+
 const processRow = (originalRow: GivebutterTransactionRow) =>
   Effect.gen(function* () {
     const client = yield* SObjectClient;
@@ -874,6 +894,10 @@ const processRow = (originalRow: GivebutterTransactionRow) =>
     }
     if (transaction.amount <= 0) {
       yield* Effect.annotateCurrentSpan("ignored", "zero-dollar");
+      yield* recordSalesforceTransaction(originalRow, {
+        type: "ignored",
+        reason: "zero-dollar",
+      });
       return;
     }
     const emails = [
@@ -887,6 +911,10 @@ const processRow = (originalRow: GivebutterTransactionRow) =>
 
     if (!email && !contact_data.company_name) {
       yield* Effect.annotateCurrentSpan("ignored", "no-email");
+      yield* recordSalesforceTransaction(originalRow, {
+        type: "ignored",
+        reason: "no-email",
+      });
       return;
     }
     const row = GivebutterTransactionRowWithContact.make({
@@ -1032,6 +1060,15 @@ const processRow = (originalRow: GivebutterTransactionRow) =>
         Effect.annotateCurrentSpan("RecurringDonationId", v.Id),
       ),
     );
+    const attributes = yield* Effect.currentSpan.pipe(
+      Effect.option,
+      Effect.map(Option.map((span) => Object.fromEntries(span.attributes))),
+      Effect.map(Option.getOrNull),
+    );
+    yield* recordSalesforceTransaction(originalRow, {
+      ...attributes,
+      type: "created",
+    });
   }).pipe(
     Effect.withSpan("processRow", {
       attributes: {
